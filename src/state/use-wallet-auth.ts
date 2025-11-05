@@ -15,7 +15,7 @@ interface AuthState {
 }
 
 export function useWalletAuth() {
-  const { publicKey, signMessage, connected } = useWallet();
+  const { publicKey, signMessage, connected, disconnect } = useWallet();
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
     isLoading: true,
@@ -177,9 +177,8 @@ export function useWalletAuth() {
       token: null,
     });
 
-    // Optionally disconnect wallet
-    // disconnect();
-  }, [clearToken, getStoredAuth]);
+    disconnect();
+  }, [clearToken, getStoredAuth, disconnect]);
 
   /**
    * Synchronize wallet connection with auth state
