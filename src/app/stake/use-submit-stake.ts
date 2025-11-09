@@ -30,7 +30,7 @@ export function useSubmitStake() {
 
         const lockupTimestamp =
           Math.floor(new Date().getTime() / 1000) + days * 24 * 60 * 60;
-        const lockup = new Lockup(lockupTimestamp, 0, publicKey);
+        // const lockup = new Lockup(lockupTimestamp, 0, publicKey);
         const stakeAmount = sol * LAMPORTS_PER_SOL;
 
         tx.add(
@@ -43,7 +43,7 @@ export function useSubmitStake() {
               staker: publicKey,
               withdrawer: publicKey,
             },
-            lockup,
+            // lockup,
           }),
         );
 

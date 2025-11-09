@@ -1,13 +1,12 @@
 "use client";
 
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
   ConnectionProvider,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
-import { clusterApiUrl } from "@solana/web3.js";
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
+import { env } from "@/env";
 
 const DynamicModalProvider = dynamic(() =>
   import("@solana/wallet-adapter-react-ui").then(
@@ -16,10 +15,8 @@ const DynamicModalProvider = dynamic(() =>
 );
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const network = WalletAdapterNetwork.Devnet;
-
   // You can also provide a custom RPC endpoint.
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  const endpoint = useMemo(() => env.NEXT_PUBLIC_RPC_URL, []);
 
   return (
     <ConnectionProvider endpoint={endpoint}>

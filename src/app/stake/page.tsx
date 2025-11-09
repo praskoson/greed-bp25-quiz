@@ -3,19 +3,26 @@
 import { useWalletAuth } from "@/state/use-wallet-auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSubmitStake } from "./use-submit-stake";
 
 const MIN_STAKE_DURATION = 60; // days
+const TOKEN_STORAGE_KEY = "greed_academy_auth_token";
 
 export default function StakePage() {
   const router = useRouter();
   const { isAuthenticated, isLoading, walletAddress, signOut } = useWalletAuth();
+  const { sendStakeTransaction, isConfirming } = useSubmitStake();
   const [stakeAmount, setStakeAmount] = useState("");
   const [stakeDuration, setStakeDuration] = useState("");
   const [errors, setErrors] = useState<{
     amount?: string;
     duration?: string;
+    submit?: string;
   }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -87,29 +94,100 @@ export default function StakePage() {
     }
 
     setIsSubmitting(true);
+    setErrors({});
 
     try {
-      // TODO: Implement stake submission
-      // This will call the /api/stake endpoint
-      console.log("Submitting stake:", {
-        amount: parseFloat(stakeAmount),
-        duration: parseInt(stakeDuration),
-        wallet: walletAddress,
+      // Step 1: Send stake transaction on Solana
+      const txResult = await sendStakeTransaction(
+        parseFloat(stakeAmount),
+        parseInt(stakeDuration),
+      );
+
+      if (txResult.status === "error") {
+        throw new Error(txResult.message || "Transaction failed");
+      }
+
+      const txSignature = txResult.signature!;
+
+      // Step 2: Submit to backend
+      const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+      const response = await fetch("/api/stake", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          amount: parseFloat(stakeAmount),
+          duration: parseInt(stakeDuration),
+          txSignature,
+        }),
       });
 
-      // Placeholder for now
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to submit stake");
+      }
 
-      // TODO: Navigate to quiz page after stake is confirmed
-      // router.push(`/quiz/${sessionId}`);
-    } catch (error) {
+      const data = await response.json();
+      setSessionId(data.sessionId);
+      setIsVerifying(true);
+
+      // Start polling for confirmation
+      pollStakeStatus(data.sessionId, token!);
+    } catch (error: any) {
       console.error("Stake submission error:", error);
       setErrors({
-        amount: "Failed to submit stake. Please try again.",
+        submit: error.message || "Failed to submit stake. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Poll for stake confirmation
+  const pollStakeStatus = async (sessionId: string, token: string) => {
+    const maxAttempts = 30; // 30 seconds max
+    let attempts = 0;
+
+    const poll = async () => {
+      try {
+        const response = await fetch(`/api/stake/status/${sessionId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+
+          if (data.stakeConfirmed) {
+            setIsConfirmed(true);
+            setIsVerifying(false);
+            return;
+          }
+        }
+
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 1000); // Poll every second
+        } else {
+          setIsVerifying(false);
+          setErrors({
+            submit:
+              "Verification is taking longer than expected. Please check back later.",
+          });
+        }
+      } catch (error) {
+        console.error("Polling error:", error);
+        setIsVerifying(false);
+        setErrors({
+          submit: "Failed to verify stake. Please try again.",
+        });
+      }
+    };
+
+    poll();
   };
 
   // Show loading state while checking auth
@@ -124,6 +202,92 @@ export default function StakePage() {
   // Don't render if not authenticated (will redirect)
   if (!isAuthenticated) {
     return null;
+  }
+
+  // Show success state
+  if (isConfirmed && sessionId) {
+    return (
+      <div className="flex min-h-screen items-start justify-center bg-zinc-50 px-4 pt-8 dark:bg-black sm:items-center sm:pt-0">
+        <main className="w-full max-w-md">
+          <div className="rounded-lg bg-white p-8 shadow-sm dark:bg-zinc-900">
+            {/* Success Icon */}
+            <div className="mb-6 flex justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                <svg
+                  className="h-8 w-8 text-green-600 dark:text-green-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Success Message */}
+            <h2 className="mb-2 text-center text-2xl font-bold text-zinc-900 dark:text-white">
+              Stake Confirmed!
+            </h2>
+            <p className="mb-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
+              Your stake has been verified. You can now start the quiz.
+            </p>
+
+            {/* Start Quiz Button */}
+            <button
+              onClick={() => router.push(`/quiz/${sessionId}`)}
+              className="w-full rounded-lg bg-blue-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700"
+            >
+              Start Quiz
+            </button>
+
+            {/* Sign Out Link */}
+            <button
+              type="button"
+              onClick={signOut}
+              className="mt-4 w-full text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+            >
+              Sign Out
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Show verifying state
+  if (isVerifying) {
+    return (
+      <div className="flex min-h-screen items-start justify-center bg-zinc-50 px-4 pt-8 dark:bg-black sm:items-center sm:pt-0">
+        <main className="w-full max-w-md">
+          <div className="rounded-lg bg-white p-8 shadow-sm dark:bg-zinc-900">
+            <div className="mb-6 flex justify-center">
+              <div className="h-16 w-16 animate-spin rounded-full border-4 border-zinc-200 border-t-blue-600 dark:border-zinc-700 dark:border-t-blue-500"></div>
+            </div>
+
+            <h2 className="mb-2 text-center text-2xl font-bold text-zinc-900 dark:text-white">
+              Verifying Stake...
+            </h2>
+            <p className="mb-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
+              Please wait while we confirm your transaction on the blockchain.
+              This usually takes a few seconds.
+            </p>
+
+            {errors.submit && (
+              <div className="rounded-lg bg-red-50 p-4 dark:bg-red-900/30">
+                <p className="text-sm text-red-800 dark:text-red-400">
+                  {errors.submit}
+                </p>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -211,13 +375,29 @@ export default function StakePage() {
             </ul>
           </div>
 
+          {/* Submit Error */}
+          {errors.submit && (
+            <div className="rounded-lg bg-red-50 p-4 dark:bg-red-900/30">
+              <p className="text-sm text-red-800 dark:text-red-400">
+                {errors.submit}
+              </p>
+            </div>
+          )}
+
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={isSubmitting || !!errors.amount || !!errors.duration}
+            disabled={
+              isSubmitting ||
+              isConfirming ||
+              !!errors.amount ||
+              !!errors.duration
+            }
             className="w-full rounded-lg bg-blue-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-zinc-300 dark:disabled:bg-zinc-700"
           >
-            {isSubmitting ? "Processing..." : "Stake & Start Quiz"}
+            {isSubmitting || isConfirming
+              ? "Processing Transaction..."
+              : "Stake & Start Quiz"}
           </button>
 
           {/* Sign Out Button */}
