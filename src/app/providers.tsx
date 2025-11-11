@@ -7,6 +7,7 @@ import {
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
 import { env } from "@/env";
+import { WalletAuthProvider } from "@/state/use-wallet-auth";
 
 const DynamicModalProvider = dynamic(() =>
   import("@solana/wallet-adapter-react-ui").then(
@@ -21,7 +22,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={[]} autoConnect>
-        <DynamicModalProvider>{children}</DynamicModalProvider>
+        <DynamicModalProvider>
+          <WalletAuthProvider>{children}</WalletAuthProvider>
+        </DynamicModalProvider>
       </WalletProvider>
     </ConnectionProvider>
   );

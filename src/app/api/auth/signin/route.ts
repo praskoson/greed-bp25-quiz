@@ -3,9 +3,8 @@ import { authService } from "@/lib/auth/auth.service";
 import { withMiddleware } from "@/lib/middleware/withMiddleware";
 import { rateLimiters } from "@/lib/redis";
 import { logError } from "@/lib/logger";
-// import * as Sentry from '@sentry/nextjs';
 
-const handler = async (request: NextRequest, context: any) => {
+const handler = async (request: NextRequest) => {
   const body = await request.json();
   const { walletAddress, signature, message, timestamp } = body;
 
@@ -17,9 +16,6 @@ const handler = async (request: NextRequest, context: any) => {
     );
   }
 
-  // Add wallet address to Sentry context
-  // Sentry.setUser({ id: walletAddress });
-
   try {
     const result = await authService.authenticate(
       walletAddress,
@@ -28,20 +24,36 @@ const handler = async (request: NextRequest, context: any) => {
       timestamp,
     );
 
-    return NextResponse.json(result);
+    const response = NextResponse.json({
+      success: true,
+      walletAddress: result.walletAddress,
+      expiresIn: result.expiresIn,
+    });
+
+    // Set HttpOnly cookie with JWT (secure, can't be accessed by JS)
+    response.cookies.set("auth_token", result.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: result.expiresIn,
+      path: "/",
+    });
+
+    // Set regular cookie with wallet address (can be read by JS for validation)
+    response.cookies.set("auth_wallet", result.walletAddress, {
+      httpOnly: false, // Client can read this
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: result.expiresIn,
+      path: "/",
+    });
+
+    return response;
   } catch (error: any) {
     logError(error, "auth-signin", {
       walletAddress,
-      requestId: context.requestId,
+      // requestId: context.requestId,
     });
-
-    // Capture in Sentry with additional context
-    // Sentry.captureException(error, {
-    //   tags: {
-    //     operation: 'signin',
-    //     walletAddress,
-    //   },
-    // });
 
     return NextResponse.json(
       { error: error.message || "Authentication failed" },

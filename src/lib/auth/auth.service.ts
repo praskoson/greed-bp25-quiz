@@ -56,7 +56,7 @@ export class AuthService {
     signature: string,
     message: string,
     timestamp: number,
-  ): Promise<{ token: string; expiresIn: number }> {
+  ): Promise<{ token: string; walletAddress: string; expiresIn: number }> {
     // Verify timestamp is recent (5 minutes)
     const now = Date.now();
     const MESSAGE_VALIDITY_MS = 5 * 60 * 1000;
@@ -131,6 +131,7 @@ export class AuthService {
 
     return {
       token,
+      walletAddress,
       expiresIn: JWT_EXPIRY_HOURS * 60 * 60, // in seconds
     };
   }

@@ -4,8 +4,7 @@ import { withMiddleware } from "@/lib/middleware/withMiddleware";
 import { rateLimiters } from "@/lib/redis";
 
 const handler = async (request: NextRequest) => {
-  const body = await request.json();
-  const { token } = body;
+  const token = request.cookies.get("auth_token")?.value;
 
   if (token) {
     const payload = await authService.validateToken(token);
@@ -14,7 +13,13 @@ const handler = async (request: NextRequest) => {
     }
   }
 
-  return NextResponse.json({ success: true });
+  const response = NextResponse.json({ success: true });
+
+  // Clear both cookies
+  response.cookies.delete("auth_token");
+  response.cookies.delete("auth_wallet");
+
+  return response;
 };
 
 export const POST = withMiddleware(handler, {

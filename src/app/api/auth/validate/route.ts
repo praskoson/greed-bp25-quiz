@@ -4,11 +4,11 @@ import { withMiddleware } from "@/lib/middleware/withMiddleware";
 import { rateLimiters } from "@/lib/redis";
 
 const handler = async (request: NextRequest) => {
-  const body = await request.json();
-  const { token, walletAddress } = body;
+  const token = request.cookies.get("auth_token")?.value;
+  const storedWallet = request.cookies.get("auth_wallet")?.value;
 
   if (!token) {
-    return NextResponse.json({ error: "No token provided" }, { status: 400 });
+    return NextResponse.json({ error: "No token provided" }, { status: 401 });
   }
 
   const payload = await authService.validateToken(token);
@@ -20,13 +20,21 @@ const handler = async (request: NextRequest) => {
     );
   }
 
-  // Wallet address mismatch
-  if (walletAddress && payload.walletAddress !== walletAddress) {
+  // Check if wallet matches
+  if (storedWallet && payload.walletAddress !== storedWallet) {
+    // Wallet mismatch - invalidate session
     await authService.invalidateSession(payload.sessionId);
-    return NextResponse.json(
+
+    const response = NextResponse.json(
       { error: "Wallet address mismatch" },
       { status: 401 },
     );
+
+    // Clear cookies
+    response.cookies.delete("auth_token");
+    response.cookies.delete("auth_wallet");
+
+    return response;
   }
 
   return NextResponse.json({

@@ -27,7 +27,10 @@ export default function Home() {
             BP25 Quiz Challenge
           </p>
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Stake SOL, Answer Questions, Win Big
+            Stake, Learn, Win
+          </p>
+          <p>
+            {String(isLoading)} + {String(isAuthenticated)}
           </p>
         </div>
 

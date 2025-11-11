@@ -10,6 +10,11 @@ import {
 } from "@solana/web3.js";
 import { useCallback, useState } from "react";
 
+type SendStakeTransactionReturnType = Promise<
+  | { status: "success"; signature: string }
+  | { status: "error"; message: string }
+>;
+
 export function useSubmitStake() {
   const { connection } = useConnection();
 
@@ -17,8 +22,8 @@ export function useSubmitStake() {
   const [isConfirming, setIsConfirming] = useState(false);
 
   const sendStakeTransaction = useCallback(
-    async (sol: number, days: number) => {
-      if (!sendTransaction || !publicKey) return;
+    async (sol: number, days: number): SendStakeTransactionReturnType => {
+      if (!sendTransaction || !publicKey) throw Error("Wallet not connected");
 
       try {
         const { context, value } = await retryWithBackoff(() =>

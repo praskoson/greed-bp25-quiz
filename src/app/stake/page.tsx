@@ -3,26 +3,16 @@
 import { useWalletAuth } from "@/state/use-wallet-auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useSubmitStake } from "./use-submit-stake";
-
-const MIN_STAKE_DURATION = 60; // days
-const TOKEN_STORAGE_KEY = "greed_academy_auth_token";
+import { StakeForm } from "./_components/stake-form";
 
 export default function StakePage() {
   const router = useRouter();
-  const { isAuthenticated, isLoading, walletAddress, signOut } = useWalletAuth();
-  const { sendStakeTransaction, isConfirming } = useSubmitStake();
-  const [stakeAmount, setStakeAmount] = useState("");
-  const [stakeDuration, setStakeDuration] = useState("");
-  const [errors, setErrors] = useState<{
-    amount?: string;
-    duration?: string;
-    submit?: string;
-  }>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { isAuthenticated, isLoading, walletAddress, signOut } =
+    useWalletAuth();
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [submitError, setSubmitError] = useState<string | undefined>();
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -31,163 +21,20 @@ export default function StakePage() {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  const validateAmount = (value: string): string | undefined => {
-    if (!value) {
-      return "Stake amount is required";
-    }
-    const num = parseFloat(value);
-    if (isNaN(num)) {
-      return "Invalid amount";
-    }
-    if (num <= 0) {
-      return "Amount must be greater than 0";
-    }
-    if (num > 1000000) {
-      return "Amount is too large";
-    }
-    return undefined;
+  const handleSuccess = (newSessionId: string) => {
+    setSessionId(newSessionId);
+    setIsConfirmed(true);
+    setIsVerifying(false);
   };
 
-  const validateDuration = (value: string): string | undefined => {
-    if (!value) {
-      return "Stake duration is required";
-    }
-    const num = parseInt(value);
-    if (isNaN(num)) {
-      return "Invalid duration";
-    }
-    if (num < MIN_STAKE_DURATION) {
-      return `Duration must be at least ${MIN_STAKE_DURATION} days`;
-    }
-    if (num > 365) {
-      return "Duration cannot exceed 365 days";
-    }
-    return undefined;
+  const handleVerifying = () => {
+    setIsVerifying(true);
+    setSubmitError(undefined);
   };
 
-  const handleAmountChange = (value: string) => {
-    setStakeAmount(value);
-    const error = validateAmount(value);
-    setErrors((prev) => ({ ...prev, amount: error }));
-  };
-
-  const handleDurationChange = (value: string) => {
-    setStakeDuration(value);
-    const error = validateDuration(value);
-    setErrors((prev) => ({ ...prev, duration: error }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validate all fields
-    const amountError = validateAmount(stakeAmount);
-    const durationError = validateDuration(stakeDuration);
-
-    setErrors({
-      amount: amountError,
-      duration: durationError,
-    });
-
-    if (amountError || durationError) {
-      return;
-    }
-
-    setIsSubmitting(true);
-    setErrors({});
-
-    try {
-      // Step 1: Send stake transaction on Solana
-      const txResult = await sendStakeTransaction(
-        parseFloat(stakeAmount),
-        parseInt(stakeDuration),
-      );
-
-      if (txResult.status === "error") {
-        throw new Error(txResult.message || "Transaction failed");
-      }
-
-      const txSignature = txResult.signature!;
-
-      // Step 2: Submit to backend
-      const token = localStorage.getItem(TOKEN_STORAGE_KEY);
-      const response = await fetch("/api/stake", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          amount: parseFloat(stakeAmount),
-          duration: parseInt(stakeDuration),
-          txSignature,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to submit stake");
-      }
-
-      const data = await response.json();
-      setSessionId(data.sessionId);
-      setIsVerifying(true);
-
-      // Start polling for confirmation
-      pollStakeStatus(data.sessionId, token!);
-    } catch (error: any) {
-      console.error("Stake submission error:", error);
-      setErrors({
-        submit: error.message || "Failed to submit stake. Please try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Poll for stake confirmation
-  const pollStakeStatus = async (sessionId: string, token: string) => {
-    const maxAttempts = 30; // 30 seconds max
-    let attempts = 0;
-
-    const poll = async () => {
-      try {
-        const response = await fetch(`/api/stake/status/${sessionId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-
-          if (data.stakeConfirmed) {
-            setIsConfirmed(true);
-            setIsVerifying(false);
-            return;
-          }
-        }
-
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(poll, 1000); // Poll every second
-        } else {
-          setIsVerifying(false);
-          setErrors({
-            submit:
-              "Verification is taking longer than expected. Please check back later.",
-          });
-        }
-      } catch (error) {
-        console.error("Polling error:", error);
-        setIsVerifying(false);
-        setErrors({
-          submit: "Failed to verify stake. Please try again.",
-        });
-      }
-    };
-
-    poll();
+  const handleError = (error: string) => {
+    setSubmitError(error);
+    setIsVerifying(false);
   };
 
   // Show loading state while checking auth
@@ -277,10 +124,10 @@ export default function StakePage() {
               This usually takes a few seconds.
             </p>
 
-            {errors.submit && (
+            {submitError && (
               <div className="rounded-lg bg-red-50 p-4 dark:bg-red-900/30">
                 <p className="text-sm text-red-800 dark:text-red-400">
-                  {errors.submit}
+                  {submitError}
                 </p>
               </div>
             )}
@@ -308,107 +155,29 @@ export default function StakePage() {
         </div>
 
         {/* Form */}
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-6 rounded-lg bg-white p-6 shadow-sm dark:bg-zinc-900"
-        >
-          {/* Stake Amount */}
-          <div>
-            <label
-              htmlFor="stakeAmount"
-              className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-            >
-              Stake Amount (SOL)
-            </label>
-            <input
-              type="number"
-              id="stakeAmount"
-              value={stakeAmount}
-              onChange={(e) => handleAmountChange(e.target.value)}
-              step="0.001"
-              placeholder="0.00"
-              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg text-zinc-900 placeholder-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
-              disabled={isSubmitting}
-            />
-            {errors.amount && (
-              <p className="mt-1 text-sm text-red-500">{errors.amount}</p>
-            )}
-          </div>
+        <StakeForm
+          onSuccess={handleSuccess}
+          onVerifying={handleVerifying}
+          onError={handleError}
+        />
 
-          {/* Stake Duration */}
-          <div>
-            <label
-              htmlFor="stakeDuration"
-              className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-            >
-              Lock Duration (Days)
-            </label>
-            <input
-              type="number"
-              id="stakeDuration"
-              value={stakeDuration}
-              onChange={(e) => handleDurationChange(e.target.value)}
-              min={MIN_STAKE_DURATION}
-              max={365}
-              placeholder={`Minimum ${MIN_STAKE_DURATION} days`}
-              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg text-zinc-900 placeholder-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white dark:placeholder-zinc-500"
-              disabled={isSubmitting}
-            />
-            {errors.duration && (
-              <p className="mt-1 text-sm text-red-500">{errors.duration}</p>
-            )}
-            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-              Minimum: {MIN_STAKE_DURATION} days
+        {/* Submit Error */}
+        {submitError && (
+          <div className="mt-4 rounded-lg bg-red-50 p-4 dark:bg-red-900/30">
+            <p className="text-sm text-red-800 dark:text-red-400">
+              {submitError}
             </p>
           </div>
+        )}
 
-          {/* Info Box */}
-          <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-950/30">
-            <h3 className="mb-1 text-sm font-medium text-blue-900 dark:text-blue-300">
-              How it works
-            </h3>
-            <ul className="space-y-1 text-xs text-blue-800 dark:text-blue-400">
-              <li>• Your stake is locked for the selected duration</li>
-              <li>• Answer 5 quiz questions (1 per category)</li>
-              <li>• Score = Stake Amount × Correct Answers</li>
-              <li>• Compete on the leaderboard!</li>
-            </ul>
-          </div>
-
-          {/* Submit Error */}
-          {errors.submit && (
-            <div className="rounded-lg bg-red-50 p-4 dark:bg-red-900/30">
-              <p className="text-sm text-red-800 dark:text-red-400">
-                {errors.submit}
-              </p>
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={
-              isSubmitting ||
-              isConfirming ||
-              !!errors.amount ||
-              !!errors.duration
-            }
-            className="w-full rounded-lg bg-blue-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-zinc-300 dark:disabled:bg-zinc-700"
-          >
-            {isSubmitting || isConfirming
-              ? "Processing Transaction..."
-              : "Stake & Start Quiz"}
-          </button>
-
-          {/* Sign Out Button */}
-          <button
-            type="button"
-            onClick={signOut}
-            className="w-full text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
-          >
-            ← Sign Out
-          </button>
-        </form>
+        {/* Sign Out Button */}
+        <button
+          type="button"
+          onClick={signOut}
+          className="mt-4 w-full text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          ← Sign Out
+        </button>
       </main>
     </div>
   );
