@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authService } from "@/lib/auth/auth.service";
 import { StakeService } from "@/lib/stake/stake.service";
-import { withMiddleware } from "@/lib/middleware/withMiddleware";
-import { rateLimiters } from "@/lib/redis";
 import { logError } from "@/lib/logger";
 
 const handler = async (request: NextRequest, context: any) => {
@@ -71,8 +69,10 @@ const handler = async (request: NextRequest, context: any) => {
   }
 };
 
-// Export with middleware
-export const POST = withMiddleware(handler, {
-  rateLimit: rateLimiters.general,
-  logRequest: true,
-});
+export const POST = handler;
+
+// // Export with middleware
+// export const POST = withMiddleware(handler, {
+//   rateLimit: rateLimiters.general,
+//   logRequest: true,
+// });

@@ -10,7 +10,6 @@ export default function StakePage() {
   const { isAuthenticated, isLoading, walletAddress, signOut } =
     useWalletAuth();
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [isVerifying, setIsVerifying] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [submitError, setSubmitError] = useState<string | undefined>();
 
@@ -24,17 +23,11 @@ export default function StakePage() {
   const handleSuccess = (newSessionId: string) => {
     setSessionId(newSessionId);
     setIsConfirmed(true);
-    setIsVerifying(false);
-  };
-
-  const handleVerifying = () => {
-    setIsVerifying(true);
-    setSubmitError(undefined);
+    router.push("/polling");
   };
 
   const handleError = (error: string) => {
     setSubmitError(error);
-    setIsVerifying(false);
   };
 
   // Show loading state while checking auth
@@ -106,37 +99,6 @@ export default function StakePage() {
     );
   }
 
-  // Show verifying state
-  if (isVerifying) {
-    return (
-      <div className="flex min-h-screen items-start justify-center bg-zinc-50 px-4 pt-8 dark:bg-black sm:items-center sm:pt-0">
-        <main className="w-full max-w-md">
-          <div className="rounded-lg bg-white p-8 shadow-sm dark:bg-zinc-900">
-            <div className="mb-6 flex justify-center">
-              <div className="h-16 w-16 animate-spin rounded-full border-4 border-zinc-200 border-t-blue-600 dark:border-zinc-700 dark:border-t-blue-500"></div>
-            </div>
-
-            <h2 className="mb-2 text-center text-2xl font-bold text-zinc-900 dark:text-white">
-              Verifying Stake...
-            </h2>
-            <p className="mb-6 text-center text-sm text-zinc-600 dark:text-zinc-400">
-              Please wait while we confirm your transaction on the blockchain.
-              This usually takes a few seconds.
-            </p>
-
-            {submitError && (
-              <div className="rounded-lg bg-red-50 p-4 dark:bg-red-900/30">
-                <p className="text-sm text-red-800 dark:text-red-400">
-                  {submitError}
-                </p>
-              </div>
-            )}
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="flex min-h-screen items-start justify-center bg-zinc-50 px-4 pt-8 dark:bg-black sm:items-center sm:pt-0">
       <main className="w-full max-w-md">
@@ -155,11 +117,7 @@ export default function StakePage() {
         </div>
 
         {/* Form */}
-        <StakeForm
-          onSuccess={handleSuccess}
-          onVerifying={handleVerifying}
-          onError={handleError}
-        />
+        <StakeForm onSuccess={handleSuccess} onError={handleError} />
 
         {/* Submit Error */}
         {submitError && (

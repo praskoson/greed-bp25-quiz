@@ -26,6 +26,9 @@ export function useSubmitStake() {
       if (!sendTransaction || !publicKey) throw Error("Wallet not connected");
 
       try {
+        if (!isConfirming) {
+          setIsConfirming(true);
+        }
         const { context, value } = await retryWithBackoff(() =>
           connection.getLatestBlockhashAndContext("confirmed"),
         );
@@ -62,9 +65,6 @@ export function useSubmitStake() {
           preflightCommitment: "confirmed",
           skipPreflight: true,
         });
-        if (!isConfirming) {
-          setIsConfirming(true);
-        }
 
         const result = await connection.confirmTransaction(
           {

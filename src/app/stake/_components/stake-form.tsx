@@ -20,9 +20,7 @@ import { Input } from "@/components/ui/input";
 import { InputGroup } from "@/components/ui/input-group";
 import { Button } from "@/components/ui/button";
 import { useSubmitStake } from "../use-submit-stake";
-import { useState } from "react";
-
-const TOKEN_STORAGE_KEY = "greed_academy_auth_token";
+import { useSubmitStakeMutation } from "@/state/mutations/use-submit-stake-signature";
 
 const formSchema = z.object({
   amount: z.number().min(0.1, "Minimum stake amount is 0.1 SOL"),
@@ -34,13 +32,12 @@ const formSchema = z.object({
 
 interface StakeFormProps {
   onSuccess: (sessionId: string) => void;
-  onVerifying: () => void;
   onError: (error: string) => void;
 }
 
-export function StakeForm({ onSuccess, onVerifying, onError }: StakeFormProps) {
+export function StakeForm({ onSuccess, onError }: StakeFormProps) {
   const { sendStakeTransaction, isConfirming } = useSubmitStake();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutateAsync } = useSubmitStakeMutation();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,50 +46,48 @@ export function StakeForm({ onSuccess, onVerifying, onError }: StakeFormProps) {
   });
 
   // Poll for stake confirmation
-  const pollStakeStatus = async (sessionId: string, token: string) => {
-    const maxAttempts = 30; // 30 seconds max
-    let attempts = 0;
+  // const pollStakeStatus = async (sessionId: string, token: string) => {
+  //   const maxAttempts = 30; // 30 seconds max
+  //   let attempts = 0;
 
-    const poll = async () => {
-      try {
-        const response = await fetch(
-          `/api/stake/status/route?sessionId=${sessionId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
+  //   const poll = async () => {
+  //     try {
+  //       const response = await fetch(
+  //         `/api/stake/status/route?sessionId=${sessionId}`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         },
+  //       );
 
-        if (response.ok) {
-          const data = await response.json();
+  //       if (response.ok) {
+  //         const data = await response.json();
 
-          if (data.stakeConfirmed) {
-            onSuccess(sessionId);
-            return;
-          }
-        }
+  //         if (data.stakeConfirmed) {
+  //           onSuccess(sessionId);
+  //           return;
+  //         }
+  //       }
 
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(poll, 1000); // Poll every second
-        } else {
-          onError(
-            "Verification is taking longer than expected. Please check back later.",
-          );
-        }
-      } catch (error) {
-        console.error("Polling error:", error);
-        onError("Failed to verify stake. Please try again.");
-      }
-    };
+  //       attempts++;
+  //       if (attempts < maxAttempts) {
+  //         setTimeout(poll, 1000); // Poll every second
+  //       } else {
+  //         onError(
+  //           "Verification is taking longer than expected. Please check back later.",
+  //         );
+  //       }
+  //     } catch (error) {
+  //       console.error("Polling error:", error);
+  //       onError("Failed to verify stake. Please try again.");
+  //     }
+  //   };
 
-    poll();
-  };
+  //   poll();
+  // };
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
-
     try {
       // Step 1: Send stake transaction on Solana
       const txResult = await sendStakeTransaction(data.amount, data.duration);
@@ -101,38 +96,21 @@ export function StakeForm({ onSuccess, onVerifying, onError }: StakeFormProps) {
         throw new Error(txResult.message || "Transaction failed");
       }
 
-      const txSignature = txResult.signature!;
-
-      // Step 2: Submit to backend
-      const token = localStorage.getItem(TOKEN_STORAGE_KEY);
-      const response = await fetch("/api/stake", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
+      await mutateAsync(
+        {
           amount: data.amount,
           duration: data.duration,
-          txSignature,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to submit stake");
-      }
-
-      const responseData = await response.json();
-      onVerifying();
-
-      // Start polling for confirmation
-      pollStakeStatus(responseData.sessionId, token!);
+          txSignature: txResult.signature,
+        },
+        {
+          onSuccess: (data) => {
+            onSuccess(data.sessionId);
+          },
+        },
+      );
     } catch (error: any) {
       console.error("Stake submission error:", error);
       onError(error.message || "Failed to submit stake. Please try again.");
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
@@ -160,7 +138,7 @@ export function StakeForm({ onSuccess, onVerifying, onError }: StakeFormProps) {
                     autoComplete="off"
                     type="number"
                     step="0.001"
-                    disabled={isSubmitting || isConfirming}
+                    disabled={isConfirming}
                     onChange={(e) => field.onChange(parseFloat(e.target.value))}
                   />
                   {fieldState.invalid && (
@@ -184,7 +162,7 @@ export function StakeForm({ onSuccess, onVerifying, onError }: StakeFormProps) {
                       placeholder="Minimum 60 days"
                       aria-invalid={fieldState.invalid}
                       type="number"
-                      disabled={isSubmitting || isConfirming}
+                      disabled={isConfirming}
                       onChange={(e) => field.onChange(parseInt(e.target.value))}
                     />
                   </InputGroup>
@@ -212,14 +190,8 @@ export function StakeForm({ onSuccess, onVerifying, onError }: StakeFormProps) {
       </CardContent>
       <CardFooter>
         <Field orientation="horizontal">
-          <Button
-            type="submit"
-            form="form-stake"
-            disabled={isSubmitting || isConfirming}
-          >
-            {isSubmitting || isConfirming
-              ? "Processing Transaction..."
-              : "Stake & Start Quiz"}
+          <Button type="submit" form="form-stake" disabled={isConfirming}>
+            {isConfirming ? "Processing Transaction..." : "Stake & Start Quiz"}
           </Button>
         </Field>
       </CardFooter>
