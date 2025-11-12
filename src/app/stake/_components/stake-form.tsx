@@ -1,8 +1,7 @@
 "use client";
 
 import * as z from "zod";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -38,17 +37,67 @@ interface StakeFormProps {
 export function StakeForm({ onSuccess, onError }: StakeFormProps) {
   const { sendStakeTransaction, isConfirming } = useSubmitStake();
   const { mutateAsync } = useSubmitStakeMutation();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      duration: 60,
-    },
-  });
 
-  async function onSubmit(data: z.infer<typeof formSchema>) {
+  const [amountInput, setAmountInput] = useState("");
+  const [duration, setDuration] = useState(60);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showErrors, setShowErrors] = useState(false);
+
+  const validateAndGetData = () => {
+    const amount =
+      amountInput === "" ? NaN : parseFloat(amountInput.replace(/,/g, "."));
+    const formData = { amount, duration };
+
+    const result = formSchema.safeParse(formData);
+    const newErrors: Record<string, string> = {};
+
+    if (!result.success) {
+      result.error.issues.forEach((err) => {
+        newErrors[err.path[0] as string] = err.message;
+      });
+    }
+
+    return { formData, errors: newErrors, isValid: result.success };
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, ".");
+    setAmountInput(value);
+
+    if (showErrors) {
+      const { errors: newErrors } = validateAndGetData();
+      setErrors(newErrors);
+    }
+  };
+
+  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value) || 0;
+    setDuration(value);
+
+    if (showErrors) {
+      const { errors: newErrors } = validateAndGetData();
+      setErrors(newErrors);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowErrors(true);
+
+    const {
+      formData,
+      errors: validationErrors,
+      isValid,
+    } = validateAndGetData();
+    setErrors(validationErrors);
+
+    if (!isValid) return;
+
     try {
-      // Step 1: Send stake transaction on Solana
-      const txResult = await sendStakeTransaction(data.amount, data.duration);
+      const txResult = await sendStakeTransaction(
+        formData.amount,
+        formData.duration,
+      );
 
       if (txResult.status === "error") {
         throw new Error(txResult.message || "Transaction failed");
@@ -56,8 +105,8 @@ export function StakeForm({ onSuccess, onError }: StakeFormProps) {
 
       await mutateAsync(
         {
-          amount: data.amount,
-          duration: data.duration,
+          amount: formData.amount,
+          duration: formData.duration,
           signature: txResult.signature,
         },
         {
@@ -70,7 +119,7 @@ export function StakeForm({ onSuccess, onError }: StakeFormProps) {
       console.error("Stake submission error:", error);
       onError(error.message || "Failed to submit stake. Please try again.");
     }
-  }
+  };
 
   return (
     <Card className="w-full sm:max-w-md">
@@ -78,66 +127,49 @@ export function StakeForm({ onSuccess, onError }: StakeFormProps) {
         <CardTitle>Stake SOL to participate</CardTitle>
       </CardHeader>
       <CardContent>
-        <form id="form-stake" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="form-stake" onSubmit={handleSubmit}>
           <FieldGroup>
-            <Controller
-              name="amount"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-stake-amount">
-                    Stake Amount (SOL)
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id="form-stake-amount"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="1.00"
-                    autoComplete="off"
-                    type="text"
-                    inputMode="decimal"
-                    step="0.001"
-                    disabled={isConfirming}
-                    onChange={(e) => {
-                      const delocalized = e.target.value.replace(",", ".");
-                      field.onChange(parseFloat(delocalized));
-                    }}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
+            <Field data-invalid={!!errors.amount}>
+              <FieldLabel htmlFor="form-stake-amount">
+                Stake Amount (SOL)
+              </FieldLabel>
+              <Input
+                id="form-stake-amount"
+                aria-invalid={!!errors.amount}
+                placeholder="1.00"
+                autoComplete="off"
+                type="text"
+                inputMode="decimal"
+                disabled={isConfirming}
+                value={amountInput}
+                onChange={handleAmountChange}
+              />
+              {errors.amount && (
+                <FieldError errors={[{ message: errors.amount }]} />
               )}
-            />
-            <Controller
-              name="duration"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-stake-duration">
-                    Lock Duration (Days)
-                  </FieldLabel>
-                  <InputGroup>
-                    <Input
-                      {...field}
-                      id="form-stake-duration"
-                      placeholder="Minimum 60 days"
-                      aria-invalid={fieldState.invalid}
-                      type="number"
-                      disabled={isConfirming}
-                      onChange={(e) => field.onChange(parseInt(e.target.value))}
-                    />
-                  </InputGroup>
+            </Field>
 
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
+            <Field data-invalid={!!errors.duration}>
+              <FieldLabel htmlFor="form-stake-duration">
+                Lock Duration (Days)
+              </FieldLabel>
+              <InputGroup>
+                <Input
+                  id="form-stake-duration"
+                  placeholder="Minimum 60 days"
+                  aria-invalid={!!errors.duration}
+                  type="number"
+                  disabled={isConfirming}
+                  value={duration === 0 ? "" : duration}
+                  onChange={handleDurationChange}
+                />
+              </InputGroup>
+              {errors.duration && (
+                <FieldError errors={[{ message: errors.duration }]} />
               )}
-            />
+            </Field>
           </FieldGroup>
 
-          {/* Info Box */}
           <div className="mt-4 rounded-lg bg-blue-50 p-4 dark:bg-blue-950/30">
             <h3 className="mb-1 text-sm font-medium text-blue-900 dark:text-blue-300">
               How it works
