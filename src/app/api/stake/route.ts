@@ -1,78 +1,123 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authService } from "@/lib/auth/auth.service";
+import * as z from "zod";
+import { AuthContext, withAuth } from "@/lib/middleware/with-auth";
+import { base58ZodValidator } from "@/lib/solana";
 import { StakeService } from "@/lib/stake/stake.service";
-import { logError } from "@/lib/logger";
+import { authService } from "@/lib/auth/auth.service";
 
-const handler = async (request: NextRequest, context: any) => {
+const stakeSchema = z.object({
+  amount: z.number().min(0.1, "Minimum stake amount is 0.1 SOL"),
+  duration: z
+    .number()
+    .min(60, "Minimum stake duration is 60 days")
+    .max(365, "Duration cannot exceed 365 days"),
+  signature: base58ZodValidator,
+});
+
+async function getAuthContext(request: NextRequest) {
+  const token = request.cookies.get("auth_token")?.value;
+
+  if (!token) {
+    throw Error("Unauthorized");
+  }
+
+  const payload = await authService.validateToken(token);
+
+  if (!payload) {
+    throw Error("Invalid or expired token");
+  }
+
+  // Add user info to request context
+  const context: AuthContext = {
+    authSessionId: payload.sessionId,
+    user: {
+      userId: payload.userId,
+      walletAddress: payload.walletAddress,
+    },
+  };
+  return context;
+}
+
+export async function POST(request: NextRequest) {
+  // This handler does basic checking
+  //   - verify that the schema for stake params is valid
+  //   - verify that the signature is valid 64 bytes
+  //   - verify that the user is not already processing or confirmed
+  //   - verify that the signature is not already in use
   try {
+    const context = await getAuthContext(request);
     const body = await request.json();
-    const { amount, duration, txSignature } = body;
+    const data = stakeSchema.parse(body);
 
-    // Validate required fields
-    if (!amount || !duration || !txSignature) {
+    // const isSessionAlreadyCreated =
+    //   await StakeService.isQuizSessionForUserAlreadyCreated(
+    //     context.user.walletAddress,
+    //   );
+
+    // if (isSessionAlreadyCreated) {
+    //   return NextResponse.json(
+    //     {
+    //       success: false,
+    //       message: "User already has an active quiz session",
+    //     },
+    //     { status: 400 },
+    //   );
+    // }
+
+    const isSignatureAlreadyInUse = await StakeService.isSignatureAlreadyInUse(
+      data.signature,
+    );
+    if (isSignatureAlreadyInUse) {
       return NextResponse.json(
-        { error: "Missing required fields: amount, duration, txSignature" },
+        {
+          success: false,
+          message: "Signature already in use",
+        },
         { status: 400 },
       );
     }
 
-    // Get auth token from header
-    const authHeader = request.headers.get("authorization");
-    const token = authHeader?.replace("Bearer ", "");
+    await StakeService.createQuizSession({
+      walletAddress: context.user.walletAddress,
+      userId: context.user.userId,
+      authSessionId: context.authSessionId,
+      signature: data.signature,
+      amount: data.amount,
+      duration: data.duration,
+    });
 
-    if (!token) {
-      return NextResponse.json(
-        { error: "Unauthorized - No token provided" },
-        { status: 401 },
-      );
-    }
+    // Publish verification job to QStash
+    // await publishStakeVerificationJob({
+    //   walletAddress: context.user.walletAddress,
+    //   authSessionId: context.authSessionId,
 
-    // Validate token
-    const authPayload = await authService.validateToken(token);
-    if (!authPayload) {
-      return NextResponse.json(
-        { error: "Unauthorized - Invalid token" },
-        { status: 401 },
-      );
-    }
-
-    // Create stake session
-    const session = await StakeService.createStakeSession(
-      authPayload.userId,
-      parseFloat(amount),
-      parseInt(duration),
-      txSignature,
-    );
+    //   signature: data.signature,
+    //   amount: data.amount,
+    //   duration: data.duration,
+    // });
 
     return NextResponse.json({
       success: true,
-      sessionId: session.id,
-      stakeConfirmed: session.stakeConfirmed,
     });
   } catch (error: any) {
-    logError(error, "stake-create", {
-      requestId: context.requestId,
-    });
-
-    // Handle duplicate transaction signature
-    if (error.message?.includes("unique") || error.code === "23505") {
+    if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "This transaction signature has already been used" },
+        { success: false, message: "Validation error" },
         { status: 400 },
       );
     }
+    // logError(error, "stake-create", {
+    //   requestId: context.requestId,
+    // });
 
     return NextResponse.json(
-      { error: error.message || "Failed to create stake session" },
+      {
+        success: false,
+        message: error.message || "Failed to create stake session",
+      },
       { status: 500 },
     );
   }
-};
+}
 
-export const POST = handler;
-
-// // Export with middleware
-// export const POST = withMiddleware(handler, {
-//   rateLimit: rateLimiters.general,
-//   logRequest: true,
-// });
+// export const POST = withAuth(handler);

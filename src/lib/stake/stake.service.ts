@@ -1,7 +1,15 @@
 import { db } from "@/lib/db";
-import { gameSessions } from "@/lib/db/schema";
+import { userQuizSessions, users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { sleep } from "@/lib/utils";
+
+type CreateQuizSessionPayload = {
+  walletAddress: string;
+  userId: string;
+  authSessionId: string;
+  signature: string;
+  amount: number;
+  duration: number;
+};
 
 export class StakeService {
   /**
@@ -33,109 +41,69 @@ export class StakeService {
     return { valid: true };
   }
 
-  /**
-   * Create a new game session with stake information
-   */
-  static async createStakeSession(
-    userId: string,
-    amount: number,
-    duration: number,
-    txSignature: string,
-  ) {
+  static async isQuizSessionForUserAlreadyCreated(
+    walletAddress: string,
+  ): Promise<boolean> {
+    const [quizSession] = await db
+      .select()
+      .from(userQuizSessions)
+      .innerJoin(users, eq(userQuizSessions.userId, users.id))
+      .where(eq(users.walletAddress, walletAddress));
+
+    return !!quizSession;
+  }
+
+  static async isSignatureAlreadyInUse(
+    stakeSignature: string,
+  ): Promise<boolean> {
+    const [quizSession] = await db
+      .select()
+      .from(userQuizSessions)
+      .where(eq(userQuizSessions.stakeSignature, stakeSignature))
+      .limit(1);
+
+    return !!quizSession;
+  }
+
+  static async createQuizSession(payload: CreateQuizSessionPayload) {
     // Validate params
-    const validation = this.validateStakeParams(amount, duration);
+    const validation = this.validateStakeParams(
+      payload.amount,
+      payload.duration,
+    );
     if (!validation.valid) {
       throw new Error(validation.error);
     }
 
+    const stakeDurationSeconds = payload.duration * 24 * 60 * 60;
+    const stakeAmountLamports = payload.amount * 1e9;
+
     // Create game session
     const [session] = await db
-      .insert(gameSessions)
+      .insert(userQuizSessions)
       .values({
-        userId,
-        stakeAmount: amount.toString(),
-        stakeDuration: duration,
-        stakeTxSignature: txSignature,
-        stakeConfirmed: false,
+        userId: payload.userId,
+        stakeDurationSeconds,
+        stakeAmountLamports,
+        stakeSignature: payload.signature,
+        stakeVerification: "processing",
       })
       .returning();
-
-    // Start background verification (don't await)
-    this.verifyStakeTransactionAsync(session.id, txSignature, amount);
 
     return session;
   }
 
-  /**
-   * Background verification of stake transaction
-   * TODO: Replace with actual Solana transaction verification
-   */
-  static async verifyStakeTransactionAsync(
-    sessionId: string,
-    txSignature: string,
-    expectedAmount: number,
-  ) {
-    // Run verification in background
-    setTimeout(async () => {
-      try {
-        // PLACEHOLDER: Sleep for 1 second to simulate verification
-        await sleep(1000);
-
-        // TODO: Implement actual Solana transaction verification
-        // - Verify transaction exists on-chain
-        // - Verify sender matches user's wallet
-        // - Verify amount matches expected stake amount
-        // - Verify transaction succeeded
-
-        // Mark as confirmed
-        await db
-          .update(gameSessions)
-          .set({
-            stakeConfirmed: true,
-            stakeConfirmedAt: new Date(),
-          })
-          .where(eq(gameSessions.id, sessionId));
-
-        console.log(`Stake verified for session ${sessionId}`);
-      } catch (error) {
-        console.error(
-          `Failed to verify stake for session ${sessionId}:`,
-          error,
-        );
-        // In production, you might want to mark the session as failed
-        // or retry verification
-      }
-    }, 0);
-  }
-
-  /**
-   * Get stake confirmation status for a session
-   */
-  static async getStakeStatus(sessionId: string) {
+  static async getQuizSessionStatus(
+    userId: string,
+  ): Promise<"failed" | "processing" | "success" | null> {
     const [session] = await db
-      .select()
-      .from(gameSessions)
-      .where(eq(gameSessions.id, sessionId))
+      .select({ stakeVerification: userQuizSessions.stakeVerification })
+      .from(userQuizSessions)
+      .where(eq(userQuizSessions.userId, userId))
       .limit(1);
 
-    if (!session) {
-      return null;
-    }
+    if (!session) return null;
 
-    return {
-      sessionId: session.id,
-      stakeConfirmed: session.stakeConfirmed,
-      stakeConfirmedAt: session.stakeConfirmedAt,
-      stakeAmount: session.stakeAmount,
-      stakeDuration: session.stakeDuration,
-    };
-  }
-
-  /**
-   * Check if stake is confirmed for a session
-   */
-  static async isStakeConfirmed(sessionId: string): Promise<boolean> {
-    const status = await this.getStakeStatus(sessionId);
-    return status?.stakeConfirmed ?? false;
+    return session.stakeVerification;
   }
 }

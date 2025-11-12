@@ -29,9 +29,6 @@ export default function Home() {
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
             Stake, Learn, Win
           </p>
-          <p>
-            {String(isLoading)} + {String(isAuthenticated)}
-          </p>
         </div>
 
         <div className="w-full rounded-lg bg-white p-6 shadow-sm dark:bg-zinc-900">

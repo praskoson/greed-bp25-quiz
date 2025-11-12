@@ -15,22 +15,23 @@ export function useSubmitStakeMutation() {
     mutationFn: async ({
       amount,
       duration,
-      txSignature,
+      signature,
     }: {
       amount: number;
       duration: number;
-      txSignature: string;
+      signature: string;
     }) => {
       const response = await fetch("/api/stake", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount, duration, txSignature }),
+        body: JSON.stringify({ amount, duration, signature }),
         credentials: "include",
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to submit stake");
+        console.log(response);
+        // const error = await response.json();
+        throw new Error("Failed to submit stake");
       }
 
       return response.json() as Promise<SubmitStakeResponse>;

@@ -45,48 +45,6 @@ export function StakeForm({ onSuccess, onError }: StakeFormProps) {
     },
   });
 
-  // Poll for stake confirmation
-  // const pollStakeStatus = async (sessionId: string, token: string) => {
-  //   const maxAttempts = 30; // 30 seconds max
-  //   let attempts = 0;
-
-  //   const poll = async () => {
-  //     try {
-  //       const response = await fetch(
-  //         `/api/stake/status/route?sessionId=${sessionId}`,
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         },
-  //       );
-
-  //       if (response.ok) {
-  //         const data = await response.json();
-
-  //         if (data.stakeConfirmed) {
-  //           onSuccess(sessionId);
-  //           return;
-  //         }
-  //       }
-
-  //       attempts++;
-  //       if (attempts < maxAttempts) {
-  //         setTimeout(poll, 1000); // Poll every second
-  //       } else {
-  //         onError(
-  //           "Verification is taking longer than expected. Please check back later.",
-  //         );
-  //       }
-  //     } catch (error) {
-  //       console.error("Polling error:", error);
-  //       onError("Failed to verify stake. Please try again.");
-  //     }
-  //   };
-
-  //   poll();
-  // };
-
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
       // Step 1: Send stake transaction on Solana
@@ -100,7 +58,7 @@ export function StakeForm({ onSuccess, onError }: StakeFormProps) {
         {
           amount: data.amount,
           duration: data.duration,
-          txSignature: txResult.signature,
+          signature: txResult.signature,
         },
         {
           onSuccess: (data) => {
@@ -136,10 +94,14 @@ export function StakeForm({ onSuccess, onError }: StakeFormProps) {
                     aria-invalid={fieldState.invalid}
                     placeholder="1.00"
                     autoComplete="off"
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     step="0.001"
                     disabled={isConfirming}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    onChange={(e) => {
+                      const delocalized = e.target.value.replace(",", ".");
+                      field.onChange(parseFloat(delocalized));
+                    }}
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />

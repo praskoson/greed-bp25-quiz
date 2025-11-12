@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authService } from "@/lib/auth/auth.service";
 
+export interface AuthContext {
+  authSessionId: string;
+  user: {
+    userId: string;
+    walletAddress: string;
+  };
+}
+
 export async function withAuth(
-  handler: (request: NextRequest, context: any) => Promise<NextResponse>,
+  handler: (
+    request: NextRequest,
+    context: AuthContext,
+  ) => Promise<NextResponse>,
 ) {
   return async (request: NextRequest) => {
     const token = request.cookies.get("auth_token")?.value;
@@ -21,7 +32,8 @@ export async function withAuth(
     }
 
     // Add user info to request context
-    const context = {
+    const context: AuthContext = {
+      authSessionId: payload.sessionId,
       user: {
         userId: payload.userId,
         walletAddress: payload.walletAddress,

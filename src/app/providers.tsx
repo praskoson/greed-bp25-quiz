@@ -8,6 +8,8 @@ import dynamic from "next/dynamic";
 import { useMemo } from "react";
 import { env } from "@/env";
 import { WalletAuthProvider } from "@/state/use-wallet-auth";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { getQueryClient } from "./get-query-client";
 
 const DynamicModalProvider = dynamic(() =>
   import("@solana/wallet-adapter-react-ui").then(
@@ -16,14 +18,18 @@ const DynamicModalProvider = dynamic(() =>
 );
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  // You can also provide a custom RPC endpoint.
+  const queryClient = getQueryClient();
   const endpoint = useMemo(() => env.NEXT_PUBLIC_RPC_URL, []);
 
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={[]} autoConnect>
         <DynamicModalProvider>
-          <WalletAuthProvider>{children}</WalletAuthProvider>
+          <WalletAuthProvider>
+            <QueryClientProvider client={queryClient}>
+              {children}
+            </QueryClientProvider>
+          </WalletAuthProvider>
         </DynamicModalProvider>
       </WalletProvider>
     </ConnectionProvider>

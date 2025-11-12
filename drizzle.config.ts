@@ -11,4 +11,5 @@ export default defineConfig({
   schema: "./src/lib/db/schema.ts",
   casing: "snake_case",
   out: "./migrations",
+  schemaFilter: ["public", "bp25", "drizzle"],
 });

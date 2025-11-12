@@ -23,7 +23,7 @@ export default function StakePage() {
   const handleSuccess = (newSessionId: string) => {
     setSessionId(newSessionId);
     setIsConfirmed(true);
-    router.push("/polling");
+    router.push("/stake/polling");
   };
 
   const handleError = (error: string) => {

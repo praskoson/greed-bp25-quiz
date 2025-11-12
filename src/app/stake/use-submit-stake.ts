@@ -4,7 +4,6 @@ import {
   ComputeBudgetProgram,
   Keypair,
   LAMPORTS_PER_SOL,
-  Lockup,
   StakeProgram,
   Transaction,
 } from "@solana/web3.js";
@@ -36,9 +35,9 @@ export function useSubmitStake() {
         const tx = new Transaction();
         const signer = Keypair.generate();
 
-        const lockupTimestamp =
-          Math.floor(new Date().getTime() / 1000) + days * 24 * 60 * 60;
-        // const lockup = new Lockup(lockupTimestamp, 0, publicKey);
+        // const lockupTimestamp =
+        //   Math.floor(new Date().getTime() / 1000) + days * 24 * 60 * 60;
+        // // const lockup = new Lockup(lockupTimestamp, 0, publicKey);
         const stakeAmount = sol * LAMPORTS_PER_SOL;
 
         tx.add(

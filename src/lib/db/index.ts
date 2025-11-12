@@ -4,7 +4,6 @@ import * as schema from "./schema";
 import { env } from "@/env";
 
 const sql = neon(env.DATABASE_URL, {
-  fullResults: true,
   fetchOptions: {
     cache: "no-store",
   },

@@ -1,30 +1,25 @@
 import "server-only";
 import { Client } from "@upstash/qstash";
 import { env } from "@/env";
+import { VerifyStakeJobPayload } from "./types";
 
 const qstashClient = new Client({
-  // Add your token to a .env file
   token: env.QSTASH_TOKEN,
 });
 
-export async function startStakeVerificationJob({
-  signature,
-  wallet,
-  amountSol,
-  durationDays,
-}: {
-  signature: string;
-  wallet: string;
-  amountSol: number;
-  durationDays: number;
-}) {
+/**
+ * Publish a stake verification job to QStash
+ * The job will verify the transaction on-chain and update the database
+ */
+export async function publishStakeVerificationJob(
+  payload: VerifyStakeJobPayload,
+) {
+  const verifyUrl = `${env.QSTASH_URL || process.env.VERCEL_URL || "http://localhost:3000"}/api/stake/verify-job`;
+
   await qstashClient.publishJSON({
-    url: "https://firstqstashmessage.requestcatcher.com/test",
-    body: {
-      signature,
-      wallet,
-      amountSol,
-      durationDays,
-    },
+    url: verifyUrl,
+    body: payload,
   });
 }
+
+export { qstashClient };
