@@ -3,7 +3,6 @@ import * as z from "zod";
 import { AuthContext, withAuth } from "@/lib/middleware/with-auth";
 import { base58ZodValidator } from "@/lib/solana";
 import { StakeService } from "@/lib/stake/stake.service";
-import { authService } from "@/lib/auth/auth.service";
 
 const stakeSchema = z.object({
   amount: z.number().min(0.1, "Minimum stake amount is 0.1 SOL"),
@@ -14,55 +13,30 @@ const stakeSchema = z.object({
   signature: base58ZodValidator,
 });
 
-async function getAuthContext(request: NextRequest) {
-  const token = request.cookies.get("auth_token")?.value;
-
-  if (!token) {
-    throw Error("Unauthorized");
-  }
-
-  const payload = await authService.validateToken(token);
-
-  if (!payload) {
-    throw Error("Invalid or expired token");
-  }
-
-  // Add user info to request context
-  const context: AuthContext = {
-    authSessionId: payload.sessionId,
-    user: {
-      userId: payload.userId,
-      walletAddress: payload.walletAddress,
-    },
-  };
-  return context;
-}
-
-export async function POST(request: NextRequest) {
+async function handler(request: NextRequest, context: AuthContext) {
   // This handler does basic checking
   //   - verify that the schema for stake params is valid
   //   - verify that the signature is valid 64 bytes
   //   - verify that the user is not already processing or confirmed
   //   - verify that the signature is not already in use
   try {
-    const context = await getAuthContext(request);
     const body = await request.json();
     const data = stakeSchema.parse(body);
 
-    // const isSessionAlreadyCreated =
-    //   await StakeService.isQuizSessionForUserAlreadyCreated(
-    //     context.user.walletAddress,
-    //   );
+    const isSessionAlreadyCreated =
+      await StakeService.isQuizSessionForUserAlreadyCreated(
+        context.user.walletAddress,
+      );
 
-    // if (isSessionAlreadyCreated) {
-    //   return NextResponse.json(
-    //     {
-    //       success: false,
-    //       message: "User already has an active quiz session",
-    //     },
-    //     { status: 400 },
-    //   );
-    // }
+    if (isSessionAlreadyCreated) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "User already has an active quiz session",
+        },
+        { status: 400 },
+      );
+    }
 
     const isSignatureAlreadyInUse = await StakeService.isSignatureAlreadyInUse(
       data.signature,
@@ -120,4 +94,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// export const POST = withAuth(handler);
+export const POST = withAuth(handler);

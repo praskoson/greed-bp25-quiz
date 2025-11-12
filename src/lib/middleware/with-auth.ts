@@ -9,7 +9,7 @@ export interface AuthContext {
   };
 }
 
-export async function withAuth(
+export function withAuth(
   handler: (
     request: NextRequest,
     context: AuthContext,
