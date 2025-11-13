@@ -3,6 +3,8 @@ import * as z from "zod";
 import { AuthContext, withAuth } from "@/lib/middleware/with-auth";
 import { base58ZodValidator } from "@/lib/solana";
 import { StakeService } from "@/lib/stake/stake.service";
+import { publishStakeVerificationJob } from "@/lib/qstash/client";
+import { logError } from "@/lib/logger";
 
 const stakeSchema = z.object({
   amount: z.number().min(0.1, "Minimum stake amount is 0.1 SOL"),
@@ -51,7 +53,7 @@ async function handler(request: NextRequest, context: AuthContext) {
       );
     }
 
-    await StakeService.createQuizSession({
+    const session = await StakeService.createQuizSession({
       walletAddress: context.user.walletAddress,
       userId: context.user.userId,
       authSessionId: context.authSessionId,
@@ -61,14 +63,13 @@ async function handler(request: NextRequest, context: AuthContext) {
     });
 
     // Publish verification job to QStash
-    // await publishStakeVerificationJob({
-    //   walletAddress: context.user.walletAddress,
-    //   authSessionId: context.authSessionId,
-
-    //   signature: data.signature,
-    //   amount: data.amount,
-    //   duration: data.duration,
-    // });
+    await publishStakeVerificationJob({
+      walletAddress: context.user.walletAddress,
+      sessionId: session.id,
+      signature: data.signature,
+      amount: data.amount,
+      duration: data.duration,
+    });
 
     return NextResponse.json({
       success: true,
@@ -80,9 +81,7 @@ async function handler(request: NextRequest, context: AuthContext) {
         { status: 400 },
       );
     }
-    // logError(error, "stake-create", {
-    //   requestId: context.requestId,
-    // });
+    logError(error, "stake-create");
 
     return NextResponse.json(
       {

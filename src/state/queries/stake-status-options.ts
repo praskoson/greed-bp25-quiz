@@ -3,6 +3,11 @@ import { queryOptions } from "@tanstack/react-query";
 export const RQKEY_ROOT = "stake_session";
 export const RQKEY = (walletAddress: string) => [RQKEY_ROOT, walletAddress];
 
+export type StatusResponseType = {
+  success: true;
+  status: "failed" | "processing" | "success" | null;
+};
+
 export const stakeStatusOptions = (walletAddress?: string) =>
   queryOptions({
     enabled: !!walletAddress,
@@ -16,6 +21,6 @@ export const stakeStatusOptions = (walletAddress?: string) =>
         throw Error(JSON.stringify(await response.json()));
       }
 
-      return response.json();
+      return response.json() as Promise<StatusResponseType>;
     },
   });

@@ -1,8 +1,10 @@
 "use client";
 
 import { AuthButton } from "@/components/auth-button";
+import { StatusResponseType } from "@/state/queries/stake-status-options";
 import { useWalletAuth } from "@/state/use-wallet-auth";
 import { useRouter } from "next/navigation";
+import { get } from "node:https";
 import { useEffect } from "react";
 
 export default function Home() {
@@ -11,9 +13,29 @@ export default function Home() {
 
   // Redirect authenticated users to stake page
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      router.push("/stake");
-    }
+    if (isLoading) return;
+    if (!isAuthenticated) return;
+
+    const getStatus = async () => {
+      const response = await fetch("/api/stake/status", {
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const body = (await response.json()) as StatusResponseType;
+        if (body.status === "processing") {
+          router.push("/stake/polling");
+        } else if (body.status === "failed") {
+          router.push("/stake/failed");
+        } else if (body.status === "success") {
+          router.push("/stake/quiz");
+        } else {
+          router.push("/stake");
+        }
+      }
+    };
+
+    getStatus();
   }, [isAuthenticated, isLoading, router]);
 
   return (

@@ -19,6 +19,13 @@ export async function publishStakeVerificationJob(
   await qstashClient.publishJSON({
     url: verifyUrl,
     body: payload,
+    retries: 3,
+    delay: 1000,
+    retryDelay: "pow(2, retried) * 1000",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+    },
   });
 }
 

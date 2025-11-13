@@ -4,6 +4,7 @@ import {
   ComputeBudgetProgram,
   Keypair,
   LAMPORTS_PER_SOL,
+  PublicKey,
   StakeProgram,
   Transaction,
 } from "@solana/web3.js";
@@ -13,6 +14,10 @@ type SendStakeTransactionReturnType = Promise<
   | { status: "success"; signature: string }
   | { status: "error"; message: string }
 >;
+
+const VALIDATOR_PUBKEY = new PublicKey(
+  "GREEDkpTvpKzcGvBu9qd36yk6BfjTWPShB67gLWuixMv",
+);
 
 export function useSubmitStake() {
   const { connection } = useConnection();
@@ -51,6 +56,11 @@ export function useSubmitStake() {
               withdrawer: publicKey,
             },
             // lockup,
+          }),
+          StakeProgram.delegate({
+            stakePubkey: signer.publicKey,
+            authorizedPubkey: publicKey,
+            votePubkey: VALIDATOR_PUBKEY,
           }),
         );
 
