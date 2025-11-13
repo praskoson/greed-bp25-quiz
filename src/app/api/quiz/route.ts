@@ -14,7 +14,7 @@ const getQuestionsHandler = async (
       userId: context.user.userId,
     });
 
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json(data);
   } catch (error: any) {
     logError(error, "quiz-get");
 

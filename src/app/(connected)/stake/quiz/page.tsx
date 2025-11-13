@@ -1,16 +1,17 @@
 "use client";
 
-import { quizQuestionsOptions } from "@/state/queries/quiz-questions";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { useState } from "react";
-import { submitAnswersMutationOption } from "@/state/mutations/use-submit-quiz-answers";
+import { Card } from "@/components/ui/card";
 import type {
   QuizQuestion,
   SubmitQuizAnswersResult,
 } from "@/lib/stake/quiz.schemas";
+import { submitAnswersMutationOption } from "@/state/mutations/use-submit-quiz-answers";
+import { quizQuestionsOptions } from "@/state/queries/quiz-questions";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { useState } from "react";
 
 export default function QuizPage() {
   const { publicKey } = useWallet();
@@ -27,7 +28,17 @@ export default function QuizPage() {
     return <QuizErrorState error={error} />;
   }
 
-  return <QuizContent questions={data} />;
+  if (data.state === "finished") {
+    return (
+      <QuizAlreadyCompletedState
+        score={data.score}
+        totalQuestions={data.totalQuestions}
+        completedAt={data.completedAt}
+      />
+    );
+  }
+
+  return <QuizContent questions={data.questions} />;
 }
 
 function QuizPendingState() {
@@ -63,7 +74,7 @@ function QuizPendingState() {
                   className="w-full p-4 rounded-lg border-2 border-border"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="mt-0.5 w-5 h-5 rounded-full border-2 border-muted-foreground/30 flex-shrink-0" />
+                    <div className="mt-0.5 w-5 h-5 rounded-full border-2 border-muted-foreground/30 shrink-0" />
                     <div className="flex-1 space-y-2">
                       <div className="h-4 w-full bg-muted animate-pulse rounded-md" />
                       <div className="h-4 w-3/4 bg-muted animate-pulse rounded-md" />
@@ -137,7 +148,7 @@ function QuizErrorState({ error }: { error: Error }) {
             {/* Error details (for debugging) */}
             {error.message && (
               <div className="bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
-                <p className="text-xs text-muted-foreground font-mono break-words">
+                <p className="text-xs text-muted-foreground font-mono wrap-break-word">
                   {error.message}
                 </p>
               </div>
@@ -279,7 +290,7 @@ function QuizContent({ questions }: { questions: QuizQuestion[] }) {
                     <div className="flex items-start gap-3">
                       <div
                         className={`
-                        mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0
+                        mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0
                         ${isSelected ? "border-primary" : "border-muted-foreground"}
                       `}
                       >
@@ -538,11 +549,130 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
 
             {/* Action button */}
             <div className="pt-4">
-              <Button
-                onClick={() => (window.location.href = "/stake")}
-                className="min-w-48"
+              <Button asChild className="min-w-48">
+                <Link href="/stake/leaderboard">View the Leaderboard</Link>
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function QuizAlreadyCompletedState({
+  score,
+  totalQuestions,
+  completedAt,
+}: {
+  score: number;
+  totalQuestions: number;
+  completedAt: Date;
+}) {
+  const percentage = (score / totalQuestions) * 100;
+  const passed = percentage >= 60;
+
+  // Format the completion date
+  const formattedDate = new Date(completedAt).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+  const formattedTime = new Date(completedAt).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="mx-auto w-full max-w-2xl">
+        <Card className="p-6 sm:p-8">
+          <div className="space-y-6 text-center">
+            {/* Success icon or badge */}
+            <div className="flex justify-center">
+              <div
+                className={`rounded-full p-4 ${
+                  passed ? "bg-green-500/10" : "bg-orange-500/10"
+                }`}
               >
-                Back to Stake
+                {passed ? (
+                  <svg
+                    className="h-12 w-12 text-green-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="h-12 w-12 text-orange-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                )}
+              </div>
+            </div>
+
+            {/* Results heading */}
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold tracking-tight">
+                Quiz Already Completed
+              </h1>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                You completed this quiz on {formattedDate} at {formattedTime}
+              </p>
+            </div>
+
+            {/* Score display */}
+            <div className="bg-muted/50 rounded-lg p-6 space-y-4">
+              <div className="space-y-2">
+                <div className="text-5xl font-bold">
+                  {score}/{totalQuestions}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Correct Answers
+                </div>
+              </div>
+
+              {/* Percentage */}
+              <div className="pt-2">
+                <div className="text-2xl font-semibold">
+                  {percentage.toFixed(0)}%
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Score Percentage
+                </div>
+              </div>
+
+              {/* Progress bar */}
+              <div className="w-full bg-muted rounded-full h-3">
+                <div
+                  className={`h-3 rounded-full ${
+                    passed ? "bg-green-500" : "bg-orange-500"
+                  }`}
+                  style={{ width: `${percentage}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Action button */}
+            <div className="pt-4">
+              <Button asChild className="min-w-48">
+                <Link href="/stake/leaderboard">View the Leaderboard</Link>
               </Button>
             </div>
           </div>

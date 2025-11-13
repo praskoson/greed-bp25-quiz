@@ -12,6 +12,7 @@ import { sql, eq, inArray, and, isNull } from "drizzle-orm";
 import {
   QuizAnswer,
   QuizQuestion,
+  QuizStateWithQuestions,
   SubmitQuizAnswersParams,
   SubmitQuizAnswersResult,
 } from "./quiz.schemas";
@@ -84,15 +85,54 @@ export class QuizService {
 
   static async getQuestionsForUser(
     params: GetQuestionsParams,
-  ): Promise<QuizQuestion[]> {
+  ): Promise<QuizStateWithQuestions> {
     const { userId } = params;
 
     const [session] = await db
-      .select({ id: userQuizSessions.id })
+      .select({
+        id: userQuizSessions.id,
+        score: userQuizSessions.score,
+        completedAt: userQuizSessions.completedAt,
+      })
       .from(userQuizSessions)
       .where(eq(userQuizSessions.userId, userId));
 
     if (!session) throw Error(`No session found for user ${userId}`);
+
+    if (session.completedAt !== null && session.score !== null) {
+      // This quiz was already completed! Get the assignments
+
+      const assignments = await db
+        .select({
+          assignmentId: quizQuestionAssignments.id,
+          displayOrder: quizQuestionAssignments.displayOrder,
+          questionId: quizQuestions.id,
+          questionText: quizQuestions.questionText,
+          categoryName: quizCategories.name,
+        })
+        .from(quizQuestionAssignments)
+        .innerJoin(
+          quizQuestions,
+          eq(quizQuestionAssignments.questionId, quizQuestions.id),
+        )
+        .innerJoin(
+          quizCategories,
+          eq(quizQuestions.categoryId, quizCategories.id),
+        )
+        .where(eq(quizQuestionAssignments.sessionId, session.id))
+        .orderBy(quizQuestionAssignments.displayOrder);
+
+      if (assignments.length === 0) {
+        throw Error(`No questions found for session ${session.id}`);
+      }
+
+      return {
+        state: "finished",
+        score: session.score,
+        completedAt: session.completedAt,
+        totalQuestions: assignments.length,
+      };
+    }
 
     const assignments = await db
       .select({
@@ -150,7 +190,10 @@ export class QuizService {
       answers: answersByQuestion.get(assignment.questionId) || [],
     }));
 
-    return result;
+    return {
+      state: "ready",
+      questions: result,
+    };
   }
 
   static async submitQuizAnswers(

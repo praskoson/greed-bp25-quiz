@@ -31,3 +31,12 @@ export interface QuizQuestion {
   displayOrder: number;
   answers: QuizAnswer[];
 }
+
+export type QuizStateWithQuestions =
+  | { state: "ready"; questions: QuizQuestion[] }
+  | {
+      state: "finished";
+      score: number;
+      totalQuestions: number;
+      completedAt: Date;
+    };
