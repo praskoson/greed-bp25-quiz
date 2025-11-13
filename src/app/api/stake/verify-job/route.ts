@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { logError } from "@/lib/logger";
 import { validateStakeTransaction } from "./verifer";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { QuizService } from "@/lib/stake/quiz.service";
 
 async function handler(request: NextRequest) {
   try {
@@ -76,9 +77,8 @@ async function handler(request: NextRequest) {
 
     console.log("[Verify Stake Job] Stake confirmed:", sessionId);
 
-    // TODO: Assign quiz questions
-    // This could be done here or in a separate step
-    // await assignQuizQuestions(sessionId);
+    console.log("[Verify Stake Job] Assigning questions to:", sessionId);
+    await QuizService.assignQuestionsToUser({ quizSessionId: sessionId });
 
     return NextResponse.json({
       success: true,
