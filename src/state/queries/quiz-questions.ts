@@ -1,4 +1,4 @@
-import { QuizQuestion } from "@/lib/stake/quiz.service";
+import { QuizQuestion } from "@/lib/stake/quiz.schemas";
 import { queryOptions } from "@tanstack/react-query";
 
 export const RQKEY_ROOT = "quiz_questions";
@@ -22,6 +22,8 @@ export const quizQuestionsOptions = (walletAddress?: string) =>
         throw Error(JSON.stringify(await response.json()));
       }
 
-      return response.json() as Promise<QuizQuestionResponseType>;
+      const data = (await response.json()) as QuizQuestionResponseType;
+
+      return data.data;
     },
   });

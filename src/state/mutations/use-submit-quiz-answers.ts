@@ -5,6 +5,11 @@ import {
   type SubmitQuizAnswersResult,
 } from "@/lib/stake/quiz.schemas";
 
+type SubmitResponseData = {
+  success: true;
+  data: SubmitQuizAnswersResult;
+};
+
 export const submitAnswersMutationOption = mutationOptions({
   mutationFn: async (quizAnswers: z.infer<typeof quizAnswersSchema>) => {
     const response = await fetch("/api/quiz", {
@@ -20,6 +25,8 @@ export const submitAnswersMutationOption = mutationOptions({
       throw new Error("Failed to submit quiz answers");
     }
 
-    return response.json() as Promise<SubmitQuizAnswersResult>;
+    const data = (await response.json()) as SubmitResponseData;
+
+    return data.data;
   },
 });

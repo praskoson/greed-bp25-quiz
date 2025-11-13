@@ -10,6 +10,8 @@ import {
 } from "@/lib/db/schema";
 import { sql, eq, inArray, and, isNull } from "drizzle-orm";
 import {
+  QuizAnswer,
+  QuizQuestion,
   SubmitQuizAnswersParams,
   SubmitQuizAnswersResult,
 } from "./quiz.schemas";
@@ -25,20 +27,6 @@ interface StartQuizResult {
 
 interface GetQuestionsParams {
   userId: string;
-}
-
-interface QuizAnswer {
-  id: string;
-  answerText: string;
-}
-
-export interface QuizQuestion {
-  questionId: string;
-  questionText: string;
-  categoryName: string;
-  assignmentId: string;
-  displayOrder: number;
-  answers: QuizAnswer[];
 }
 
 export class QuizService {
@@ -247,7 +235,6 @@ export class QuizService {
       .where(eq(userQuizSessions.id, activeSession.id));
 
     return {
-      sessionId: activeSession.id,
       score,
       totalQuestions: assignments.length,
       completedAt: answeredAt,

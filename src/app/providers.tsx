@@ -9,6 +9,7 @@ import { useMemo } from "react";
 import { env } from "@/env";
 import { WalletAuthProvider } from "@/state/use-wallet-auth";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { getQueryClient } from "./get-query-client";
 
 const DynamicModalProvider = dynamic(() =>
@@ -28,6 +29,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <WalletAuthProvider>
             <QueryClientProvider client={queryClient}>
               {children}
+              <ReactQueryDevtools initialIsOpen={false} />
             </QueryClientProvider>
           </WalletAuthProvider>
         </DynamicModalProvider>
