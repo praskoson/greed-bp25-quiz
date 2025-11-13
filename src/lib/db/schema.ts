@@ -7,6 +7,8 @@ import {
   uniqueIndex,
   integer,
   pgEnum,
+  text,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const bp25Schema = pgSchema("bp25");
@@ -64,17 +66,67 @@ export const userQuizSessions = bp25Schema.table(
     stakeConfirmedAt: timestamp(),
 
     createdAt: timestamp().defaultNow().notNull(),
-    // // Quiz info
-    // questionsAssigned: boolean().default(false).notNull(),
-    // answersSubmitted: boolean().default(false).notNull(),
-    // correctAnswers: integer().default(0).notNull(),
-    // score: decimal({ precision: 20, scale: 9 }).default("0").notNull(),
-    // completedAt: timestamp(),
+
+    // Quiz info
+    score: integer(),
+    completedAt: timestamp(),
   },
   (table) => [
     index("user_quiz_session_user_id_idx").on(table.userId),
     uniqueIndex("user_quiz_sesson_stake_signature_idx").on(
       table.stakeSignature,
+    ),
+  ],
+);
+
+export const quizCategories = bp25Schema.table("quiz_category", {
+  id: uuid().defaultRandom().primaryKey(),
+  name: varchar().notNull().unique(),
+  updatedAt: timestamp().defaultNow().notNull(),
+});
+
+export const quizQuestions = bp25Schema.table("quiz_question", {
+  id: uuid().defaultRandom().primaryKey(),
+  categoryId: uuid()
+    .notNull()
+    .references(() => quizCategories.id, { onDelete: "cascade" }),
+  questionText: text().notNull(),
+  createdAt: timestamp().defaultNow().notNull(),
+});
+
+export const quizAnswers = bp25Schema.table("quiz_answer", {
+  id: uuid().defaultRandom().primaryKey(),
+  questionId: uuid()
+    .notNull()
+    .references(() => quizQuestions.id, { onDelete: "cascade" }),
+  answerText: text().notNull(),
+  isCorrect: boolean().notNull(),
+  createdAt: timestamp().defaultNow().notNull(),
+});
+
+export const quizQuestionAssignments = bp25Schema.table(
+  "quiz_question_assignment",
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    sessionId: uuid()
+      .notNull()
+      .references(() => userQuizSessions.id, { onDelete: "cascade" }),
+    questionId: uuid()
+      .notNull()
+      .references(() => quizQuestions.id, { onDelete: "cascade" }),
+    displayOrder: integer().notNull(),
+    userAnswerId: uuid().references(() => quizAnswers.id, {
+      onDelete: "set null",
+    }),
+    answeredAt: timestamp(),
+  },
+  (table) => [
+    index("quiz_question_assignment_session_id_idx").on(table.sessionId),
+    index("quiz_question_assignment_question_id_idx").on(table.questionId),
+    // Ensure each question appears only once per session
+    uniqueIndex("quiz_question_assignment_session_question_idx").on(
+      table.sessionId,
+      table.questionId,
     ),
   ],
 );
