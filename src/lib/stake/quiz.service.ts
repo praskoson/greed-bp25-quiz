@@ -1,11 +1,18 @@
+import "server-only";
+
 import { db } from "@/lib/db";
 import {
   quizCategories,
   quizQuestions,
   quizQuestionAssignments,
   userQuizSessions,
+  quizAnswers,
 } from "@/lib/db/schema";
-import { sql, eq } from "drizzle-orm";
+import { sql, eq, inArray, and, isNull } from "drizzle-orm";
+import {
+  SubmitQuizAnswersParams,
+  SubmitQuizAnswersResult,
+} from "./quiz.schemas";
 
 interface StartQuizParams {
   quizSessionId: string;
@@ -14,6 +21,24 @@ interface StartQuizParams {
 interface StartQuizResult {
   sessionId: string;
   questionCount: number;
+}
+
+interface GetQuestionsParams {
+  userId: string;
+}
+
+interface QuizAnswer {
+  id: string;
+  answerText: string;
+}
+
+export interface QuizQuestion {
+  questionId: string;
+  questionText: string;
+  categoryName: string;
+  assignmentId: string;
+  displayOrder: number;
+  answers: QuizAnswer[];
 }
 
 export class QuizService {
@@ -66,6 +91,166 @@ export class QuizService {
     return {
       sessionId: quizSessionId,
       questionCount: selectedQuestions.length,
+    };
+  }
+
+  static async getQuestionsForUser(
+    params: GetQuestionsParams,
+  ): Promise<QuizQuestion[]> {
+    const { userId } = params;
+
+    const [session] = await db
+      .select({ id: userQuizSessions.id })
+      .from(userQuizSessions)
+      .where(eq(userQuizSessions.userId, userId));
+
+    if (!session) throw Error(`No session found for user ${userId}`);
+
+    const assignments = await db
+      .select({
+        assignmentId: quizQuestionAssignments.id,
+        displayOrder: quizQuestionAssignments.displayOrder,
+        questionId: quizQuestions.id,
+        questionText: quizQuestions.questionText,
+        categoryName: quizCategories.name,
+      })
+      .from(quizQuestionAssignments)
+      .innerJoin(
+        quizQuestions,
+        eq(quizQuestionAssignments.questionId, quizQuestions.id),
+      )
+      .innerJoin(
+        quizCategories,
+        eq(quizQuestions.categoryId, quizCategories.id),
+      )
+      .where(eq(quizQuestionAssignments.sessionId, session.id))
+      .orderBy(quizQuestionAssignments.displayOrder);
+
+    if (assignments.length === 0) {
+      throw Error(`No questions found for session ${session.id}`);
+    }
+
+    const questionIds = assignments.map((a) => a.questionId);
+
+    const answers = await db
+      .select({
+        questionId: quizAnswers.questionId,
+        id: quizAnswers.id,
+        answerText: quizAnswers.answerText,
+      })
+      .from(quizAnswers)
+      .where(inArray(quizAnswers.questionId, questionIds));
+
+    const answersByQuestion = new Map<string, QuizAnswer[]>();
+
+    for (const answer of answers) {
+      if (!answersByQuestion.has(answer.questionId)) {
+        answersByQuestion.set(answer.questionId, []);
+      }
+      answersByQuestion.get(answer.questionId)!.push({
+        id: answer.id,
+        answerText: answer.answerText,
+      });
+    }
+
+    const result: QuizQuestion[] = assignments.map((assignment) => ({
+      questionId: assignment.questionId,
+      questionText: assignment.questionText,
+      categoryName: assignment.categoryName,
+      assignmentId: assignment.assignmentId,
+      displayOrder: assignment.displayOrder,
+      answers: answersByQuestion.get(assignment.questionId) || [],
+    }));
+
+    return result;
+  }
+
+  static async submitQuizAnswers(
+    params: SubmitQuizAnswersParams,
+  ): Promise<SubmitQuizAnswersResult> {
+    const { userId, answers } = params;
+
+    const [activeSession] = await db
+      .select()
+      .from(userQuizSessions)
+      .where(
+        and(
+          eq(userQuizSessions.userId, userId),
+          isNull(userQuizSessions.completedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!activeSession) {
+      throw new Error("No active quiz session found for this user");
+    }
+
+    const assignments = await db
+      .select()
+      .from(quizQuestionAssignments)
+      .where(eq(quizQuestionAssignments.sessionId, activeSession.id));
+
+    if (answers.length !== assignments.length) {
+      throw new Error(
+        `Expected ${assignments.length} answers, but received ${answers.length}`,
+      );
+    }
+
+    const assignmentQuestionIds = new Set(assignments.map((a) => a.questionId));
+    for (const answer of answers) {
+      if (!assignmentQuestionIds.has(answer.questionId)) {
+        throw new Error(
+          `Question ${answer.questionId} is not part of this quiz session`,
+        );
+      }
+    }
+
+    const answeredAt = new Date();
+    for (const answer of answers) {
+      const assignment = assignments.find(
+        (a) => a.questionId === answer.questionId,
+      );
+
+      if (!assignment) {
+        throw new Error(
+          `Assignment not found for question ${answer.questionId}`,
+        );
+      }
+
+      await db
+        .update(quizQuestionAssignments)
+        .set({
+          userAnswerId: answer.answerId,
+          answeredAt,
+        })
+        .where(eq(quizQuestionAssignments.id, assignment.id));
+    }
+
+    const answerIds = answers.map((a) => a.answerId);
+
+    const submittedAnswers = await db
+      .select({
+        id: quizAnswers.id,
+        isCorrect: quizAnswers.isCorrect,
+      })
+      .from(quizAnswers)
+      .where(inArray(quizAnswers.id, answerIds));
+
+    const score = submittedAnswers.filter((a) => a.isCorrect).length;
+
+    await db
+      .update(userQuizSessions)
+      .set({
+        score,
+        completedAt: answeredAt,
+      })
+      .where(eq(userQuizSessions.id, activeSession.id));
+
+    return {
+      sessionId: activeSession.id,
+      score,
+      totalQuestions: assignments.length,
+      completedAt: answeredAt,
     };
   }
 }

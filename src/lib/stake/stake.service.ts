@@ -1,3 +1,5 @@
+import "server-only";
+
 import { db } from "@/lib/db";
 import { userQuizSessions, users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
