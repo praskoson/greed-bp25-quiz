@@ -40,3 +40,12 @@ export type QuizStateWithQuestions =
       totalQuestions: number;
       completedAt: Date;
     };
+
+export interface LeaderboardEntry {
+  userId: string;
+  walletAddress: string;
+  score: number;
+  completedAt: Date;
+  stakeAmountLamports: number;
+  stakeDurationSeconds: number;
+}

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed:questions": "tsx src/scripts/seed_db_questions.ts"
+    "seed:questions": "tsx src/scripts/seed_db_questions.ts",
+    "seed:leaderboard": "tsx src/scripts/seed_db_leaderboard.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

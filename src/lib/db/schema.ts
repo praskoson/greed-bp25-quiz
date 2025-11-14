@@ -9,6 +9,7 @@ import {
   pgEnum,
   text,
   boolean,
+  bigint,
 } from "drizzle-orm/pg-core";
 
 export const bp25Schema = pgSchema("bp25");
@@ -59,7 +60,7 @@ export const userQuizSessions = bp25Schema.table(
       .references(() => users.id, { onDelete: "cascade" }),
 
     // Stake info
-    stakeAmountLamports: integer().notNull(),
+    stakeAmountLamports: bigint({ mode: "number" }).notNull(),
     stakeDurationSeconds: integer().notNull(),
     stakeSignature: varchar().notNull().unique(),
     stakeVerification: stakeVerificationStateEnum().default("processing"),

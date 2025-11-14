@@ -19,7 +19,7 @@ const getQuestionsHandler = async (
     logError(error, "quiz-get");
 
     return NextResponse.json(
-      { error: error.message || "Failed to get stake status" },
+      { error: error.message || "Failed to get quiz data" },
       { status: 500 },
     );
   }

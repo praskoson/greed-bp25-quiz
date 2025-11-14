@@ -7,9 +7,11 @@ import {
   quizQuestionAssignments,
   userQuizSessions,
   quizAnswers,
+  users,
 } from "@/lib/db/schema";
-import { sql, eq, inArray, and, isNull } from "drizzle-orm";
+import { sql, eq, inArray, and, isNull, isNotNull } from "drizzle-orm";
 import {
+  LeaderboardEntry,
   QuizAnswer,
   QuizQuestion,
   QuizStateWithQuestions,
@@ -282,5 +284,29 @@ export class QuizService {
       totalQuestions: assignments.length,
       completedAt: answeredAt,
     };
+  }
+
+  static async getQuizLeaderboard(): Promise<LeaderboardEntry[]> {
+    const leaderboard = await db
+      .select({
+        userId: users.id,
+        walletAddress: users.walletAddress,
+        score: userQuizSessions.score,
+        completedAt: userQuizSessions.completedAt,
+        stakeAmountLamports: userQuizSessions.stakeAmountLamports,
+        stakeDurationSeconds: userQuizSessions.stakeDurationSeconds,
+      })
+      .from(userQuizSessions)
+      .innerJoin(users, eq(userQuizSessions.userId, users.id))
+      .where(isNotNull(userQuizSessions.completedAt));
+
+    return leaderboard.map((entry) => ({
+      userId: entry.userId,
+      walletAddress: entry.walletAddress,
+      score: entry.score!,
+      completedAt: entry.completedAt!,
+      stakeAmountLamports: entry.stakeAmountLamports,
+      stakeDurationSeconds: entry.stakeDurationSeconds,
+    }));
   }
 }
