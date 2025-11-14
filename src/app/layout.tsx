@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter_Tight } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
+import "./wallet-overrides.css";
 import { Providers } from "./providers";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
