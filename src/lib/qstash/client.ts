@@ -15,7 +15,7 @@ export async function publishStakeVerificationJob(
   payload: VerifyStakeJobPayload,
 ) {
   console.log("publishStakeVerificationJob", payload);
-  const verifyUrl = `https://${process.env.VERCEL_URL}/api/stake/verify-job`;
+  const verifyUrl = `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}/api/stake/verify-job`;
 
   await qstashClient.publishJSON({
     url: verifyUrl,
