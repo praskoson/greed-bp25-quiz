@@ -21,7 +21,7 @@ export async function publishStakeVerificationJob(
     url: verifyUrl,
     body: payload,
     retries: 3,
-    delay: 1000,
+    delay: 1,
     retryDelay: "pow(2, retried) * 1000",
     headers: {
       "Content-Type": "application/json",
