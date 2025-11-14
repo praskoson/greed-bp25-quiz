@@ -1,20 +1,22 @@
 import type { Metadata } from "next";
-import { Geist_Mono } from "next/font/google";
+import { Inter_Tight } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "./providers";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const interTight = Inter_Tight({
   subsets: ["latin"],
-});
-
-import { Inter } from "next/font/google";
-
-const inter = Inter({
-  subsets: ["latin"],
+  display: "swap",
   variable: "--font-inter",
   weight: "variable",
+});
+
+const futuraBold = localFont({
+  src: "../fonts/Futura-Bold.otf",
+  display: "swap",
+  style: "normal",
+  variable: "--font-futura-bold",
 });
 
 export const metadata: Metadata = {
@@ -40,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistMono.variable} ${inter.variable} antialiased font-base tracking-tight`}
+        className={`${interTight.variable} ${futuraBold.variable} antialiased font-base`}
       >
         <Providers>{children}</Providers>
       </body>
