@@ -4,7 +4,6 @@ import { AuthButton } from "@/components/auth-button";
 import { StatusResponseType } from "@/state/queries/stake-status-options";
 import { useWalletAuth } from "@/state/use-wallet-auth";
 import { useRouter } from "next/navigation";
-import { get } from "node:https";
 import { useEffect } from "react";
 
 export default function Home() {
