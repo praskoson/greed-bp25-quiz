@@ -148,7 +148,7 @@ function QuizErrorState({ error }: { error: Error }) {
             {/* Error details (for debugging) */}
             {error.message && (
               <div className="bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
-                <p className="text-xs text-muted-foreground font-mono wrap-break-word">
+                <p className="text-xs text-muted-foreground wrap-break-word">
                   {error.message}
                 </p>
               </div>
@@ -550,7 +550,7 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
             {/* Action button */}
             <div className="pt-4">
               <Button asChild className="min-w-48">
-                <Link href="/stake/leaderboard">View the Leaderboard</Link>
+                <Link href="/leaderboard">View the Leaderboard</Link>
               </Button>
             </div>
           </div>
@@ -672,7 +672,7 @@ function QuizAlreadyCompletedState({
             {/* Action button */}
             <div className="pt-4">
               <Button asChild className="min-w-48">
-                <Link href="/stake/leaderboard">View the Leaderboard</Link>
+                <Link href="/leaderboard">View the Leaderboard</Link>
               </Button>
             </div>
           </div>
