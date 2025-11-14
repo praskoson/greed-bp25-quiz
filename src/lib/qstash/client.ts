@@ -14,7 +14,8 @@ const qstashClient = new Client({
 export async function publishStakeVerificationJob(
   payload: VerifyStakeJobPayload,
 ) {
-  const verifyUrl = `${env.QSTASH_URL || process.env.VERCEL_URL || "http://localhost:3000"}/api/stake/verify-job`;
+  console.log("publishStakeVerificationJob", payload);
+  const verifyUrl = `${process.env.VERCEL_URL}/api/stake/verify-job`;
 
   await qstashClient.publishJSON({
     url: verifyUrl,
