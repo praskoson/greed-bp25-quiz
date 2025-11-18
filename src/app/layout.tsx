@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import "./wallet-overrides.css";
 import { Providers } from "./providers";
+import { Analytics } from "@vercel/analytics/next";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 const interTight = Inter_Tight({
@@ -46,6 +47,7 @@ export default function RootLayout({
         className={`${interTight.variable} ${futuraBold.variable} antialiased font-base`}
       >
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );
