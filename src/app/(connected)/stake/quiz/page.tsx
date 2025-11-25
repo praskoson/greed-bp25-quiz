@@ -8,6 +8,7 @@ import type {
 } from "@/lib/stake/quiz.schemas";
 import { submitAnswersMutationOption } from "@/state/mutations/use-submit-quiz-answers";
 import { quizQuestionsOptions } from "@/state/queries/quiz-questions";
+import { useWalletAuth } from "@/state/use-wallet-auth";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -569,6 +570,7 @@ function QuizAlreadyCompletedState({
   totalQuestions: number;
   completedAt: Date;
 }) {
+  const { signOut } = useWalletAuth();
   const percentage = (score / totalQuestions) * 100;
   const passed = percentage >= 60;
 
@@ -670,9 +672,12 @@ function QuizAlreadyCompletedState({
             </div>
 
             {/* Action button */}
-            <div className="pt-4">
+            <div className="pt-4 space-y-2">
               <Button asChild className="min-w-48">
                 <Link href="/leaderboard">View the Leaderboard</Link>
+              </Button>
+              <Button className="min-w-48" onClick={signOut}>
+                Disconnect Wallet
               </Button>
             </div>
           </div>
