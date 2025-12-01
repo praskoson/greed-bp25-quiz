@@ -1,3 +1,9 @@
+import { Spinner } from "@/components/spinner";
+
 export default function Loading() {
-  return <div className="min-h-screen bg-brand p-4"></div>;
+  return (
+    <div className="min-h-screen p-4">
+      <Spinner className="text-foreground size-6" />
+    </div>
+  );
 }

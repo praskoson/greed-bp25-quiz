@@ -24,8 +24,8 @@ function getDirection(
   if (!previousRoute) return 1;
 
   // Special cases
-  if (previousRoute === "sign-in") return 1; // sign-in always exits left
-  if (previousRoute === "polling") return -1; // polling always exits right
+  // if (previousRoute === "sign-in") return 1; // sign-in always exits left
+  // if (previousRoute === "polling") return -1; // polling always exits right
 
   // Default: compare route order
   return routeOrder[currentRoute] > routeOrder[previousRoute] ? 1 : -1;
@@ -61,7 +61,7 @@ export default function Home() {
   const direction = getDirection(route, previousRoute);
 
   return (
-    <div className="isolate relative h-screen bg-brand overflow-hidden">
+    <div className="isolate relative min-h-dvh bg-brand overflow-auto">
       <AnimatePresence mode="popLayout" custom={direction} initial={false}>
         {route === "sign-in" && (
           <motion.div

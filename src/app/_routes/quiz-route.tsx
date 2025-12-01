@@ -14,6 +14,7 @@ import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
+import { RouteContainer } from "./route-container";
 
 export function QuizRoute() {
   const { publicKey } = useWallet();
@@ -45,7 +46,7 @@ export function QuizRoute() {
 
 function QuizPendingState() {
   return (
-    <QuizContainer>
+    <RouteContainer>
       <div className="flex-1 flex flex-col items-center justify-center gap-6">
         <Spinner className="size-24 text-brand" />
         <div className="text-center">
@@ -57,7 +58,7 @@ function QuizPendingState() {
           </p>
         </div>
       </div>
-    </QuizContainer>
+    </RouteContainer>
   );
 }
 
@@ -71,7 +72,7 @@ function QuizErrorState({ error }: { error: Error }) {
   };
 
   return (
-    <QuizContainer>
+    <RouteContainer>
       <div className="flex-1 flex flex-col items-center justify-center gap-6">
         <XCircle className="size-24 text-destructive" />
         <div className="text-center px-4">
@@ -97,7 +98,7 @@ function QuizErrorState({ error }: { error: Error }) {
           ← Go Back
         </button>
       </div>
-    </QuizContainer>
+    </RouteContainer>
   );
 }
 
@@ -164,7 +165,7 @@ function QuizContent({ questions }: { questions: QuizQuestion[] }) {
   }
 
   return (
-    <QuizContainer>
+    <RouteContainer>
       <div className="flex-1 flex flex-col p-3 pt-0">
         {/* Header with category and progress */}
         <div className="space-y-3">
@@ -258,13 +259,13 @@ function QuizContent({ questions }: { questions: QuizQuestion[] }) {
           <Button onClick={handleNext}>Next</Button>
         )}
       </div>
-    </QuizContainer>
+    </RouteContainer>
   );
 }
 
 function QuizSubmittingState() {
   return (
-    <QuizContainer>
+    <RouteContainer>
       <div className="flex-1 flex flex-col items-center justify-center gap-6">
         <Spinner className="size-24 text-brand" />
         <div className="text-center">
@@ -276,7 +277,7 @@ function QuizSubmittingState() {
           </p>
         </div>
       </div>
-    </QuizContainer>
+    </RouteContainer>
   );
 }
 
@@ -286,7 +287,7 @@ function QuizSubmissionErrorState({ onRetry }: { onRetry: () => void }) {
   };
 
   return (
-    <QuizContainer>
+    <RouteContainer>
       <div className="flex-1 flex flex-col items-center justify-center gap-6">
         <XCircle className="size-24 text-destructive" />
         <div className="text-center px-4">
@@ -307,7 +308,7 @@ function QuizSubmissionErrorState({ onRetry }: { onRetry: () => void }) {
           ← Go Back
         </button>
       </div>
-    </QuizContainer>
+    </RouteContainer>
   );
 }
 
@@ -316,8 +317,8 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
   const passed = percentage >= 60;
 
   return (
-    <QuizContainer>
-      <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4">
+    <RouteContainer>
+      <div className="flex-1 flex flex-col items-center justify-center gap-6">
         {passed ? (
           <CheckCircle2 className="size-24 text-green-600" />
         ) : (
@@ -343,13 +344,6 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
             <div className="text-sm text-[#7E1D1D]">Correct Answers</div>
           </div>
 
-          <div className="text-center pt-2">
-            <div className="text-2xl font-bold text-neutral">
-              {percentage.toFixed(0)}%
-            </div>
-            <div className="text-xs text-[#A37878]">Score Percentage</div>
-          </div>
-
           {/* Progress bar */}
           <div className="w-full bg-surface-3 rounded-full h-3">
             <div
@@ -365,7 +359,7 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
       <div className="mx-auto mb-6">
         <LinkButton href="/leaderboard">View the Leaderboard</LinkButton>
       </div>
-    </QuizContainer>
+    </RouteContainer>
   );
 }
 
@@ -395,7 +389,7 @@ function QuizAlreadyCompletedState({
   });
 
   return (
-    <QuizContainer>
+    <RouteContainer>
       <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4">
         {passed ? (
           <CheckCircle2 className="size-24 text-green-600" />
@@ -403,8 +397,8 @@ function QuizAlreadyCompletedState({
           <AlertTriangle className="size-24 text-orange-500" />
         )}
         <div className="text-center">
-          <h2 className="text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
-            Quiz Already Completed
+          <h2 className="text-[32px]/[95%] font-black text-neutral tracking-[-0.4px] font-futura">
+            Quiz Completed
           </h2>
           <p className="mt-4 text-sm text-[#7E1D1D]">
             You completed this quiz on {formattedDate} at {formattedTime}
@@ -420,13 +414,6 @@ function QuizAlreadyCompletedState({
             <div className="text-sm text-[#7E1D1D]">Correct Answers</div>
           </div>
 
-          <div className="text-center pt-2">
-            <div className="text-2xl font-bold text-neutral">
-              {percentage.toFixed(0)}%
-            </div>
-            <div className="text-xs text-[#A37878]">Score Percentage</div>
-          </div>
-
           {/* Progress bar */}
           <div className="w-full bg-surface-3 rounded-full h-3">
             <div
@@ -439,7 +426,7 @@ function QuizAlreadyCompletedState({
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-3 mx-auto mb-6">
+      <div className="flex flex-col gap-3 mx-auto my-6">
         <LinkButton href="/leaderboard">View the Leaderboard</LinkButton>
         <button
           onClick={async () => {
@@ -451,19 +438,7 @@ function QuizAlreadyCompletedState({
           Disconnect Wallet
         </button>
       </div>
-    </QuizContainer>
-  );
-}
-
-function QuizContainer({ children }: { children: ReactNode }) {
-  return (
-    <motion.div
-      layoutId="page-two"
-      style={{ borderRadius: 28 }}
-      className="bg-surface-2 absolute inset-4 mx-auto my-auto min-h-[650px]"
-    >
-      <div className="h-full flex flex-col p-3">{children}</div>
-    </motion.div>
+    </RouteContainer>
   );
 }
 

@@ -13,6 +13,7 @@ import { ReactNode, useState } from "react";
 import { z } from "zod";
 import { useSubmitStake } from "./use-submit-stake";
 import { useMiniRouter } from "@/state/mini-router";
+import { RouteContainer } from "./route-container";
 
 const formSchema = z.object({
   amount: z.number().min(0.01, "Minimum stake amount is 0.1 SOL"),
@@ -117,84 +118,79 @@ export function StakeRoute({ onSuccess, onError }: StakeFormProps) {
   };
 
   return (
-    <div
-      style={{ borderRadius: 28 }}
-      className="bg-surface-2 absolute inset-4 mx-auto my-auto min-h-[650px]"
-    >
-      <div className="h-full flex flex-col p-3">
-        <header className="flex justify-between items-center">
-          <GreedLogoImage className="text-[#7E1D1D]" />
-          <div className="text-right text-sm/4 text-[#7E1D1D] px-2 gap-2 font-base">
-            <div>Connected as</div>
-            <div className="font-bold">{shorten(walletAddress ?? "")}</div>
-          </div>
-        </header>
-        <h1 className="mt-10 text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] w-full text-center font-futura">
-          Stake, Learn & <span className="text-brand">Win</span>
-        </h1>
-        <HowItWorksCollapsible />
-        <form
-          id="stake-form"
-          onSubmit={handleSubmit}
-          className="mt-10 flex flex-col gap-6"
-        >
-          <div>
-            <InputGroup
-              type="text"
-              value={amountInput}
-              onChange={handleAmountChange}
-              ariaInvalid={!!errors.amount}
-              disabled={isConfirming}
-              placeholder="Enter SOL amount"
-              icon={<Solana height={30} width={30} />}
-            />
-
-            <span
-              className={cn(
-                errors?.amount ? "text-destructive" : "text-[#A37878]",
-                "pl-8 text-sm mt-1",
-              )}
-            >
-              Minimum amount is 0.01 SOL
-            </span>
-          </div>
-          <div>
-            <InputGroup
-              type="number"
-              value={duration === 0 ? "" : duration}
-              onChange={handleDurationChange}
-              ariaInvalid={!!errors.duration}
-              disabled={isConfirming}
-              placeholder="Enter duration in days"
-            />
-            <span
-              className={cn(
-                errors?.duration ? "text-destructive" : "text-[#A37878]",
-                "pl-8 text-sm mt-1",
-              )}
-            >
-              Minimum duration is 60 days
-            </span>
-          </div>
-        </form>
-
-        <div className="mt-10 mx-auto">
-          <Button type="submit" form="stake-form" disabled={isConfirming}>
-            {isConfirming ? "Processing Transaction..." : "Stake SOL"}
-          </Button>
-          <button
-            type="button"
-            onClick={async () => {
-              await signOut();
-              navigate("sign-in");
-            }}
-            className="mt-4 w-full text-sm text-[#A37878] hover:text-neutral"
-          >
-            ← Sign Out
-          </button>
+    <RouteContainer>
+      <header className="flex justify-between items-center">
+        <GreedLogoImage className="text-[#7E1D1D]" />
+        <div className="text-right text-sm/4 text-[#7E1D1D] px-2 gap-2 font-base">
+          <div>Connected as</div>
+          <div className="font-bold">{shorten(walletAddress ?? "")}</div>
         </div>
+      </header>
+      <h1 className="mt-10 text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] w-full text-center font-futura">
+        Stake, Learn & <span className="text-brand">Win</span>
+      </h1>
+      <HowItWorksCollapsible />
+      <form
+        id="stake-form"
+        onSubmit={handleSubmit}
+        className="mt-10 flex flex-col gap-6"
+      >
+        <div>
+          <InputGroup
+            type="text"
+            value={amountInput}
+            onChange={handleAmountChange}
+            ariaInvalid={!!errors.amount}
+            disabled={isConfirming}
+            placeholder="Enter SOL amount"
+            icon={<Solana height={30} width={30} />}
+          />
+
+          <span
+            className={cn(
+              errors?.amount ? "text-destructive" : "text-[#A37878]",
+              "pl-8 text-sm mt-1",
+            )}
+          >
+            Minimum amount is 0.01 SOL
+          </span>
+        </div>
+        <div>
+          <InputGroup
+            type="number"
+            value={duration === 0 ? "" : duration}
+            onChange={handleDurationChange}
+            ariaInvalid={!!errors.duration}
+            disabled={isConfirming}
+            placeholder="Enter duration in days"
+          />
+          <span
+            className={cn(
+              errors?.duration ? "text-destructive" : "text-[#A37878]",
+              "pl-8 text-sm mt-1",
+            )}
+          >
+            Minimum duration is 60 days
+          </span>
+        </div>
+      </form>
+
+      <div className="mt-10 mx-auto">
+        <Button type="submit" form="stake-form" disabled={isConfirming}>
+          {isConfirming ? "Processing Transaction..." : "Stake SOL"}
+        </Button>
+        <button
+          type="button"
+          onClick={async () => {
+            await signOut();
+            navigate("sign-in");
+          }}
+          className="mt-4 w-full text-sm text-[#A37878] hover:text-neutral"
+        >
+          ← Sign Out
+        </button>
       </div>
-    </div>
+    </RouteContainer>
   );
 }
 

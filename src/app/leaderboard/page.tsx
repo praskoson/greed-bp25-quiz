@@ -2,6 +2,7 @@ import type { LeaderboardEntry } from "@/lib/stake/quiz.schemas";
 import { QuizService } from "@/lib/stake/quiz.service";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { BackLink } from "./_components/back-link";
 
 export default async function LeaderboardPage() {
   let entries: LeaderboardEntry[];
@@ -23,7 +24,7 @@ export default async function LeaderboardPage() {
 
 function LeaderboardErrorState({ error }: { error: Error }) {
   return (
-    <div className="min-h-screen bg-brand p-4">
+    <div className="min-h-screen p-4">
       <div
         className="mx-auto w-full max-w-2xl bg-surface-2 rounded-[28px] p-6"
         style={{ minHeight: "calc(100vh - 32px)" }}
@@ -146,9 +147,9 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
   };
 
   return (
-    <div className="min-h-screen bg-brand p-4">
+    <div className="min-h-screen bg-surface-2 p-4">
       <div
-        className="mx-auto w-full max-w-2xl bg-surface-2 rounded-[28px] p-6 flex flex-col"
+        className="mx-auto w-full max-w-2xl bg-surface-1 rounded-[28px] p-6 flex flex-col"
         style={{ minHeight: "calc(100vh - 32px)" }}
       >
         {/* Header */}
@@ -231,9 +232,7 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
 
         {/* Back link */}
         <div className="mt-6 text-center">
-          <Link href="/" className="text-sm text-[#A37878] hover:text-neutral">
-            ← Back to Home
-          </Link>
+          <BackLink />
         </div>
       </div>
     </div>
