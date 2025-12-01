@@ -8,6 +8,7 @@ import { CheckCircle2, XCircle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { ReactNode } from "react";
 import { RouteContainer } from "./route-container";
+import { quizQuestionsOptions } from "@/state/queries/quiz-questions";
 
 const stateTransition = {
   duration: 0.4,
@@ -106,38 +107,7 @@ export function PollingRoute() {
           </motion.div>
         )}
 
-        {state === "success" && (
-          <motion.div
-            key="success"
-            className="flex-1 flex flex-col items-center justify-center gap-6"
-            variants={stateVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-          >
-            <motion.div
-              variants={staggerChildren}
-              initial="initial"
-              animate="animate"
-              className="flex flex-col items-center gap-6"
-            >
-              <motion.div variants={fadeSlideUp}>
-                <CheckCircle2 className="size-24 text-green-600" />
-              </motion.div>
-              <motion.div className="text-center" variants={fadeSlideUp}>
-                <h2 className="text-[28px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
-                  Verification Complete!
-                </h2>
-                <p className="mt-4 text-sm text-[#7E1D1D]">
-                  Your stake has been verified. You can now start the quiz.
-                </p>
-              </motion.div>
-              <motion.div variants={fadeSlideUp}>
-                <Button onClick={() => navigate("quiz")}>Start Quiz</Button>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        )}
+        {state === "success" && <SuccessState />}
 
         {state === "loading" && (
           <motion.div
@@ -170,6 +140,50 @@ export function PollingRoute() {
         )}
       </AnimatePresence>
     </RouteContainer>
+  );
+}
+
+function SuccessState() {
+  const { navigate } = useMiniRouter();
+  const { publicKey } = useWallet();
+
+  // prefetch
+  useQuery({
+    ...quizQuestionsOptions(publicKey?.toBase58()),
+    notifyOnChangeProps: [],
+  });
+
+  return (
+    <motion.div
+      key="success"
+      className="flex-1 flex flex-col items-center justify-center gap-6"
+      variants={stateVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
+      <motion.div
+        variants={staggerChildren}
+        initial="initial"
+        animate="animate"
+        className="flex flex-col items-center gap-6"
+      >
+        <motion.div variants={fadeSlideUp}>
+          <CheckCircle2 className="size-24 text-green-600" />
+        </motion.div>
+        <motion.div className="text-center" variants={fadeSlideUp}>
+          <h2 className="text-[28px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
+            Verification Complete!
+          </h2>
+          <p className="mt-4 text-sm text-[#7E1D1D]">
+            Your stake has been verified. You can now start&nbsp;the&nbsp;quiz.
+          </p>
+        </motion.div>
+        <motion.div variants={fadeSlideUp}>
+          <Button onClick={() => navigate("quiz")}>Start Quiz</Button>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }
 
