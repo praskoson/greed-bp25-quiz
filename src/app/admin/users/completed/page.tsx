@@ -27,6 +27,8 @@ function formatSol(lamports: number): string {
   return (lamports / 1_000_000_000).toFixed(3);
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function CompletedUsersPage() {
   const users = await getCompletedQuizUsers();
 
@@ -47,7 +49,9 @@ export default async function CompletedUsersPage() {
         </CardHeader>
         <CardContent>
           {users.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No completed quizzes yet</p>
+            <p className="text-muted-foreground text-sm">
+              No completed quizzes yet
+            </p>
           ) : (
             <div className="divide-y">
               {users.map((user) => (

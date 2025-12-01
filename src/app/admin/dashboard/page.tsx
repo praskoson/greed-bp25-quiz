@@ -22,6 +22,7 @@ import { getDlqMessages } from "@/lib/qstash/client";
 import { DlqMessageList } from "../_components/dlq-message-list";
 
 const PREVIEW_LIMIT = 5;
+export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
   const [

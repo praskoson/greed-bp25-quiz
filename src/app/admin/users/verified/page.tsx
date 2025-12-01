@@ -27,6 +27,8 @@ function formatSol(lamports: number): string {
   return (lamports / 1_000_000_000).toFixed(2);
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function VerifiedUsersPage() {
   const users = await getVerifiedUsersWithQuestions();
 
@@ -42,7 +44,8 @@ export default async function VerifiedUsersPage() {
         <CardHeader>
           <CardTitle>Verified Users (Questions Assigned)</CardTitle>
           <CardDescription>
-            {users.length} users who have staked and been assigned quiz questions
+            {users.length} users who have staked and been assigned quiz
+            questions
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -61,7 +64,8 @@ export default async function VerifiedUsersPage() {
                       {formatWalletAddress(user.walletAddress)}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {formatDate(user.createdAt)} · {user.questionCount} questions
+                      {formatDate(user.createdAt)} · {user.questionCount}{" "}
+                      questions
                     </p>
                   </div>
                   <div className="text-right">

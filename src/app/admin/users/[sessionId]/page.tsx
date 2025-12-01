@@ -34,6 +34,8 @@ function formatDate(date: Date): string {
   }).format(new Date(date));
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function UserDetailPage({ params }: Props) {
   const { sessionId } = await params;
   const user = await getUserWithQuestions(sessionId);
