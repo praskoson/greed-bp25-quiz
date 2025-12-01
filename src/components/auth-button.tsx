@@ -6,7 +6,7 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useState } from "react";
 
 export function AuthButton() {
-  const { connected } = useWallet();
+  const { connected, publicKey } = useWallet();
   const { isAuthenticated, isLoading, signIn, signOut, walletAddress } =
     useWalletAuth();
   const [error, setError] = useState<string | null>(null);

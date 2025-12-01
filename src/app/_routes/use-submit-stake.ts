@@ -1,7 +1,6 @@
 import { retryWithBackoff } from "@/lib/utils";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import {
-  ComputeBudgetProgram,
   Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -46,7 +45,6 @@ export function useSubmitStake() {
         const stakeAmount = sol * LAMPORTS_PER_SOL;
 
         tx.add(
-          ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 1e6 }),
           StakeProgram.createAccount({
             fromPubkey: publicKey,
             lamports: stakeAmount,

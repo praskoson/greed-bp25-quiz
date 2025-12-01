@@ -10,6 +10,7 @@ import {
   text,
   boolean,
   bigint,
+  json,
 } from "drizzle-orm/pg-core";
 
 export const bp25Schema = pgSchema("bp25");
@@ -93,6 +94,7 @@ export const quizQuestions = bp25Schema.table("quiz_question", {
     .references(() => quizCategories.id, { onDelete: "cascade" }),
   questionText: text().notNull(),
   createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp().defaultNow().notNull(),
 });
 
 export const quizAnswers = bp25Schema.table("quiz_answer", {
@@ -103,6 +105,7 @@ export const quizAnswers = bp25Schema.table("quiz_answer", {
   answerText: text().notNull(),
   isCorrect: boolean().notNull(),
   createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp().defaultNow().notNull(),
 });
 
 export const quizQuestionAssignments = bp25Schema.table(
@@ -132,9 +135,24 @@ export const quizQuestionAssignments = bp25Schema.table(
   ],
 );
 
+export type AppSettingsData = {
+  quizPaused: boolean;
+};
+
+const defaultAppSettings: AppSettingsData = {
+  quizPaused: false,
+};
+
+export const appSettings = bp25Schema.table("app_settings", {
+  id: uuid().defaultRandom().primaryKey(),
+  data: json().$type<AppSettingsData>().notNull().default(defaultAppSettings),
+  updatedAt: timestamp().defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type AuthSession = typeof authSessions.$inferSelect;
 export type NewAuthSession = typeof authSessions.$inferInsert;
+export type AppSettings = typeof appSettings.$inferSelect;
 // export type GameSession = typeof gameSessions.$inferSelect;
 // export type NewGameSession = typeof gameSessions.$inferInsert;

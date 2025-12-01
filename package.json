@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "check": "tsc --noEmit",
     "seed:questions": "tsx src/scripts/seed_db_questions.ts",
     "seed:leaderboard": "tsx src/scripts/seed_db_leaderboard.ts"
   },
@@ -14,7 +15,9 @@
     "@hookform/resolvers": "^5.2.2",
     "@neondatabase/serverless": "^1.0.2",
     "@next/env": "^16.0.3",
+    "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-popover": "^1.1.15",
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",
     "@solana-program/stake": "^0.5.0",
@@ -38,6 +41,7 @@
     "drizzle-orm": "^0.44.7",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.553.0",
+    "motion": "^12.23.24",
     "next": "16.0.3",
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.2",
@@ -46,6 +50,7 @@
     "react-hook-form": "^7.66.0",
     "tailwind-merge": "^3.4.0",
     "tweetnacl": "^1.0.3",
+    "vaul": "^1.1.2",
     "zod": "^4.1.12",
     "zod-form-data": "^3.0.1"
   },

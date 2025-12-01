@@ -5,6 +5,16 @@
 
 @theme {
     --font-weight-base: 450;
+    --color-foreground-1: #ffffff;
+    --color-foreground-2: #fff0f0;
+    --color-surface-1: #ffffff;
+    --color-surface-2: #fff0f0;
+    --color-surface-3: #edd8d8;
+    --color-surface-4: #f8f6f6;
+    --color-foreground: #470000;
+    --color-brand-dark: #470000;
+    --color-brand: #7e1d1d;
+    --color-neutral: #1b0e0e;
 }
 
 @theme inline {

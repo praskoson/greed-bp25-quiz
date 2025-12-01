@@ -6,6 +6,7 @@ import "./wallet-overrides.css";
 import { Providers } from "./providers";
 import { Analytics } from "@vercel/analytics/next";
 import "@solana/wallet-adapter-react-ui/styles.css";
+import { MiniRouterProvider } from "@/state/mini-router";
 
 const interTight = Inter_Tight({
   subsets: ["latin"],
@@ -44,9 +45,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${interTight.variable} ${futuraBold.variable} antialiased font-base`}
+        className={`${interTight.variable} ${futuraBold.variable} antialiased font-base text-foreground-1`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <MiniRouterProvider initialRoute="sign-in">
+            {children}
+          </MiniRouterProvider>
+        </Providers>
         <Analytics />
       </body>
     </html>

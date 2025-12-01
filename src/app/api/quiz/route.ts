@@ -2,6 +2,7 @@ import { logError } from "@/lib/logger";
 import { AuthContext, withAuth } from "@/lib/middleware/with-auth";
 import { quizAnswersSchema } from "@/lib/stake/quiz.schemas";
 import { QuizService } from "@/lib/stake/quiz.service";
+import { SettingsService } from "@/lib/settings/settings.service";
 import { NextRequest, NextResponse } from "next/server";
 import * as z from "zod";
 
@@ -30,6 +31,14 @@ const submitAnswersHandler = async (
   context: AuthContext,
 ) => {
   try {
+    const isPaused = await SettingsService.isQuizPaused();
+    if (isPaused) {
+      return NextResponse.json(
+        { success: false, message: "Quiz submissions are currently paused" },
+        { status: 503 },
+      );
+    }
+
     const { userId } = context.user;
     const body = await request.json();
     const answers = quizAnswersSchema.parse(body);

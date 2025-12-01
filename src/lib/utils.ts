@@ -24,3 +24,7 @@ export async function retryWithBackoff<T>(fn: () => Promise<T>, retries = 5) {
     }
   }
 }
+
+export function shorten(address: string) {
+  return `${address.slice(0, 4)}…${address.slice(-4)}`;
+}

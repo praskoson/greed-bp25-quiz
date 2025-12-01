@@ -1,65 +1,124 @@
 "use client";
 
-import { AuthButton } from "@/components/auth-button";
-import { StatusResponseType } from "@/state/queries/stake-status-options";
-import { useWalletAuth } from "@/state/use-wallet-auth";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { type Route, useMiniRouter } from "@/state/mini-router";
+import { HomeContent } from "./_routes/home-route";
+import { StakeRoute } from "./_routes/stake-route";
+import { PollingRoute } from "./_routes/polling-route";
+import { AnimatePresence, motion } from "motion/react";
+import { QuizRoute } from "./_routes/quiz-route";
+
+// Route order for determining navigation direction
+const routeOrder: Record<Route, number> = {
+  "sign-in": 0,
+  stake: 1,
+  polling: 2,
+  quiz: 3,
+  failed: 4,
+};
+
+// Get direction: 1 = forward (exit left), -1 = backward (exit right)
+function getDirection(
+  currentRoute: Route,
+  previousRoute: Route | null,
+): number {
+  if (!previousRoute) return 1;
+
+  // Special cases
+  if (previousRoute === "sign-in") return 1; // sign-in always exits left
+  if (previousRoute === "polling") return -1; // polling always exits right
+
+  // Default: compare route order
+  return routeOrder[currentRoute] > routeOrder[previousRoute] ? 1 : -1;
+}
+
+const pageVariants = {
+  initial: (direction: number) => ({
+    x: direction > 0 ? "100%" : "-100%",
+    opacity: 0,
+  }),
+  animate: {
+    x: 0,
+    opacity: 1,
+    transition: {
+      x: { type: "tween" as const, duration: 0.3, ease: "easeOut" as const },
+      opacity: { duration: 0.2 },
+    },
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? "-100%" : "100%",
+    opacity: 0,
+    transition: {
+      x: { type: "tween" as const, duration: 0.3, ease: "easeIn" as const },
+      opacity: { duration: 0.2 },
+    },
+  }),
+};
 
 export default function Home() {
-  const router = useRouter();
-  const { isAuthenticated, isLoading } = useWalletAuth();
+  // const { isAuthenticated, isLoading } = useWalletAuth();
+  const { navigate, route, previousRoute } = useMiniRouter();
 
-  // Redirect authenticated users to stake page
-  useEffect(() => {
-    if (isLoading) return;
-    if (!isAuthenticated) return;
-
-    const getStatus = async () => {
-      const response = await fetch("/api/stake/status", {
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        const body = (await response.json()) as StatusResponseType;
-        if (body.status === "processing") {
-          router.push("/stake/polling");
-        } else if (body.status === "failed") {
-          router.push("/stake/failed");
-        } else if (body.status === "success") {
-          router.push("/stake/quiz");
-        } else {
-          router.push("/stake");
-        }
-      }
-    };
-
-    getStatus();
-  }, [isAuthenticated, isLoading, router]);
+  const direction = getDirection(route, previousRoute);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 font-sans dark:bg-black">
-      <main className="flex w-full max-w-md flex-col items-center gap-8">
-        <div className="text-center">
-          <h1 className="mb-4 text-4xl font-futura font-bold text-zinc-900 dark:text-white">
-            Greed Academy
-          </h1>
-          <p className="mb-2 font-futura text-lg text-zinc-700 dark:text-zinc-300">
-            BP25 Quiz Challenge
-          </p>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Stake, Learn, Win
-          </p>
-        </div>
-
-        <div className="w-full rounded-lg bg-white p-6 shadow-sm dark:bg-zinc-900">
-          <AuthButton />
-        </div>
-
-        <div className="mt-4 max-w-sm text-center text-xs text-zinc-500 dark:text-zinc-500">
-          <p>Connect your Solana wallet to get started</p>
-        </div>
-      </main>
+    <div className="isolate relative h-screen bg-brand overflow-hidden">
+      <AnimatePresence mode="popLayout" custom={direction} initial={false}>
+        {route === "sign-in" && (
+          <motion.div
+            key="sign-in"
+            custom={direction}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="absolute inset-0 overflow-y-auto"
+          >
+            <HomeContent />
+          </motion.div>
+        )}
+        {route === "stake" && (
+          <motion.div
+            key="stake"
+            custom={direction}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="absolute inset-0 overflow-y-auto"
+          >
+            <StakeRoute
+              onSuccess={() => navigate("polling")}
+              onError={() => console.log("err")}
+            />
+          </motion.div>
+        )}
+        {route === "polling" && (
+          <motion.div
+            key="polling"
+            custom={direction}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="absolute inset-0 overflow-y-auto"
+          >
+            <PollingRoute />
+          </motion.div>
+        )}
+        {route === "quiz" && (
+          <motion.div
+            key="quiz"
+            custom={direction}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="absolute inset-0 overflow-y-auto"
+          >
+            <QuizRoute />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

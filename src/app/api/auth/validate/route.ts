@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { authService } from "@/lib/auth/auth.service";
 import { withMiddleware } from "@/lib/middleware/withMiddleware";
 import { rateLimiters } from "@/lib/redis";
+import { StakeService } from "@/lib/stake/stake.service";
 
 const handler = async (request: NextRequest) => {
   const token = request.cookies.get("auth_token")?.value;
@@ -37,11 +38,14 @@ const handler = async (request: NextRequest) => {
     return response;
   }
 
+  const status = await StakeService.getQuizSessionStatus(payload.userId);
+
   return NextResponse.json({
     valid: true,
     user: {
       userId: payload.userId,
       walletAddress: payload.walletAddress,
+      status,
     },
   });
 };

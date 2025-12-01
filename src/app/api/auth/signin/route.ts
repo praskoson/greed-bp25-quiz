@@ -3,6 +3,7 @@ import { authService } from "@/lib/auth/auth.service";
 import { withMiddleware } from "@/lib/middleware/withMiddleware";
 import { rateLimiters } from "@/lib/redis";
 import { logError } from "@/lib/logger";
+import { StakeService } from "@/lib/stake/stake.service";
 
 const handler = async (request: NextRequest) => {
   const body = await request.json();
@@ -23,11 +24,13 @@ const handler = async (request: NextRequest) => {
       message,
       timestamp,
     );
+    const status = await StakeService.getQuizSessionStatus(result.userId);
 
     const response = NextResponse.json({
       success: true,
       walletAddress: result.walletAddress,
       expiresIn: result.expiresIn,
+      status,
     });
 
     // Set HttpOnly cookie with JWT (secure, can't be accessed by JS)

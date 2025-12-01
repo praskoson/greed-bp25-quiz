@@ -16,7 +16,9 @@ interface AuthState {
 }
 
 interface WalletAuthContextValue extends AuthState {
-  signIn: () => Promise<{ success: boolean }>;
+  signIn: () => Promise<{
+    status: "success" | "failed" | "processing" | null;
+  }>;
   signOut: () => Promise<void>;
   walletAddress: string | undefined;
 }
@@ -127,10 +129,16 @@ function useWalletAuthInternal() {
         throw new Error(error.error || "Authentication failed");
       }
 
+      const responseBody = (await authResponse.json()) as {
+        walletAddress: string;
+        expiresIn: number;
+        status: "success" | "failed" | "processing" | null;
+      };
+
       // Trigger a sync to re-read cookies and validate
       setSyncTrigger((prev) => prev + 1);
 
-      return { success: true };
+      return { status: responseBody.status };
     } catch (error: any) {
       console.error("Sign in error:", error);
       setAuthState({
