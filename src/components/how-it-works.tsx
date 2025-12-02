@@ -5,12 +5,12 @@ import { Drawer } from "vaul";
 export default function HowItWorks() {
   return (
     <Drawer.Root>
-      <Drawer.Trigger className="fixed bottom-9 size-10 left-6 rounded-full bg-foreground-2 shadow-md border-4 border-[#EDD8D8] grid place-content-center text-brand-dark font-futura text-xl">
-        &#x3F;
+      <Drawer.Trigger className="fixed bottom-9 size-10 left-6 rounded-full bg-foreground-2 shadow-lg grid place-content-center text-brand-dark text-xl font-black">
+        ?
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-foreground-2 border-t-8 border-x-8 border-[#EDD8D8] flex flex-col rounded-t-2xl mt-24 h-fit fixed bottom-0 left-0 right-0 outline-none">
+        <Drawer.Content className="bg-foreground-2 border-t-4 border-x-4 border-[#EDD8D8] flex flex-col rounded-t-2xl mt-24 h-fit fixed bottom-0 left-0 right-0 outline-none">
           <div className="p-4">
             <Drawer.Handle
               aria-hidden

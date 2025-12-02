@@ -14,7 +14,7 @@ export function HomeRoute() {
           <h1 className="text-surface-2 text-[64px]/[110%] font-black tracking-[-1.9px] uppercase">
             BP25 QUIZ
           </h1>
-          <p className="text-surface-2 text-2xl font-futura tracking-tight">
+          <p className="text-surface-2 text-2xl font-futura tracking-tight text-center">
             Stake, learn and win
           </p>
         </div>
