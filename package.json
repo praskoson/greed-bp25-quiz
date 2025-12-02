@@ -9,7 +9,8 @@
     "lint": "eslint",
     "check": "tsc --noEmit",
     "seed:questions": "tsx src/scripts/seed_db_questions.ts",
-    "seed:leaderboard": "tsx src/scripts/seed_db_leaderboard.ts"
+    "seed:leaderboard": "tsx src/scripts/seed_db_leaderboard.ts",
+    "admin:add-user": "tsx src/scripts/add_admin_user.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -35,6 +36,7 @@
     "@upstash/ratelimit": "^2.0.7",
     "@upstash/redis": "^1.35.6",
     "@vercel/analytics": "^1.5.0",
+    "better-auth": "^1.4.4",
     "bs58": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
