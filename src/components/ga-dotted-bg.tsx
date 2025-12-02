@@ -11,13 +11,13 @@ export function GreedAcademyDottedBackground() {
       initial={{ opacity: 0 }}
       animate={{ opacity: isLoaded ? 0.5 : 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="pointer-events-none fixed -z-1 top-32 _-translate-y-1/2 w-[640px] left-1/2 -translate-x-1/2 flex items-center justify-center"
+      className="pointer-events-none absolute -z-10 top-32 inset-x-0 flex items-center justify-center overflow-hidden"
     >
       <Image
         onLoad={() => setIsLoaded(true)}
         src={DottedSvg}
         alt=""
-        className="size-full object-contain"
+        className="w-[640px] h-auto shrink-0 object-contain"
       />
     </motion.div>
   );

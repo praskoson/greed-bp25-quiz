@@ -61,7 +61,7 @@ export default function Home() {
   const direction = getDirection(route, previousRoute);
 
   return (
-    <div className="isolate relative min-h-dvh bg-brand overflow-auto">
+    <div className="isolate relative min-h-dvh bg-brand overflow-hidden">
       <AnimatePresence mode="popLayout" custom={direction} initial={false}>
         {route === "sign-in" && (
           <motion.div
@@ -71,7 +71,7 @@ export default function Home() {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="absolute inset-0 overflow-y-auto"
+            className="absolute inset-0 overflow-y-auto overflow-x-clip"
           >
             <HomeRoute />
           </motion.div>

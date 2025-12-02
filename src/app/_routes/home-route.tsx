@@ -6,9 +6,10 @@ import dynamic from "next/dynamic";
 
 export function HomeRoute() {
   return (
-    <div className="h-full grid place-content-center">
+    <div className="relative h-full grid place-content-center">
+      <GreedAcademyDottedBackground />
       <GreedAcademyLogo className="text-white fixed top-8 left-1/2 -translate-x-1/2" />
-      <main className="h-full flex flex-col justify-center gap-20 pb-24">
+      <main className="relative z-10 h-full flex flex-col justify-center gap-20 pb-24">
         <div>
           <h1 className="text-surface-2 text-[64px]/[110%] font-black tracking-[-1.9px] uppercase">
             BP25 QUIZ
@@ -22,7 +23,6 @@ export function HomeRoute() {
           <ConnectButton />
         </div>
       </main>
-      <GreedAcademyDottedBackground />
       <DynamicHowItWorks />
     </div>
   );
