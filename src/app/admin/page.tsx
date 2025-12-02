@@ -1,13 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { GreedAcademyLogo } from "@/components/ga-logo";
@@ -56,9 +50,6 @@ export default function AdminSignIn() {
             <CardTitle className="text-xl text-brand-dark">
               Admin Sign In
             </CardTitle>
-            <CardDescription>
-              Enter your credentials to access the admin panel
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">

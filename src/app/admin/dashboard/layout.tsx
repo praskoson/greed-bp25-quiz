@@ -1,5 +1,5 @@
 import { GreedAcademyLogo } from "@/components/ga-logo";
-import { RefreshButton } from "./_components/refresh-button";
+import { RefreshButton } from "../_components/refresh-button";
 
 export default function AdminLayout({
   children,
