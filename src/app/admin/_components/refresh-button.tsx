@@ -19,7 +19,7 @@ export function RefreshButton() {
       size="sm"
       onClick={handleRefresh}
       disabled={isPending}
-      className="text-foreground-1 hover:bg-brand-dark"
+      className="text-foreground-1 hover:bg-brand-dark hover:text-foreground-1"
     >
       {isPending ? "Refreshing..." : "Refresh"}
     </Button>
