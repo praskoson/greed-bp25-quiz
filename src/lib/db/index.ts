@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
-import * as schema from "./schema";
+import * as schema_bp25 from "./schema/bp25";
 import { env } from "@/env";
 
 const sql = neon(env.DATABASE_URL, {
@@ -8,4 +8,4 @@ const sql = neon(env.DATABASE_URL, {
     cache: "no-store",
   },
 });
-export const db = drizzle(sql, { schema, casing: "snake_case" });
+export const db = drizzle(sql, { schema: schema_bp25, casing: "snake_case" });

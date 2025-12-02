@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 import { VerifyStakeJobPayload } from "@/lib/qstash/types";
 import { db } from "@/lib/db";
-import { userQuizSessions } from "@/lib/db/schema";
+import { userQuizSessions } from "@/lib/db/schema/bp25";
 import { eq } from "drizzle-orm";
 import { logError } from "@/lib/logger";
 import { validateStakeTransaction } from "./verifer";

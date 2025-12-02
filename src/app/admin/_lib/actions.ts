@@ -1,14 +1,19 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { userQuizSessions, quizQuestionAssignments } from "@/lib/db/schema";
+import {
+  userQuizSessions,
+  quizQuestionAssignments,
+} from "@/lib/db/schema/bp25";
 import { SettingsService } from "@/lib/settings/settings.service";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 
 export async function toggleQuizPaused() {
   const currentSettings = await SettingsService.getSettings();
-  const newSettings = await SettingsService.setQuizPaused(!currentSettings.quizPaused);
+  const newSettings = await SettingsService.setQuizPaused(
+    !currentSettings.quizPaused,
+  );
   revalidatePath("/admin/dashboard");
   return newSettings;
 }

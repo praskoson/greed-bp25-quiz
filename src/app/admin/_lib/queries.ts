@@ -8,7 +8,7 @@ import {
   users,
   userQuizSessions,
   quizQuestionAssignments,
-} from "@/lib/db/schema";
+} from "@/lib/db/schema/bp25";
 import { eq, and, isNull, isNotNull, desc, sql } from "drizzle-orm";
 
 export type AdminAnswer = {
@@ -32,7 +32,9 @@ export type AdminCategory = {
   questions: AdminQuestion[];
 };
 
-export async function getQuestionsGroupedByCategory(): Promise<AdminCategory[]> {
+export async function getQuestionsGroupedByCategory(): Promise<
+  AdminCategory[]
+> {
   // Fetch all categories
   const categories = await db
     .select({
@@ -145,7 +147,7 @@ type GetUsersOptions = {
  * Get verified users who have questions assigned but haven't completed the quiz
  */
 export async function getVerifiedUsersWithQuestions(
-  options: GetUsersOptions = {}
+  options: GetUsersOptions = {},
 ): Promise<AdminUserListItem[]> {
   const { limit } = options;
 
@@ -163,13 +165,13 @@ export async function getVerifiedUsersWithQuestions(
     .innerJoin(users, eq(userQuizSessions.userId, users.id))
     .innerJoin(
       quizQuestionAssignments,
-      eq(quizQuestionAssignments.sessionId, userQuizSessions.id)
+      eq(quizQuestionAssignments.sessionId, userQuizSessions.id),
     )
     .where(
       and(
         eq(userQuizSessions.stakeVerification, "success"),
-        isNull(userQuizSessions.completedAt)
-      )
+        isNull(userQuizSessions.completedAt),
+      ),
     )
     .groupBy(
       users.id,
@@ -177,7 +179,7 @@ export async function getVerifiedUsersWithQuestions(
       users.walletAddress,
       userQuizSessions.stakeAmountLamports,
       userQuizSessions.stakeDurationSeconds,
-      userQuizSessions.createdAt
+      userQuizSessions.createdAt,
     )
     .orderBy(desc(userQuizSessions.createdAt));
 
@@ -192,7 +194,7 @@ export async function getVerifiedUsersWithQuestions(
  * Get a single user with their assigned questions and answers
  */
 export async function getUserWithQuestions(
-  sessionId: string
+  sessionId: string,
 ): Promise<AdminUserWithQuestions | null> {
   const [session] = await db
     .select({
@@ -223,7 +225,7 @@ export async function getUserWithQuestions(
     .from(quizQuestionAssignments)
     .innerJoin(
       quizQuestions,
-      eq(quizQuestionAssignments.questionId, quizQuestions.id)
+      eq(quizQuestionAssignments.questionId, quizQuestions.id),
     )
     .innerJoin(quizCategories, eq(quizQuestions.categoryId, quizCategories.id))
     .where(eq(quizQuestionAssignments.sessionId, sessionId))
@@ -231,17 +233,18 @@ export async function getUserWithQuestions(
 
   // Get all answers for these questions
   const questionIds = assignments.map((a) => a.questionId);
-  const allAnswers = questionIds.length > 0
-    ? await db
-        .select({
-          id: quizAnswers.id,
-          questionId: quizAnswers.questionId,
-          answerText: quizAnswers.answerText,
-          isCorrect: quizAnswers.isCorrect,
-        })
-        .from(quizAnswers)
-        .where(sql`${quizAnswers.questionId} IN ${questionIds}`)
-    : [];
+  const allAnswers =
+    questionIds.length > 0
+      ? await db
+          .select({
+            id: quizAnswers.id,
+            questionId: quizAnswers.questionId,
+            answerText: quizAnswers.answerText,
+            isCorrect: quizAnswers.isCorrect,
+          })
+          .from(quizAnswers)
+          .where(sql`${quizAnswers.questionId} IN ${questionIds}`)
+      : [];
 
   // Group answers by question
   const answersByQuestion = new Map<string, UserAnswer[]>();
@@ -291,13 +294,13 @@ export async function getVerifiedUsersWithQuestionsCount(): Promise<number> {
     .from(userQuizSessions)
     .innerJoin(
       quizQuestionAssignments,
-      eq(quizQuestionAssignments.sessionId, userQuizSessions.id)
+      eq(quizQuestionAssignments.sessionId, userQuizSessions.id),
     )
     .where(
       and(
         eq(userQuizSessions.stakeVerification, "success"),
-        isNull(userQuizSessions.completedAt)
-      )
+        isNull(userQuizSessions.completedAt),
+      ),
     );
 
   return result?.count ?? 0;
@@ -307,7 +310,7 @@ export async function getVerifiedUsersWithQuestionsCount(): Promise<number> {
  * Get users who have completed the quiz
  */
 export async function getCompletedQuizUsers(
-  options: GetUsersOptions = {}
+  options: GetUsersOptions = {},
 ): Promise<AdminUserListItem[]> {
   const { limit } = options;
 
@@ -356,7 +359,7 @@ export async function getCompletedQuizUsersCount(): Promise<number> {
  * Get users with pending stake verification
  */
 export async function getPendingVerificationUsers(
-  options: GetUsersOptions = {}
+  options: GetUsersOptions = {},
 ): Promise<AdminUserListItem[]> {
   const { limit } = options;
 

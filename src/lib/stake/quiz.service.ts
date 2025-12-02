@@ -8,7 +8,7 @@ import {
   userQuizSessions,
   quizAnswers,
   users,
-} from "@/lib/db/schema";
+} from "@/lib/db/schema/bp25";
 import { sql, eq, inArray, and, isNull, isNotNull } from "drizzle-orm";
 import {
   LeaderboardEntry,

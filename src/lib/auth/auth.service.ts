@@ -1,6 +1,6 @@
 import "server-only";
 import { db } from "../db";
-import { users, authSessions } from "../db/schema";
+import { users, authSessions } from "../db/schema/bp25";
 import { eq, and, gt, lte } from "drizzle-orm";
 import { sign, verify } from "jsonwebtoken";
 import nacl from "tweetnacl";

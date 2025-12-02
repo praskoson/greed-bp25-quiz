@@ -1,7 +1,7 @@
 import "server-only";
 
 import { db } from "@/lib/db";
-import { appSettings, AppSettingsData } from "@/lib/db/schema";
+import { appSettings, AppSettingsData } from "@/lib/db/schema/bp25";
 import { eq } from "drizzle-orm";
 
 const DEFAULT_SETTINGS: AppSettingsData = {
@@ -25,7 +25,7 @@ export class SettingsService {
   }
 
   static async updateSettings(
-    updates: Partial<AppSettingsData>
+    updates: Partial<AppSettingsData>,
   ): Promise<AppSettingsData> {
     const current = await this.getSettings();
     const newData = { ...current, ...updates };

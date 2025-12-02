@@ -1,5 +1,9 @@
 import { loadEnvConfig } from "@next/env";
-import { quizCategories, quizQuestions, quizAnswers } from "../lib/db/schema";
+import {
+  quizCategories,
+  quizQuestions,
+  quizAnswers,
+} from "../lib/db/schema/bp25";
 import { readFileSync } from "fs";
 import { parse } from "csv-parse/sync";
 import { eq } from "drizzle-orm";

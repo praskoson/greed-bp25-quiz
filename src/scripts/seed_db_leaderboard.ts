@@ -1,5 +1,5 @@
 import { loadEnvConfig } from "@next/env";
-import { users, userQuizSessions } from "@/lib/db/schema";
+import { users, userQuizSessions } from "@/lib/db/schema/bp25";
 import bs58 from "bs58";
 import { randomBytes } from "crypto";
 loadEnvConfig(process.cwd());

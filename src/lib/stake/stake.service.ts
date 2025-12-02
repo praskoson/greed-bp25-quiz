@@ -1,7 +1,7 @@
 import "server-only";
 
 import { db } from "@/lib/db";
-import { userQuizSessions, users } from "@/lib/db/schema";
+import { userQuizSessions, users } from "@/lib/db/schema/bp25";
 import { eq } from "drizzle-orm";
 
 type CreateQuizSessionPayload = {
