@@ -41,15 +41,15 @@ const pageVariants = {
     opacity: 1,
     transition: {
       x: { type: "tween" as const, duration: 0.3, ease: "easeOut" as const },
-      opacity: { duration: 0.2 },
+      opacity: { duration: 0.25 },
     },
   },
   exit: (direction: number) => ({
     x: direction > 0 ? "-100%" : "100%",
     opacity: 0,
     transition: {
-      x: { type: "tween" as const, duration: 0.3, ease: "easeIn" as const },
-      opacity: { duration: 0.2 },
+      x: { type: "tween" as const, duration: 0.3, ease: "easeOut" as const },
+      opacity: { duration: 0.25 },
     },
   }),
 };
