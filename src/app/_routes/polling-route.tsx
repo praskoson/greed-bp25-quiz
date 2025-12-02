@@ -124,9 +124,10 @@ export function PollingRoute() {
               animate="animate"
               className="flex flex-col items-center gap-2"
             >
-              <motion.div variants={fadeSlideUp}>
+              {/* Use div instead of motion.div to prevent variant inheritance from breaking the loader's animation */}
+              <div>
                 <AnimatedGreedLoader />
-              </motion.div>
+              </div>
               <motion.div className="text-center" variants={fadeSlideUp}>
                 <h2 className="text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
                   Verifying Stake...

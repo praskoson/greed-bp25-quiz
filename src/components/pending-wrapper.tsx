@@ -10,7 +10,7 @@ export function PendingWrapper({
   return (
     <div
       style={{
-        opacity: isPending ? 0.75 : 1,
+        opacity: isPending ? 0.9 : 1,
       }}
       className="px-[0.625em] text-center transition-opacity ease-out"
     >
@@ -29,6 +29,7 @@ export function PendingWrapper({
           className="transition-transform ease-out"
           style={{
             transform: isPending ? "translateX(0.75em)" : "translateX(0)",
+            color: isPending ? "rgb(252 195 195)" : "currentcolor",
           }}
         >
           {children}
