@@ -81,11 +81,18 @@ export function ConnectButton() {
       >
         {buttonText()}
       </motion.button>
-      {error && (
+      {error && !isExpectedError(error) && (
         <div className="rounded-lg bg-red-50 p-4">
           <p className="text-sm text-red-900 font-medium">{error}</p>
         </div>
       )}
     </>
   );
+}
+
+function isExpectedError(error: string): boolean {
+  const expected =
+    error === "User rejected the request." || error === "Failed to sign in";
+
+  return expected;
 }

@@ -70,7 +70,7 @@ export function PollingRoute() {
 
   return (
     <RouteContainer>
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" initial={false}>
         {state === "error" && (
           <motion.div
             key="error"

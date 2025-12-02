@@ -11,10 +11,66 @@ import { useWalletAuth } from "@/state/use-wallet-auth";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { RouteContainer } from "./route-container";
+
+const PENDING_DELAY_MS = 180;
+
+const stateTransition = {
+  duration: 0.4,
+  ease: "easeOut" as const,
+};
+
+const stateVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: stateTransition,
+  },
+  exit: {
+    opacity: 0,
+    y: -20,
+    transition: { duration: 0.3, ease: "easeIn" as const },
+  },
+};
+
+const staggerChildren = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const fadeSlideUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: stateTransition,
+  },
+};
+
+type QuizState = "pending" | "error" | "finished" | "quiz";
+
+function useDelayedPending(isPending: boolean, delayMs: number): boolean {
+  const [showPending, setShowPending] = useState(false);
+
+  useEffect(() => {
+    if (isPending) {
+      const timer = setTimeout(() => setShowPending(true), delayMs);
+      return () => clearTimeout(timer);
+    } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setShowPending(false);
+    }
+  }, [isPending, delayMs]);
+
+  return showPending;
+}
 
 export function QuizRoute() {
   const { publicKey } = useWallet();
@@ -23,42 +79,70 @@ export function QuizRoute() {
     staleTime: Infinity,
   });
 
-  if (isPending) {
-    return <QuizPendingState />;
-  }
+  const showPending = useDelayedPending(isPending, PENDING_DELAY_MS);
 
-  if (error) {
-    return <QuizErrorState error={error} />;
-  }
+  // Determine current state
+  let state: QuizState = "quiz";
+  if (isPending) state = "pending";
+  else if (error) state = "error";
+  else if (data?.state === "finished") state = "finished";
 
-  if (data.state === "finished") {
-    return (
-      <QuizAlreadyCompletedState
-        score={data.score}
-        totalQuestions={data.totalQuestions}
-        completedAt={data.completedAt}
-      />
-    );
-  }
+  return (
+    <RouteContainer>
+      <AnimatePresence mode="wait">
+        {state === "pending" && showPending && (
+          <QuizPendingState key="pending" />
+        )}
 
-  return <QuizContent questions={data.questions} />;
+        {state === "error" && error && (
+          <QuizErrorState key="error" error={error} />
+        )}
+
+        {state === "finished" && data?.state === "finished" && (
+          <QuizAlreadyCompletedState
+            key="finished"
+            score={data.score}
+            totalQuestions={data.totalQuestions}
+            completedAt={data.completedAt}
+          />
+        )}
+
+        {state === "quiz" && data?.state === "ready" && (
+          <QuizContent key="quiz" questions={data.questions} />
+        )}
+      </AnimatePresence>
+    </RouteContainer>
+  );
 }
 
 function QuizPendingState() {
   return (
-    <RouteContainer>
-      <div className="flex-1 flex flex-col items-center justify-center gap-6">
-        <Spinner className="size-24 text-brand" />
-        <div className="text-center">
+    <motion.div
+      className="flex-1 flex flex-col items-center justify-center gap-6"
+      variants={stateVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
+      <motion.div
+        variants={staggerChildren}
+        initial="initial"
+        animate="animate"
+        className="flex flex-col items-center gap-6"
+      >
+        <motion.div variants={fadeSlideUp}>
+          <Spinner className="size-24 text-brand" />
+        </motion.div>
+        <motion.div className="text-center" variants={fadeSlideUp}>
           <h2 className="text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
             Loading Quiz...
           </h2>
           <p className="mt-4 text-sm text-[#7E1D1D]">
             Please wait while we load your questions
           </p>
-        </div>
-      </div>
-    </RouteContainer>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -72,10 +156,23 @@ function QuizErrorState({ error }: { error: Error }) {
   };
 
   return (
-    <RouteContainer>
-      <div className="flex-1 flex flex-col items-center justify-center gap-6">
-        <XCircle className="size-24 text-destructive" />
-        <div className="text-center px-4">
+    <motion.div
+      className="flex-1 flex flex-col"
+      variants={stateVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
+      <motion.div
+        variants={staggerChildren}
+        initial="initial"
+        animate="animate"
+        className="flex-1 flex flex-col items-center justify-center gap-6"
+      >
+        <motion.div variants={fadeSlideUp}>
+          <XCircle className="size-24 text-destructive" />
+        </motion.div>
+        <motion.div className="text-center px-4" variants={fadeSlideUp}>
           <h2 className="text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
             Unable to Load Quiz
           </h2>
@@ -87,18 +184,18 @@ function QuizErrorState({ error }: { error: Error }) {
               {error.message}
             </p>
           )}
-        </div>
-      </div>
-      <div className="flex flex-col gap-3 mx-auto mb-6">
-        <Button onClick={handleRetry}>Try Again</Button>
-        <button
-          onClick={handleGoBack}
-          className="text-sm text-[#A37878] hover:text-neutral"
-        >
-          ← Go Back
-        </button>
-      </div>
-    </RouteContainer>
+        </motion.div>
+        <motion.div className="flex flex-col gap-3" variants={fadeSlideUp}>
+          <Button onClick={handleRetry}>Try Again</Button>
+          <button
+            onClick={handleGoBack}
+            className="text-sm text-[#A37878] hover:text-neutral"
+          >
+            ← Go Back
+          </button>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -165,7 +262,13 @@ function QuizContent({ questions }: { questions: QuizQuestion[] }) {
   }
 
   return (
-    <RouteContainer>
+    <motion.div
+      className="flex-1 flex flex-col"
+      variants={stateVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
       <div className="flex-1 flex flex-col p-3 pt-0">
         {/* Header with category and progress */}
         <div className="space-y-3">
@@ -259,25 +362,23 @@ function QuizContent({ questions }: { questions: QuizQuestion[] }) {
           <Button onClick={handleNext}>Next</Button>
         )}
       </div>
-    </RouteContainer>
+    </motion.div>
   );
 }
 
 function QuizSubmittingState() {
   return (
-    <RouteContainer>
-      <div className="flex-1 flex flex-col items-center justify-center gap-6">
-        <Spinner className="size-24 text-brand" />
-        <div className="text-center">
-          <h2 className="text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
-            Submitting...
-          </h2>
-          <p className="mt-4 text-sm text-[#7E1D1D]">
-            Please wait while we process your answers
-          </p>
-        </div>
+    <div className="flex-1 flex flex-col items-center justify-center gap-6">
+      <Spinner className="size-24 text-brand" />
+      <div className="text-center">
+        <h2 className="text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
+          Submitting...
+        </h2>
+        <p className="mt-4 text-sm text-[#7E1D1D]">
+          Please wait while we process your answers
+        </p>
       </div>
-    </RouteContainer>
+    </div>
   );
 }
 
@@ -287,7 +388,7 @@ function QuizSubmissionErrorState({ onRetry }: { onRetry: () => void }) {
   };
 
   return (
-    <RouteContainer>
+    <>
       <div className="flex-1 flex flex-col items-center justify-center gap-6">
         <XCircle className="size-24 text-destructive" />
         <div className="text-center px-4">
@@ -308,7 +409,7 @@ function QuizSubmissionErrorState({ onRetry }: { onRetry: () => void }) {
           ← Go Back
         </button>
       </div>
-    </RouteContainer>
+    </>
   );
 }
 
@@ -317,7 +418,7 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
   const passed = percentage >= 60;
 
   return (
-    <RouteContainer>
+    <>
       <div className="flex-1 flex flex-col items-center justify-center gap-6">
         {passed ? (
           <CheckCircle2 className="size-24 text-green-600" />
@@ -359,7 +460,7 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
       <div className="mx-auto mb-6">
         <LinkButton href="/leaderboard">View the Leaderboard</LinkButton>
       </div>
-    </RouteContainer>
+    </>
   );
 }
 
@@ -389,24 +490,40 @@ function QuizAlreadyCompletedState({
   });
 
   return (
-    <RouteContainer>
-      <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4">
-        {passed ? (
-          <CheckCircle2 className="size-24 text-green-600" />
-        ) : (
-          <AlertTriangle className="size-24 text-orange-500" />
-        )}
-        <div className="text-center">
+    <motion.div
+      className="flex-1 flex flex-col"
+      variants={stateVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
+      <motion.div
+        variants={staggerChildren}
+        initial="initial"
+        animate="animate"
+        className="flex-1 flex flex-col items-center justify-center gap-6 px-4"
+      >
+        <motion.div variants={fadeSlideUp}>
+          {passed ? (
+            <CheckCircle2 className="size-24 text-green-600" />
+          ) : (
+            <AlertTriangle className="size-24 text-orange-500" />
+          )}
+        </motion.div>
+        <motion.div className="text-center" variants={fadeSlideUp}>
           <h2 className="text-[32px]/[95%] font-black text-neutral tracking-[-0.4px] font-futura">
             Quiz Completed
           </h2>
           <p className="mt-4 text-sm text-[#7E1D1D]">
             You completed this quiz on {formattedDate} at {formattedTime}
           </p>
-        </div>
+        </motion.div>
 
         {/* Score display */}
-        <div className="w-full max-w-xs bg-surface-1 rounded-2xl p-6 space-y-4">
+        <motion.div
+          className="w-full max-w-xs bg-surface-1 rounded-2xl p-6 space-y-4"
+          variants={fadeSlideUp}
+        >
           <div className="text-center space-y-1">
             <div className="text-5xl font-black text-neutral">
               {score}/{totalQuestions}
@@ -424,21 +541,22 @@ function QuizAlreadyCompletedState({
               style={{ width: `${percentage}%` }}
             />
           </div>
-        </div>
-      </div>
-      <div className="flex flex-col gap-3 mx-auto my-6">
-        <LinkButton href="/leaderboard">View the Leaderboard</LinkButton>
-        <button
-          onClick={async () => {
-            await signOut();
-            navigate("sign-in");
-          }}
-          className="text-sm text-[#A37878] hover:text-neutral"
-        >
-          Disconnect Wallet
-        </button>
-      </div>
-    </RouteContainer>
+        </motion.div>
+
+        <motion.div className="flex flex-col gap-3" variants={fadeSlideUp}>
+          <LinkButton href="/leaderboard">View the Leaderboard</LinkButton>
+          <button
+            onClick={async () => {
+              await signOut();
+              navigate("sign-in");
+            }}
+            className="text-sm text-[#A37878] hover:text-neutral"
+          >
+            Disconnect Wallet
+          </button>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }
 

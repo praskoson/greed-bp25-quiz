@@ -56,7 +56,7 @@ const pageVariants = {
 
 export default function Home() {
   // const { isAuthenticated, isLoading } = useWalletAuth();
-  const { navigate, route, previousRoute } = useMiniRouter();
+  const { route, previousRoute } = useMiniRouter();
 
   const direction = getDirection(route, previousRoute);
 
