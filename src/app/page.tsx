@@ -1,7 +1,7 @@
 "use client";
 
 import { type Route, useMiniRouter } from "@/state/mini-router";
-import { HomeContent } from "./_routes/home-route";
+import { HomeRoute } from "./_routes/home-route";
 import { StakeRoute } from "./_routes/stake-route";
 import { PollingRoute } from "./_routes/polling-route";
 import { AnimatePresence, motion } from "motion/react";
@@ -73,7 +73,7 @@ export default function Home() {
             exit="exit"
             className="absolute inset-0 overflow-y-auto"
           >
-            <HomeContent />
+            <HomeRoute />
           </motion.div>
         )}
         {route === "stake" && (
@@ -86,10 +86,7 @@ export default function Home() {
             exit="exit"
             className="absolute inset-0 overflow-y-auto"
           >
-            <StakeRoute
-              onSuccess={() => navigate("polling")}
-              onError={() => console.log("err")}
-            />
+            <StakeRoute />
           </motion.div>
         )}
         {route === "polling" && (

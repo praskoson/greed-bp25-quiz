@@ -11,9 +11,14 @@ import { CircleHelp, ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { ReactNode, useState } from "react";
 import { z } from "zod";
-import { useSubmitStake } from "./use-submit-stake";
 import { useMiniRouter } from "@/state/mini-router";
 import { RouteContainer } from "./route-container";
+import {
+  WalletSendTransactionError,
+  WalletSignMessageError,
+  WalletSignTransactionError,
+} from "@solana/wallet-adapter-base";
+import { PendingWrapper } from "@/components/pending-wrapper";
 
 const formSchema = z.object({
   amount: z.number().min(0.01, "Minimum stake amount is 0.1 SOL"),
@@ -23,15 +28,10 @@ const formSchema = z.object({
     .max(365, "Duration cannot exceed 365 days"),
 });
 
-interface StakeFormProps {
-  onSuccess: (sessionId: string) => void;
-  onError: (error: string) => void;
-}
-
-export function StakeRoute({ onSuccess, onError }: StakeFormProps) {
+export function StakeRoute() {
   const { walletAddress, signOut } = useWalletAuth();
-  const { sendStakeTransaction, isConfirming } = useSubmitStake();
-  const { mutateAsync } = useSubmitStakeMutation();
+  // const { sendStakeTransaction, isConfirming } = useSubmitStake();
+  const { mutate, isPending, error } = useSubmitStakeMutation();
   const { navigate } = useMiniRouter();
 
   const [amountInput, setAmountInput] = useState("");
@@ -89,32 +89,14 @@ export function StakeRoute({ onSuccess, onError }: StakeFormProps) {
 
     if (!isValid) return;
 
-    try {
-      const txResult = await sendStakeTransaction(
-        formData.amount,
-        formData.duration,
-      );
-
-      if (txResult.status === "error") {
-        throw new Error(txResult.message || "Transaction failed");
-      }
-
-      await mutateAsync(
-        {
-          amount: formData.amount,
-          duration: formData.duration,
-          signature: txResult.signature,
+    mutate(
+      { solAmount: formData.amount, duration: formData.duration },
+      {
+        onSuccess: () => {
+          navigate("polling");
         },
-        {
-          onSuccess: (data) => {
-            onSuccess(data.sessionId);
-          },
-        },
-      );
-    } catch (error: any) {
-      console.error("Stake submission error:", error);
-      onError(error.message || "Failed to submit stake. Please try again.");
-    }
+      },
+    );
   };
 
   return (
@@ -141,7 +123,7 @@ export function StakeRoute({ onSuccess, onError }: StakeFormProps) {
             value={amountInput}
             onChange={handleAmountChange}
             ariaInvalid={!!errors.amount}
-            disabled={isConfirming}
+            disabled={isPending}
             placeholder="Enter SOL amount"
             icon={<Solana height={30} width={30} />}
           />
@@ -161,7 +143,7 @@ export function StakeRoute({ onSuccess, onError }: StakeFormProps) {
             value={duration === 0 ? "" : duration}
             onChange={handleDurationChange}
             ariaInvalid={!!errors.duration}
-            disabled={isConfirming}
+            disabled={isPending}
             placeholder="Enter duration in days"
           />
           <span
@@ -175,21 +157,30 @@ export function StakeRoute({ onSuccess, onError }: StakeFormProps) {
         </div>
       </form>
 
-      <div className="mt-10 mx-auto">
-        <Button type="submit" form="stake-form" disabled={isConfirming}>
-          {isConfirming ? "Processing Transaction..." : "Stake SOL"}
-        </Button>
-        <button
-          type="button"
-          onClick={async () => {
-            await signOut();
-            navigate("sign-in");
-          }}
-          className="mt-4 w-full text-sm text-[#A37878] hover:text-neutral"
-        >
-          ← Sign Out
-        </button>
-      </div>
+      <Button
+        type="submit"
+        form="stake-form"
+        disabled={isPending}
+        className="mt-10 mx-auto relative flex items-center gap-1 justify-center"
+      >
+        <PendingWrapper isPending={isPending}>Stake SOL</PendingWrapper>
+      </Button>
+      <button
+        type="button"
+        onClick={async () => {
+          await signOut();
+          navigate("sign-in");
+        }}
+        className="mt-4 w-full text-sm text-[#A37878] hover:text-neutral"
+      >
+        ← Sign Out
+      </button>
+
+      {error && !isExpectedError(error) && (
+        <div className="rounded-lg bg-red-50 p-4 mt-4">
+          <p className="text-sm text-red-900 font-medium">{error.message}</p>
+        </div>
+      )}
     </RouteContainer>
   );
 }
@@ -276,11 +267,13 @@ function Button({
   form,
   disabled,
   children,
+  className,
 }: {
   type: "submit" | "button";
   form: string;
   disabled: boolean;
   children: ReactNode;
+  className?: string;
 }) {
   return (
     <motion.button
@@ -291,7 +284,8 @@ function Button({
       form={form}
       disabled={disabled}
       className={cn(
-        "w-full text-surface-2 bg-brand h-[70px] px-24 rounded-full text-[18px]/[130%] font-medium",
+        "w-full max-w-[350px] text-surface-2 bg-brand h-[70px] rounded-full text-[18px]/[130%] font-medium",
+        className,
       )}
     >
       {children}
@@ -343,4 +337,13 @@ function HowItWorksCollapsible() {
       </CollapsibleContent>
     </Collapsible>
   );
+}
+
+function isExpectedError(error: Error): boolean {
+  const expected =
+    error instanceof WalletSendTransactionError ||
+    error instanceof WalletSignTransactionError ||
+    error instanceof WalletSignMessageError;
+
+  return expected;
 }

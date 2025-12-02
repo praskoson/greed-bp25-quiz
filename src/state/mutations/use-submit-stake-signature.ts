@@ -1,6 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
 import { RQKEY as STAKE_STATUS_RQKEY } from "../queries/stake-status-options";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import {
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  StakeProgram,
+  TransactionMessage,
+  VersionedTransaction,
+} from "@solana/web3.js";
+import { retryWithBackoff } from "@/lib/utils";
 
 export type SubmitStakeResponse = {
   success: true;
@@ -8,23 +17,83 @@ export type SubmitStakeResponse = {
   stakeConfirmed: boolean;
 };
 
+const VALIDATOR_PUBKEY = new PublicKey(
+  "GREEDkpTvpKzcGvBu9qd36yk6BfjTWPShB67gLWuixMv",
+);
+
 export function useSubmitStakeMutation() {
-  const { publicKey } = useWallet();
+  const { connection } = useConnection();
+  const { publicKey, sendTransaction, signTransaction } = useWallet();
 
   return useMutation({
     mutationFn: async ({
-      amount,
+      solAmount,
       duration,
-      signature,
     }: {
-      amount: number;
+      solAmount: number;
       duration: number;
-      signature: string;
     }) => {
+      if (!sendTransaction || !publicKey || !signTransaction)
+        throw Error("Wallet not connected");
+
+      const { context, value } = await retryWithBackoff(() =>
+        connection.getLatestBlockhashAndContext("confirmed"),
+      );
+
+      const signer = Keypair.generate();
+      // const lockupTimestamp =
+      //   Math.floor(new Date().getTime() / 1000) + days * 24 * 60 * 60;
+      // // const lockup = new Lockup(lockupTimestamp, 0, publicKey);
+      const lamports = solAmount * LAMPORTS_PER_SOL;
+
+      const instructions = [
+        ...StakeProgram.createAccount({
+          fromPubkey: publicKey,
+          lamports,
+          stakePubkey: signer.publicKey,
+          authorized: {
+            staker: publicKey,
+            withdrawer: publicKey,
+          },
+          // lockup,
+        }).instructions,
+        ...StakeProgram.delegate({
+          stakePubkey: signer.publicKey,
+          authorizedPubkey: publicKey,
+          votePubkey: VALIDATOR_PUBKEY,
+        }).instructions,
+      ];
+
+      const messageV0 = new TransactionMessage({
+        payerKey: publicKey,
+        recentBlockhash: value.blockhash,
+        instructions,
+      }).compileToV0Message();
+      const tx = new VersionedTransaction(messageV0);
+
+      const signed = await signTransaction(tx);
+      signed.sign([signer]);
+
+      const simulationResult = await connection.simulateTransaction(signed, {
+        sigVerify: false,
+        commitment: "confirmed",
+      });
+
+      if (simulationResult.value.err) {
+        throw Error(JSON.stringify(simulationResult.value.err));
+      }
+
+      const signature = await sendTransaction(signed, connection, {
+        minContextSlot: context.slot,
+        maxRetries: 0,
+        preflightCommitment: "confirmed",
+        skipPreflight: true,
+      });
+
       const response = await fetch("/api/stake", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount, duration, signature }),
+        body: JSON.stringify({ amount: solAmount, duration, signature }),
         credentials: "include",
       });
 

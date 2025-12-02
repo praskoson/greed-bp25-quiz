@@ -4,7 +4,7 @@ import { GreedAcademyLogo } from "@/components/ga-logo";
 // import HowItWorks from "@/components/how-it-works";
 import dynamic from "next/dynamic";
 
-export function HomeContent() {
+export function HomeRoute() {
   return (
     <div className="h-full grid place-content-center">
       <GreedAcademyLogo className="text-white fixed top-8 left-1/2 -translate-x-1/2" />
