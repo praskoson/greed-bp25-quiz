@@ -46,7 +46,6 @@ export function MiniRouterProvider({
   const navigate = useCallback(
     (to: Route) => {
       if (to === route) return; // Don't navigate to the same route
-      console.log(`Navigating to ${to}`);
       setPreviousRoute(route);
       setRoute(to);
       setHistory((prev) => [...prev, to]);
