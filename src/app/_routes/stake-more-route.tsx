@@ -1,36 +1,36 @@
+import { ConnectedWalletButton } from "@/components/connected-wallet-button";
+import { GreedAcademyLogo } from "@/components/ga-logo";
+import { PendingWrapper } from "@/components/pending-wrapper";
 import Solana from "@/components/svg/sol-icon";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import { useSubmitStakeMutation } from "@/state/mutations/use-submit-stake-signature";
-import { motion } from "motion/react";
-import { ReactNode, useState } from "react";
-import { z } from "zod";
 import { useMiniRouter } from "@/state/mini-router";
+import { useSubmitSecondaryStakeMutation } from "@/state/mutations/use-submit-secondary-stake";
 import {
   WalletSendTransactionError,
   WalletSignMessageError,
   WalletSignTransactionError,
 } from "@solana/wallet-adapter-base";
-import { PendingWrapper } from "@/components/pending-wrapper";
-import { ConnectedWalletButton } from "@/components/connected-wallet-button";
-import { GreedAcademyLogo } from "@/components/ga-logo";
-import dynamic from "next/dynamic";
-import { GreedAcademyDottedBackground } from "@/components/ga-dotted-bg";
-
-const DynamicHowItWorks = dynamic(() => import("@/components/how-it-works"), {
-  ssr: false,
-});
+import { ChevronDown, CircleHelp } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { ReactNode, useState } from "react";
+import { z } from "zod";
 
 const formSchema = z.object({
-  amount: z.number().min(0.01, "Minimum stake amount is 0.1 SOL"),
+  amount: z.number().min(0.01, "Minimum stake amount is 0.01 SOL"),
   duration: z
     .number()
     .min(60, "Minimum stake duration is 60 days")
     .max(365, "Duration cannot exceed 365 days"),
 });
 
-export function StakeRoute() {
-  const { mutate, isPending, error } = useSubmitStakeMutation();
-  const { navigate } = useMiniRouter();
+export function StakeMoreRoute() {
+  const { mutate, isPending, error, data } = useSubmitSecondaryStakeMutation();
+  const { navigate, goBack } = useMiniRouter();
 
   const [amountInput, setAmountInput] = useState("");
   const [duration, setDuration] = useState(60);
@@ -87,14 +87,7 @@ export function StakeRoute() {
 
     if (!isValid) return;
 
-    mutate(
-      { solAmount: formData.amount, duration: formData.duration },
-      {
-        onSuccess: () => {
-          navigate("polling");
-        },
-      },
-    );
+    mutate({ solAmount: formData.amount, duration: formData.duration });
   };
 
   return (
@@ -104,14 +97,11 @@ export function StakeRoute() {
         onDisconnect={() => navigate("sign-in")}
       />
       <GreedAcademyLogo className="mt-5 text-foreground" />
-
-      <h1 className="mt-2 text-[36px]/[95%] font-black text-foreground tracking-[-1.1px] w-full text-center">
-        CAN YOU TOP THE LEADERBOARD?
-      </h1>
+      <WhyStakeMore />
       <form
         id="stake-form"
         onSubmit={handleSubmit}
-        className="mt-8 flex flex-col gap-5 py-2"
+        className="mt-6 flex flex-col gap-5 py-2"
       >
         <div>
           <InputGroup
@@ -151,14 +141,22 @@ export function StakeRoute() {
             Minimum duration is 60 days
           </span>
         </div>
-        <Button
-          type="submit"
-          form="stake-form"
-          disabled={isPending}
-          className="relative flex items-center gap-1 justify-center"
-        >
-          <PendingWrapper isPending={isPending}>Stake SOL</PendingWrapper>
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Button
+            type="submit"
+            form="stake-form"
+            disabled={isPending}
+            className="relative flex items-center gap-1 justify-center"
+          >
+            <PendingWrapper isPending={isPending}>Stake SOL</PendingWrapper>
+          </Button>
+          <button
+            onClick={() => goBack()}
+            className="text-foreground underline underline-offset-2 text-sm"
+          >
+            Go back →
+          </button>
+        </div>
       </form>
 
       <div className="relative h-6 w-full max-w-[350px]">
@@ -168,12 +166,54 @@ export function StakeRoute() {
           </div>
         )}
       </div>
-      <GreedAcademyDottedBackground />
-
-      <div className="mt-auto w-full">
-        <DynamicHowItWorks className="mt-4" />
-      </div>
     </div>
+  );
+}
+
+function WhyStakeMore() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="mt-4 font-base"
+    >
+      <CollapsibleTrigger className="flex items-center gap-2 mx-auto text-[#7E1D1D] hover:text-neutral transition-colors">
+        <CircleHelp className="size-5" />
+        <span className="text-base font-medium">
+          Why should I stake more SOL?
+        </span>
+        <ChevronDown
+          className={cn(
+            "size-4 transition-transform duration-200",
+            isOpen && "rotate-180",
+          )}
+        />
+      </CollapsibleTrigger>
+      <CollapsibleContent forceMount>
+        <AnimatePresence initial={false}>
+          {isOpen && (
+            <motion.ul
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="mt-4 space-y-2 text-sm text-[#7E1D1D] overflow-hidden list-disc pl-5"
+            >
+              <li>
+                Staking more SOL can improve your position on the leaderboard
+                (Score = Correct Answers × Total Stake)
+              </li>
+              <li>
+                Staking with the Greed Academy validator helps support our
+                non-profit education initiatives.
+              </li>
+            </motion.ul>
+          )}
+        </AnimatePresence>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
@@ -195,7 +235,7 @@ function InputGroup({
   icon?: ReactNode;
 }) {
   return (
-    <div className="flex h-[52px] items-stretch gap-1">
+    <div className="flex h-11 items-stretch gap-1">
       <input
         type={type}
         value={value}
@@ -214,7 +254,7 @@ function InputGroup({
         placeholder={placeholder}
       />
       {icon && (
-        <div className="bg-surface-1 grid w-[58px] shrink-0 place-content-center rounded-full">
+        <div className="bg-surface-1 grid w-[54px] shrink-0 place-content-center rounded-full">
           {icon}
         </div>
       )}
@@ -230,8 +270,8 @@ function Button({
   className,
 }: {
   type: "submit" | "button";
-  form: string;
-  disabled: boolean;
+  form?: string;
+  disabled?: boolean;
   children: ReactNode;
   className?: string;
 }) {
@@ -244,7 +284,7 @@ function Button({
       form={form}
       disabled={disabled}
       className={cn(
-        "w-full max-w-[350px] bg-brand-dark text-foreground-muted h-14 rounded-full text-sm/[130%] font-medium",
+        "w-full max-w-[350px] bg-brand-dark text-foreground-muted h-11 rounded-full text-sm/[130%] font-medium",
         className,
       )}
     >

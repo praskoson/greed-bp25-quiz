@@ -6,13 +6,15 @@ import { StakeRoute } from "./_routes/stake-route";
 import { PollingRoute } from "./_routes/polling-route";
 import { AnimatePresence, motion, Variants } from "motion/react";
 import { QuizRoute } from "./_routes/quiz-route";
+import { StakeMoreRoute } from "./_routes/stake-more-route";
 
 // Route order for determining navigation direction
 const routeOrder: Record<Route, number> = {
   "sign-in": 0,
-  stake: 1,
-  polling: 3,
-  quiz: 2,
+  "stake-more": 1,
+  stake: 2,
+  polling: 4,
+  quiz: 3,
   failed: 4,
 };
 
@@ -37,7 +39,7 @@ const pageVariants: Variants = {
     opacity: 1,
     transition: {
       x: { duration: 0.3, ease: [0.32, 0.72, 0, 1] },
-      opacity: { duration: 0.25 },
+      opacity: { duration: 0.3 },
     },
   },
   exit: (direction: number) => ({
@@ -45,7 +47,7 @@ const pageVariants: Variants = {
     opacity: 0,
     transition: {
       x: { duration: 0.3, ease: [0.32, 0.72, 0, 1] },
-      opacity: { duration: 0.25 },
+      opacity: { duration: 0.3 },
     },
   }),
 };
@@ -70,6 +72,19 @@ export default function Home() {
             className="absolute inset-0 overflow-y-auto overflow-x-clip"
           >
             <HomeRoute />
+          </motion.div>
+        )}
+        {route === "stake-more" && (
+          <motion.div
+            key="stake-more"
+            custom={direction}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="absolute inset-0 overflow-y-auto"
+          >
+            <StakeMoreRoute />
           </motion.div>
         )}
         {route === "stake" && (

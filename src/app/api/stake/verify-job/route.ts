@@ -68,12 +68,13 @@ async function handler(request: NextRequest) {
       );
     }
 
-    // Mark stake as confirmed
+    // Mark stake as confirmed and set totalStakeLamports to primary stake amount
     await db
       .update(userQuizSessions)
       .set({
         stakeVerification: "success",
         stakeConfirmedAt: new Date(),
+        totalStakeLamports: session.stakeAmountLamports,
       })
       .where(eq(userQuizSessions.id, sessionId));
 

@@ -22,6 +22,7 @@ import { RouteContainer } from "./route-container";
 import { GreedAcademyLogo } from "@/components/ga-logo";
 import { GreedAcademyDottedBackground } from "@/components/ga-dotted-bg";
 import { PendingWrapper } from "@/components/pending-wrapper";
+import { useMiniRouter } from "@/state/mini-router";
 
 const PENDING_DELAY_MS = 180;
 
@@ -466,7 +467,7 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
         <div className="text-[64px]/[100%] font-black text-foreground">
           {result.score}/{result.totalQuestions}
         </div>
-        <div className="mt-2 text-base text-brand">Correct Answers</div>
+        <div className="mt-2 text-base text-[#A37878]">Correct Answers</div>
         <div className="mt-5 text-base text-brand">
           Signed in as {walletAddress?.slice(0, 4)}…{walletAddress?.slice(-4)}
         </div>
@@ -496,6 +497,7 @@ function QuizAlreadyCompletedState({
   completedAt: Date;
   questions: QuizQuestionResult[];
 }) {
+  const { navigate } = useMiniRouter();
   const { walletAddress } = useWalletAuth();
   const [openAnswers, setOpenAnswers] = useState(false);
 
@@ -542,18 +544,27 @@ function QuizAlreadyCompletedState({
         <div className="text-[64px]/[100%] font-black text-foreground">
           {score}/{totalQuestions}
         </div>
-        <div className="mt-2 text-base text-brand">Correct Answers</div>
+        <div className="mt-2 text-base text-[#A37878]">Correct Answers</div>
         <div className="mt-5 text-base text-brand">
           Signed in as {walletAddress?.slice(0, 4)}…{walletAddress?.slice(-4)}
         </div>
-        <div className="mt-6 flex flex-col gap-2 px-3">
-          <LinkButton href="/leaderboard">View the Leaderboard</LinkButton>
+        <div className="mt-6 grid grid-cols-2 gap-2 px-3">
+          <LinkButton href="/leaderboard" className="col-span-2">
+            View the Leaderboard
+          </LinkButton>
           <Button
             onClick={() => setOpenAnswers(true)}
             variant="soft"
-            className="w-full shrink-0"
+            className="w-full shrink-0 px-0"
           >
             View Answers
+          </Button>
+          <Button
+            onClick={() => navigate("stake-more")}
+            variant="default"
+            className="w-full shrink-0 px-0"
+          >
+            Stake More
           </Button>
         </div>
       </div>

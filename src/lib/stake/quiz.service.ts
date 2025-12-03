@@ -385,7 +385,8 @@ export class QuizService {
         walletAddress: users.walletAddress,
         score: userQuizSessions.score,
         completedAt: userQuizSessions.completedAt,
-        stakeAmountLamports: userQuizSessions.stakeAmountLamports,
+        // Use totalStakeLamports for ranking, fallback to stakeAmountLamports for older records
+        stakeAmountLamports: sql<number>`COALESCE(${userQuizSessions.totalStakeLamports}, ${userQuizSessions.stakeAmountLamports})`,
         stakeDurationSeconds: userQuizSessions.stakeDurationSeconds,
       })
       .from(userQuizSessions)

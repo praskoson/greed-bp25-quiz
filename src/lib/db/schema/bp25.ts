@@ -60,12 +60,15 @@ export const userQuizSessions = bp25Schema.table(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
 
-    // Stake info
+    // Stake info (primary stake)
     stakeAmountLamports: bigint({ mode: "number" }).notNull(),
     stakeDurationSeconds: integer().notNull(),
     stakeSignature: varchar().notNull().unique(),
     stakeVerification: stakeVerificationStateEnum().default("processing"),
     stakeConfirmedAt: timestamp(),
+
+    // Cached total of all stakes (primary + secondary)
+    totalStakeLamports: bigint({ mode: "number" }),
 
     createdAt: timestamp().defaultNow().notNull(),
 
@@ -78,6 +81,26 @@ export const userQuizSessions = bp25Schema.table(
     uniqueIndex("user_quiz_sesson_stake_signature_idx").on(
       table.stakeSignature,
     ),
+  ],
+);
+
+export const secondaryUserStakes = bp25Schema.table(
+  "secondary_user_stake",
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    sessionId: uuid()
+      .notNull()
+      .references(() => userQuizSessions.id, { onDelete: "cascade" }),
+    amountLamports: bigint({ mode: "number" }).notNull(),
+    durationSeconds: integer().notNull(),
+    signature: varchar().notNull().unique(),
+    verification: stakeVerificationStateEnum().default("processing"),
+    confirmedAt: timestamp(),
+    createdAt: timestamp().defaultNow().notNull(),
+  },
+  (table) => [
+    index("secondary_user_stake_session_id_idx").on(table.sessionId),
+    uniqueIndex("secondary_user_stake_signature_idx").on(table.signature),
   ],
 );
 
@@ -154,5 +177,7 @@ export type NewUser = typeof users.$inferInsert;
 export type AuthSession = typeof authSessions.$inferSelect;
 export type NewAuthSession = typeof authSessions.$inferInsert;
 export type AppSettings = typeof appSettings.$inferSelect;
-// export type GameSession = typeof gameSessions.$inferSelect;
-// export type NewGameSession = typeof gameSessions.$inferInsert;
+export type UserQuizSession = typeof userQuizSessions.$inferSelect;
+export type NewUserQuizSession = typeof userQuizSessions.$inferInsert;
+export type SecondaryUserStake = typeof secondaryUserStakes.$inferSelect;
+export type NewSecondaryUserStake = typeof secondaryUserStakes.$inferInsert;

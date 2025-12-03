@@ -12,7 +12,13 @@ import {
 /**
  * Available routes in the app
  */
-export type Route = "sign-in" | "stake" | "failed" | "polling" | "quiz";
+export type Route =
+  | "sign-in"
+  | "stake"
+  | "failed"
+  | "polling"
+  | "quiz"
+  | "stake-more";
 
 type MiniRouterContextValue = {
   /** Current active route */

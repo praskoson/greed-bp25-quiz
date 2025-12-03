@@ -1,7 +1,11 @@
 import "server-only";
 import { Client } from "@upstash/qstash";
 import { env } from "@/env";
-import { DlqMessageBodySchema, VerifyStakeJobPayload } from "./types";
+import {
+  DlqMessageBodySchema,
+  VerifyStakeJobPayload,
+  VerifySecondaryStakeJobPayload,
+} from "./types";
 
 const qstashClient = new Client({
   token: env.QSTASH_TOKEN,
@@ -16,6 +20,25 @@ export async function publishStakeVerificationJob(
 ) {
   console.log("publishStakeVerificationJob", payload);
   const verifyUrl = `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}/api/stake/verify-job`;
+
+  await qstashClient.publishJSON({
+    url: verifyUrl,
+    body: payload,
+    retries: 3,
+    delay: 1,
+    retryDelay: "pow(2, retried) * 1000",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+    },
+  });
+}
+
+export async function publishSecondaryStakeVerificationJob(
+  payload: VerifySecondaryStakeJobPayload,
+) {
+  console.log("publishSecondaryStakeVerificationJob", payload);
+  const verifyUrl = `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}/api/stake/secondary/verify-job`;
 
   await qstashClient.publishJSON({
     url: verifyUrl,

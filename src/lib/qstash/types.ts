@@ -8,6 +8,14 @@ export interface VerifyStakeJobPayload {
   sessionId: string;
 }
 
+export interface VerifySecondaryStakeJobPayload {
+  signature: string;
+  walletAddress: string;
+  amount: number;
+  duration: number;
+  stakeId: string;
+}
+
 export const DlqMessageBodySchema = z.object({
   walletAddress: z.string(),
   sessionId: z.string(),
