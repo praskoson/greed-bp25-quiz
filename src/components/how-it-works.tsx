@@ -50,7 +50,7 @@ export default function HowItWorks({ className }: { className?: string }) {
               </ul>
             </div>
             <motion.a
-              whileHover={{ scale: 1.04 }}
+              whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.96 }}
               href="https://x.com/GreedAcademy"
               target="_blank"

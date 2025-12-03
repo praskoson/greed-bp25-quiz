@@ -169,7 +169,7 @@ function SuccessState() {
       </p>
       <motion.button
         whileTap={{ scale: 0.96 }}
-        whileHover={{ scale: 1.04 }}
+        whileHover={{ scale: 1.03 }}
         className={cn(
           "h-[54px] w-full mt-6",
           "flex items-center justify-center rounded-full",
@@ -178,6 +178,18 @@ function SuccessState() {
         onClick={() => navigate("quiz")}
       >
         Start Quiz
+      </motion.button>
+      <motion.button
+        whileTap={{ scale: 0.96 }}
+        whileHover={{ scale: 1.03 }}
+        className={cn(
+          "h-[54px] w-full mt-2",
+          "flex items-center justify-center rounded-full",
+          "text-white bg-[#003820] font-medium text-sm/[130%]",
+        )}
+        onClick={() => navigate("stake-more")}
+      >
+        Stake more SOL
       </motion.button>
 
       <GreedAcademyDottedBackground />
