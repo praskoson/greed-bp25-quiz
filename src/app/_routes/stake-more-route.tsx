@@ -154,6 +154,7 @@ export function StakeMoreRoute() {
             <PendingWrapper isPending={isPending}>Stake SOL</PendingWrapper>
           </Button>
           <button
+            type="button"
             onClick={() => goBack()}
             className="text-foreground underline underline-offset-2 text-sm"
           >
@@ -365,6 +366,7 @@ function VerificationSheet({
               </p>
             </div>
             <button
+              type="button"
               onClick={onClose}
               className="mt-4 text-foreground underline underline-offset-2 text-sm"
             >
