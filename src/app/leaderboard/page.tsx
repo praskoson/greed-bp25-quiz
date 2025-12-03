@@ -31,8 +31,6 @@ export default async function LeaderboardPage() {
     return <LeaderboardErrorState error={error} />;
   }
 
-  // entries.push(...generateLeaderboardEntries(30));
-
   return <LeaderboardContent entries={entries} />;
 }
 
@@ -158,7 +156,7 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
       </Link>
     </div>
   ) : (
-    <div className="mt-8 max-xl:space-y-2 flex-1 min-h-0 w-full pb-20 xl:bg-white xl:rounded-[14px] xl:mx-2 xl:px-12 xl:py-[52px] xl:grid xl:grid-cols-32 xl:gap-y-4 xl:overflow-y-auto scrollbar-hidden">
+    <div className="mt-8 max-xl:space-y-2 flex-1 min-h-0 w-full pb-20 xl:bg-white xl:rounded-[14px] xl:mx-2 xl:px-12 xl:py-[52px] xl:grid xl:content-start xl:grid-cols-32 xl:gap-y-4 xl:overflow-y-auto scrollbar-hidden">
       <div className="hidden xl:grid items-center grid-cols-subgrid col-span-full font-semibold text-sm text-[#B59090] uppercase">
         <div className="text-center col-span-2">#</div>
         <div aria-hidden="true">{/* spacer */}</div>

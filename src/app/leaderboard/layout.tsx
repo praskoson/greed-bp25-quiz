@@ -3,7 +3,7 @@ import { BackLink } from "./_components/back-link";
 
 export default function Layout({ children }: { children?: React.ReactNode }) {
   return (
-    <div className="relative xl:max-h-screen min-h-screen bg-surface-2 p-4 xl:pb-10 flex flex-col items-center">
+    <div className="relative min-h-screen bg-surface-2 p-4 xl:pb-10 flex flex-col items-center">
       <div className="grow min-h-0 flex flex-col items-center max-w-[1400px] w-full">
         <GreedAcademyLogo className="text-brand-dark mt-5 xl:mt-10 xl:scale-150" />
         <h1 className="mt-2 text-[36px]/none font-black text-foreground tracking-[-1.1px] xl:mt-6 xl:text-[96px]/none xl:tracking-[-3px] xl:text-neutral">
