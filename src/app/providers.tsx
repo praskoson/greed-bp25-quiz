@@ -11,7 +11,7 @@ import { WalletAuthProvider } from "@/state/use-wallet-auth";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { getQueryClient } from "./get-query-client";
 import { WalletSignTransactionError } from "@solana/wallet-adapter-base";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+// import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const DynamicModalProvider = dynamic(() =>
   import("@solana/wallet-adapter-react-ui").then(
@@ -38,7 +38,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <WalletAuthProvider>
             <QueryClientProvider client={queryClient}>
               {children}
-              <ReactQueryDevtools initialIsOpen={false} />
+              {/*<ReactQueryDevtools initialIsOpen={false} />*/}
             </QueryClientProvider>
           </WalletAuthProvider>
         </DynamicModalProvider>

@@ -231,15 +231,23 @@ export class StakeService {
   }
 
   /**
-   * Get a secondary stake by ID
+   * Get a secondary stake by ID with session total
    */
   static async getSecondaryStake(stakeId: string) {
-    const [stake] = await db
-      .select()
+    const [result] = await db
+      .select({
+        id: secondaryUserStakes.id,
+        verification: secondaryUserStakes.verification,
+        totalStakeLamports: sql<number>`COALESCE(${userQuizSessions.totalStakeLamports}, ${userQuizSessions.stakeAmountLamports})`,
+      })
       .from(secondaryUserStakes)
+      .innerJoin(
+        userQuizSessions,
+        eq(secondaryUserStakes.sessionId, userQuizSessions.id),
+      )
       .where(eq(secondaryUserStakes.id, stakeId))
       .limit(1);
 
-    return stake || null;
+    return result || null;
   }
 }

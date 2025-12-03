@@ -1,3 +1,4 @@
+import { AnimatedGreedLoader } from "@/components/greed-loader";
 import { ConnectedWalletButton } from "@/components/connected-wallet-button";
 import { GreedAcademyLogo } from "@/components/ga-logo";
 import { PendingWrapper } from "@/components/pending-wrapper";
@@ -10,12 +11,14 @@ import {
 import { cn } from "@/lib/utils";
 import { useMiniRouter } from "@/state/mini-router";
 import { useSubmitSecondaryStakeMutation } from "@/state/mutations/use-submit-secondary-stake";
+import { secondaryStakeStatusOptions } from "@/state/queries/secondary-stake-status-options";
 import {
   WalletSendTransactionError,
   WalletSignMessageError,
   WalletSignTransactionError,
 } from "@solana/wallet-adapter-base";
-import { ChevronDown, CircleHelp } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { CheckCircle, ChevronDown, CircleHelp, XCircle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { ReactNode, useState } from "react";
 import { z } from "zod";
@@ -101,7 +104,7 @@ export function StakeMoreRoute() {
       <form
         id="stake-form"
         onSubmit={handleSubmit}
-        className="mt-6 flex flex-col gap-5 py-2"
+        className="w-full mt-6 flex flex-col gap-5 py-2"
       >
         <div>
           <InputGroup
@@ -141,7 +144,7 @@ export function StakeMoreRoute() {
             Minimum duration is 60 days
           </span>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 items-center">
           <Button
             type="submit"
             form="stake-form"
@@ -166,6 +169,10 @@ export function StakeMoreRoute() {
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {data && <VerificationSheet stakeId={data.stakeId} onClose={goBack} />}
+      </AnimatePresence>
     </div>
   );
 }
@@ -235,7 +242,7 @@ function InputGroup({
   icon?: ReactNode;
 }) {
   return (
-    <div className="flex h-11 items-stretch gap-1">
+    <div className="flex h-12 items-stretch gap-1">
       <input
         type={type}
         value={value}
@@ -284,7 +291,7 @@ function Button({
       form={form}
       disabled={disabled}
       className={cn(
-        "w-full max-w-[350px] bg-brand-dark text-foreground-muted h-11 rounded-full text-sm/[130%] font-medium",
+        "w-full max-w-[300px] bg-brand-dark text-foreground-muted h-12 rounded-full text-sm/[130%] font-medium",
         className,
       )}
     >
@@ -300,4 +307,134 @@ function isExpectedError(error: Error): boolean {
     error instanceof WalletSignMessageError;
 
   return expected;
+}
+
+type VerificationState = "loading" | "success" | "error";
+
+function getVerificationState(
+  data: { status: string | null } | undefined,
+  error: Error | null,
+  failureCount: number,
+): VerificationState {
+  if (error && failureCount >= 3) return "error";
+  if (data?.status === "failed") return "error";
+  if (data?.status === "success") return "success";
+  return "loading";
+}
+
+function VerificationSheet({
+  stakeId,
+  onClose,
+}: {
+  stakeId: string;
+  onClose: () => void;
+}) {
+  const { data, error, failureCount } = useQuery({
+    ...secondaryStakeStatusOptions(stakeId),
+    refetchInterval: 5000,
+  });
+
+  const state = getVerificationState(data, error, failureCount);
+
+  return (
+    <motion.div
+      initial={{ y: "100%" }}
+      animate={{ y: "0%" }}
+      exit={{ y: "100%" }}
+      transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+      className="absolute inset-0 z-10 bg-surface-2 flex flex-col items-center p-4"
+    >
+      <GreedAcademyLogo className="mt-10 text-foreground" />
+
+      <AnimatePresence mode="wait" initial={false}>
+        {state === "loading" && (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="flex-1 flex flex-col items-center justify-center gap-6"
+          >
+            <AnimatedGreedLoader className="w-full min-w-[300px] max-w-[400px]" />
+            <div className="text-center">
+              <h2 className="text-[28px]/[95%] font-black text-foreground tracking-[-1px]">
+                VERIFYING STAKE
+              </h2>
+              <p className="mt-4 text-base text-[#7E1D1D]">
+                This usually takes a few seconds
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="mt-4 text-foreground underline underline-offset-2 text-sm"
+            >
+              Go back →
+            </button>
+          </motion.div>
+        )}
+
+        {state === "success" && data && (
+          <motion.div
+            key="success"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="flex-1 flex flex-col items-center justify-center gap-6"
+          >
+            <CheckCircle className="size-24 text-[#00522F]" />
+            <div className="text-center">
+              <h2 className="text-[28px]/[95%] font-black text-foreground tracking-[-1px]">
+                STAKE VERIFIED!
+              </h2>
+              <p className="mt-4 text-base text-[#7E1D1D]">
+                Your additional stake has been confirmed
+              </p>
+              <p className="mt-2 text-lg font-semibold text-foreground">
+                Total stake: {data.totalStakeSol.toFixed(2)} SOL
+              </p>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={onClose}
+              className="mt-4 w-full max-w-[350px] bg-brand-dark text-foreground-muted h-11 rounded-full text-sm/[130%] font-medium"
+            >
+              Go back
+            </motion.button>
+          </motion.div>
+        )}
+
+        {state === "error" && (
+          <motion.div
+            key="error"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="flex-1 flex flex-col items-center justify-center gap-6"
+          >
+            <XCircle className="size-24 text-destructive" />
+            <div className="text-center">
+              <h2 className="text-[28px]/[95%] font-black text-foreground tracking-[-1px]">
+                VERIFICATION FAILED
+              </h2>
+              <p className="mt-4 text-base text-[#7E1D1D]">
+                We couldn&apos;t verify your stake
+              </p>
+              {error && (
+                <p className="mt-2 text-sm text-[#A37878]">{error.message}</p>
+              )}
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={onClose}
+              className="mt-4 w-full max-w-[350px] bg-brand-dark text-foreground-muted h-11 rounded-full text-sm/[130%] font-medium"
+            >
+              Go back
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
 }

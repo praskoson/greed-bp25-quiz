@@ -6,6 +6,7 @@ export const RQKEY = (stakeId: string) => [RQKEY_ROOT, stakeId];
 export type SecondaryStakeStatusResponse = {
   success: true;
   status: "failed" | "processing" | "success" | null;
+  totalStakeSol: number;
 };
 
 export const secondaryStakeStatusOptions = (stakeId?: string) =>

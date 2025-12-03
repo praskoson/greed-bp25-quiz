@@ -24,6 +24,7 @@ const handler = async (request: NextRequest, _context: AuthContext) => {
     return NextResponse.json({
       success: true,
       status: stake.verification,
+      totalStakeSol: stake.totalStakeLamports / 1e9,
     });
   } catch (error: any) {
     logError(error, "secondary-stake-status");
