@@ -45,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${interTight.variable} ${futuraBold.variable} antialiased font-base text-foreground-1`}
+        className={`${interTight.variable} ${futuraBold.variable} antialiased font-base text-foreground-1 bg-surface-2`}
       >
         <Providers>
           <MiniRouterProvider initialRoute="sign-in">

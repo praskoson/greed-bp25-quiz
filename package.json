@@ -13,6 +13,7 @@
     "admin:add-user": "tsx src/scripts/add_admin_user.ts"
   },
   "dependencies": {
+    "@base-ui-components/react": "1.0.0-beta.7",
     "@hookform/resolvers": "^5.2.2",
     "@neondatabase/serverless": "^1.0.2",
     "@next/env": "^16.0.3",

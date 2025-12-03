@@ -2,12 +2,12 @@ import clsx from "clsx";
 
 export function GreedAcademyLogo({ className }: { className?: string }) {
   return (
-    <div className={clsx("flex items-center select-none", className)}>
+    <div className={clsx("flex items-center select-none h-[38px]", className)}>
       <svg
         viewBox="0 0 962 693"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-auto w-18 translate-y-[-3px]"
+        className="h-auto w-14 translate-y-[-3px]"
       >
         <g clipPath="url(#clip0_386_357)">
           <path
@@ -31,7 +31,7 @@ export function GreedAcademyLogo({ className }: { className?: string }) {
         </defs>
       </svg>
 
-      <span className="font-futura text-[20px] font-semibold tracking-[-0.4px] whitespace-nowrap text-current pr-2.5">
+      <span className="font-futura text-[20px]/none font-semibold tracking-[-0.4px] whitespace-nowrap text-current pr-2.5">
         GREED ACADEMY
       </span>
     </div>

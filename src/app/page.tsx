@@ -11,8 +11,8 @@ import { QuizRoute } from "./_routes/quiz-route";
 const routeOrder: Record<Route, number> = {
   "sign-in": 0,
   stake: 1,
-  polling: 2,
-  quiz: 3,
+  polling: 3,
+  quiz: 2,
   failed: 4,
 };
 
@@ -22,10 +22,6 @@ function getDirection(
   previousRoute: Route | null,
 ): number {
   if (!previousRoute) return 1;
-
-  // Special cases
-  // if (previousRoute === "sign-in") return 1; // sign-in always exits left
-  // if (previousRoute === "polling") return -1; // polling always exits right
 
   // Default: compare route order
   return routeOrder[currentRoute] > routeOrder[previousRoute] ? 1 : -1;
@@ -61,7 +57,7 @@ export default function Home() {
   const direction = getDirection(route, previousRoute);
 
   return (
-    <div className="isolate relative min-h-dvh bg-brand overflow-hidden">
+    <div className="isolate relative min-h-dvh overflow-hidden">
       <AnimatePresence mode="popLayout" custom={direction} initial={false}>
         {route === "sign-in" && (
           <motion.div

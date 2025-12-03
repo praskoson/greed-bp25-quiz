@@ -1,12 +1,20 @@
 "use client";
 
+import clsx from "clsx";
 import { Drawer } from "vaul";
+import { QuestionCircle } from "./svg/question-circle";
 
-export default function HowItWorks() {
+export default function HowItWorks({ className }: { className?: string }) {
   return (
     <Drawer.Root>
-      <Drawer.Trigger className="fixed bottom-9 size-10 left-6 rounded-full bg-foreground-2 shadow-lg grid place-content-center text-brand-dark text-xl font-black">
-        ?
+      <Drawer.Trigger
+        className={clsx(
+          "size-[60px] grid place-content-center rounded-full",
+          "rounded-full shadow-lg bg-brand-dark text-foreground-muted hover:bg-brand",
+          className,
+        )}
+      >
+        <QuestionCircle className="size-7" />
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />

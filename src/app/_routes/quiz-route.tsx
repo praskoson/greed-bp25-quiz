@@ -9,12 +9,19 @@ import { submitAnswersMutationOption } from "@/state/mutations/use-submit-quiz-a
 import { quizQuestionsOptions } from "@/state/queries/quiz-questions";
 import { useWalletAuth } from "@/state/use-wallet-auth";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  UseMutateFunction,
+  useMutation,
+  useQuery,
+} from "@tanstack/react-query";
 import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { ReactNode, useState, useEffect } from "react";
 import { RouteContainer } from "./route-container";
+import { GreedAcademyLogo } from "@/components/ga-logo";
+import { GreedAcademyDottedBackground } from "@/components/ga-dotted-bg";
+import { PendingWrapper } from "@/components/pending-wrapper";
 
 const PENDING_DELAY_MS = 180;
 
@@ -54,7 +61,13 @@ const fadeSlideUp = {
   },
 };
 
-type QuizState = "pending" | "error" | "finished" | "quiz";
+type QuizState =
+  | "pending"
+  | "error"
+  | "already-completed"
+  | "ready"
+  | "completed"
+  | "submit-error";
 
 function useDelayedPending(isPending: boolean, delayMs: number): boolean {
   const [showPending, setShowPending] = useState(false);
@@ -79,16 +92,27 @@ export function QuizRoute() {
     staleTime: Infinity,
   });
 
+  const {
+    error: mutationError,
+    data: mutationData,
+    mutate,
+    isPending: isMutationPending,
+  } = useMutation(submitAnswersMutationOption);
+
   const showPending = useDelayedPending(isPending, PENDING_DELAY_MS);
 
   // Determine current state
-  let state: QuizState = "quiz";
+  let state: QuizState = "pending";
   if (isPending) state = "pending";
   else if (error) state = "error";
-  else if (data?.state === "finished") state = "finished";
+  else if (data?.state === "finished") state = "already-completed";
+  else if (mutationError) state = "submit-error";
+  else if (mutationData) state = "completed";
+  else state = "ready";
 
   return (
-    <RouteContainer>
+    <RouteContainer className="bg-brand overflow-hidden flex flex-col">
+      <GreedAcademyLogo className="w-full mx-auto mt-10 text-white justify-center" />
       <AnimatePresence mode="wait">
         {state === "pending" && showPending && (
           <QuizPendingState key="pending" />
@@ -98,7 +122,7 @@ export function QuizRoute() {
           <QuizErrorState key="error" error={error} />
         )}
 
-        {state === "finished" && data?.state === "finished" && (
+        {state === "already-completed" && data?.state === "finished" && (
           <QuizAlreadyCompletedState
             key="finished"
             score={data.score}
@@ -107,10 +131,22 @@ export function QuizRoute() {
           />
         )}
 
-        {state === "quiz" && data?.state === "ready" && (
-          <QuizContent key="quiz" questions={data.questions} />
+        {state === "ready" && data?.state === "ready" && (
+          <QuizContent
+            key="quiz"
+            questions={data.questions}
+            mutate={mutate}
+            isPending={isMutationPending}
+          />
         )}
+
+        {state === "submit-error" && (
+          <QuizSubmissionErrorState error={mutationError!} />
+        )}
+
+        {state === "completed" && <QuizResultsState result={mutationData!} />}
       </AnimatePresence>
+      <GreedAcademyDottedBackground className="absolute bottom-10 z-0" />
     </RouteContainer>
   );
 }
@@ -118,7 +154,7 @@ export function QuizRoute() {
 function QuizPendingState() {
   return (
     <motion.div
-      className="flex-1 flex flex-col items-center justify-center gap-6"
+      className="mt-8 flex-1 flex flex-col items-center gap-6 "
       variants={stateVariants}
       initial="initial"
       animate="animate"
@@ -131,13 +167,13 @@ function QuizPendingState() {
         className="flex flex-col items-center gap-6"
       >
         <motion.div variants={fadeSlideUp}>
-          <Spinner className="size-24 text-brand" />
+          <Spinner className="size-20 text-white" />
         </motion.div>
-        <motion.div className="text-center" variants={fadeSlideUp}>
-          <h2 className="text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
+        <motion.div className="text-white" variants={fadeSlideUp}>
+          <h2 className="text-center text-[32px]/[95%] font-black text-white tracking-[-0.4px]">
             Loading Quiz...
           </h2>
-          <p className="mt-4 text-sm text-[#7E1D1D]">
+          <p className="mt-4 text-sm text-foreground-muted">
             Please wait while we load your questions
           </p>
         </motion.div>
@@ -147,17 +183,13 @@ function QuizPendingState() {
 }
 
 function QuizErrorState({ error }: { error: Error }) {
-  const handleRetry = () => {
-    window.location.reload();
-  };
-
   const handleGoBack = () => {
-    window.history.back();
+    window.location.reload();
   };
 
   return (
     <motion.div
-      className="flex-1 flex flex-col"
+      className="mt-8 flex-1 flex flex-col"
       variants={stateVariants}
       initial="initial"
       animate="animate"
@@ -173,23 +205,23 @@ function QuizErrorState({ error }: { error: Error }) {
           <XCircle className="size-24 text-destructive" />
         </motion.div>
         <motion.div className="text-center px-4" variants={fadeSlideUp}>
-          <h2 className="text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
+          <h2 className="text-[32px]/[100%] font-black text-white tracking-[-0.4px]">
             Unable to Load Quiz
           </h2>
-          <p className="mt-4 text-sm text-[#7E1D1D]">
+          <p className="mt-4 text-sm text-surface-2">
             We encountered an error while loading your quiz.
           </p>
           {error.message && (
-            <p className="mt-2 text-xs text-[#A37878] wrap-break-word">
+            <p className="mt-2 text-sm text-surface-2 wrap-break-word">
               {error.message}
             </p>
           )}
         </motion.div>
         <motion.div className="flex flex-col gap-3" variants={fadeSlideUp}>
-          <Button onClick={handleRetry}>Try Again</Button>
+          {/*<Button onClick={handleRetry}>Try Again</Button>*/}
           <button
             onClick={handleGoBack}
-            className="text-sm text-[#A37878] hover:text-neutral"
+            className="text-sm text-surface-2 hover:text-surface-3 underline underline-offset-4"
           >
             ← Go Back
           </button>
@@ -199,10 +231,23 @@ function QuizErrorState({ error }: { error: Error }) {
   );
 }
 
-function QuizContent({ questions }: { questions: QuizQuestion[] }) {
-  const { mutate, isPending, isError, data } = useMutation(
-    submitAnswersMutationOption,
-  );
+function QuizContent({
+  questions,
+  mutate,
+  isPending,
+}: {
+  questions: QuizQuestion[];
+  isPending: boolean;
+  mutate: UseMutateFunction<
+    SubmitQuizAnswersResult,
+    Error,
+    {
+      questionId: string;
+      answerId: string;
+    }[],
+    unknown
+  >;
+}) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Map<string, string>>(
     new Map(),
@@ -246,61 +291,39 @@ function QuizContent({ questions }: { questions: QuizQuestion[] }) {
   const selectedAnswerId = selectedAnswers.get(currentQuestion.questionId);
   const canSubmit = selectedAnswers.size === totalQuestions;
 
-  // Show submitting state
-  if (isPending) {
-    return <QuizSubmittingState />;
-  }
-
-  // Show error state
-  if (isError) {
-    return <QuizSubmissionErrorState onRetry={handleSubmit} />;
-  }
-
-  // Show results state
-  if (data) {
-    return <QuizResultsState result={data} />;
-  }
-
   return (
     <motion.div
-      className="flex-1 flex flex-col"
-      variants={stateVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
+      initial={{ y: "100%" }}
+      animate={{ y: "0%" }}
+      exit={{ y: "100%" }}
+      transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1], delay: 0.1 }}
+      className="mt-8 z-1 flex-1 flex flex-col bg-[#F9F6F6] rounded-t-2xl px-4 py-5"
     >
-      <div className="flex-1 flex flex-col p-3 pt-0">
-        {/* Header with category and progress */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="inline-block px-3 py-1 bg-brand/10 text-brand text-sm font-medium rounded-full">
-              {currentQuestion.categoryName}
-            </span>
-            <span className="text-sm text-[#7E1D1D] font-medium">
-              {currentQuestionIndex + 1} / {totalQuestions}
-            </span>
-          </div>
+      <span className="bg-surface-3 text-foreground rounded-[4px] font-medium text-base/[130%] w-fit px-2 py-1">
+        {currentQuestion.categoryName}
+      </span>
 
-          {/* Progress bar */}
-          <div className="w-full bg-surface-3 rounded-full h-2">
-            <div
-              className="bg-brand h-2 rounded-full transition-all duration-300"
-              style={{
-                width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%`,
-              }}
-            />
-          </div>
+      <div className="pt-12 pb-6">
+        <span className="sr-only">
+          Progress: {currentQuestionIndex + 1} / {totalQuestions}
+        </span>
+        <div className="w-full grid grid-cols-5 gap-1 h-1 *:rounded-[30px]">
+          <div className="bg-brand" />
+          {/* prettier-ignore */}
+          <div className={currentQuestionIndex > 0 ? "bg-brand" : "bg-surface-3"} />
+          {/* prettier-ignore */}
+          <div className={currentQuestionIndex > 1 ? "bg-brand" : "bg-surface-3"} />
+          {/* prettier-ignore */}
+          <div className={currentQuestionIndex > 2 ? "bg-brand" : "bg-surface-3"} />
+          {/* prettier-ignore */}
+          <div className={currentQuestionIndex > 3 ? "bg-brand" : "bg-surface-3"} />
         </div>
-
-        {/* Question */}
-        <div className="mt-6">
-          <h2 className="text-xl font-bold text-neutral leading-relaxed">
-            {currentQuestion.questionText}
-          </h2>
-        </div>
-
-        {/* Answer options */}
-        <div className="mt-6 space-y-3">
+      </div>
+      <div>
+        <h2 className="font-medium text-foreground text-xl/tight">
+          {currentQuestion.questionText}
+        </h2>
+        <div className="mt-8 flex flex-col gap-4">
           {currentQuestion.answers.map((answer) => {
             const isSelected = selectedAnswerId === answer.id;
             return (
@@ -308,55 +331,44 @@ function QuizContent({ questions }: { questions: QuizQuestion[] }) {
                 key={answer.id}
                 onClick={() => handleAnswerSelect(answer.id)}
                 className={cn(
-                  "w-full p-4 rounded-2xl border-2 text-left transition-all",
+                  "w-full py-4 px-6 rounded-full border-2 text-left transition-colors duration-200",
                   isSelected
-                    ? "border-brand bg-brand/5"
-                    : "border-surface-3 hover:border-brand/50 bg-surface-1",
+                    ? "border-brand-dark bg-brand-dark text-foreground-muted"
+                    : "border-[#DAC0C0] bg-white text-foreground",
                 )}
               >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={cn(
-                      "mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0",
-                      isSelected ? "border-brand" : "border-[#A37878]",
-                    )}
-                  >
-                    {isSelected && (
-                      <div className="w-3 h-3 rounded-full bg-brand" />
-                    )}
-                  </div>
-                  <span className="text-sm text-neutral">
-                    {answer.answerText}
-                  </span>
-                </div>
+                <span className="text-base/[130%] font-medium">
+                  {answer.answerText}
+                </span>
               </button>
             );
           })}
         </div>
-
-        {/* Answer progress indicator */}
-        <div className="mt-4 text-center">
-          <p className="text-xs text-[#A37878]">
-            {selectedAnswers.size} of {totalQuestions} questions answered
-          </p>
-        </div>
       </div>
 
       {/* Navigation buttons */}
-      <div className="flex gap-3 p-3 pt-0">
-        <Button
-          onClick={handlePrevious}
-          disabled={isFirstQuestion}
-          variant="outline"
-        >
-          Previous
-        </Button>
+      <div className="mt-auto flex gap-3 py-6">
+        {!isFirstQuestion && (
+          <Button
+            onClick={handlePrevious}
+            disabled={isFirstQuestion}
+            variant="soft"
+          >
+            Previous
+          </Button>
+        )}
 
         {isLastQuestion ? (
-          <Button onClick={handleSubmit} disabled={!canSubmit}>
-            {canSubmit
-              ? "Submit Quiz"
-              : `Answer ${totalQuestions - selectedAnswers.size} more`}
+          <Button
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className={isPending ? "pointer-events-none" : ""}
+          >
+            {canSubmit ? (
+              <PendingWrapper isPending={isPending}>Submit Quiz</PendingWrapper>
+            ) : (
+              `Answer ${totalQuestions - selectedAnswers.size} more`
+            )}
           </Button>
         ) : (
           <Button onClick={handleNext}>Next</Button>
@@ -366,101 +378,80 @@ function QuizContent({ questions }: { questions: QuizQuestion[] }) {
   );
 }
 
-function QuizSubmittingState() {
+function QuizSubmissionErrorState({ error }: { error: Error }) {
+  const handleGoBack = () => {
+    window.location.reload();
+  };
+
   return (
-    <div className="flex-1 flex flex-col items-center justify-center gap-6">
-      <Spinner className="size-24 text-brand" />
-      <div className="text-center">
-        <h2 className="text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
-          Submitting...
-        </h2>
-        <p className="mt-4 text-sm text-[#7E1D1D]">
-          Please wait while we process your answers
-        </p>
-      </div>
+    <div className="mt-8 flex-1 flex flex-col">
+      <motion.div
+        variants={staggerChildren}
+        initial="initial"
+        animate="animate"
+        className="flex-1 flex flex-col items-center justify-start gap-6"
+      >
+        <motion.div variants={fadeSlideUp}>
+          <XCircle className="size-24 text-destructive" />
+        </motion.div>
+        <motion.div className="text-center px-4" variants={fadeSlideUp}>
+          <h2 className="text-[28px]/[100%] font-black text-white tracking-[-0.4px]">
+            Quiz Submit Failed
+          </h2>
+          <p className="mt-4 text-sm text-surface-2">
+            There was an error while submitting your&nbsp;quiz&nbsp;answers.
+          </p>
+          {error?.message && (
+            <p className="mt-2 text-sm text-surface-2 wrap-break-word">
+              {error.message}
+            </p>
+          )}
+        </motion.div>
+        <motion.div className="flex flex-col gap-3" variants={fadeSlideUp}>
+          {/*<Button onClick={handleRetry}>Try Again</Button>*/}
+          <button
+            onClick={handleGoBack}
+            className="text-sm text-surface-2 hover:text-surface-3 underline underline-offset-4"
+          >
+            ← Go Back
+          </button>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
 
-function QuizSubmissionErrorState({ onRetry }: { onRetry: () => void }) {
-  const handleGoBack = () => {
-    window.history.back();
-  };
-
-  return (
-    <>
-      <div className="flex-1 flex flex-col items-center justify-center gap-6">
-        <XCircle className="size-24 text-destructive" />
-        <div className="text-center px-4">
-          <h2 className="text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
-            Submission Failed
-          </h2>
-          <p className="mt-4 text-sm text-[#7E1D1D]">
-            We couldn&apos;t submit your quiz answers. Please try again.
-          </p>
-        </div>
-      </div>
-      <div className="flex flex-col gap-3 mx-auto mb-6">
-        <Button onClick={onRetry}>Try Again</Button>
-        <button
-          onClick={handleGoBack}
-          className="text-sm text-[#A37878] hover:text-neutral"
-        >
-          ← Go Back
-        </button>
-      </div>
-    </>
-  );
-}
-
 function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
-  const percentage = (result.score / result.totalQuestions) * 100;
-  const passed = percentage >= 60;
+  const { walletAddress } = useWalletAuth();
 
   return (
-    <>
-      <div className="flex-1 flex flex-col items-center justify-center gap-6">
-        {passed ? (
-          <CheckCircle2 className="size-24 text-green-600" />
-        ) : (
-          <AlertTriangle className="size-24 text-orange-500" />
-        )}
-        <div className="text-center">
-          <h2 className="text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
-            {passed ? "Quiz Complete!" : "Quiz Submitted"}
-          </h2>
-          <p className="mt-4 text-sm text-[#7E1D1D]">
-            {passed
-              ? "Great job! You've successfully completed the quiz."
-              : "You've completed the quiz. Review your results below."}
-          </p>
-        </div>
-
-        {/* Score display */}
-        <div className="w-full max-w-xs bg-surface-1 rounded-2xl p-6 space-y-4">
-          <div className="text-center space-y-1">
-            <div className="text-5xl font-black text-neutral">
-              {result.score}/{result.totalQuestions}
-            </div>
-            <div className="text-sm text-[#7E1D1D]">Correct Answers</div>
-          </div>
-
-          {/* Progress bar */}
-          <div className="w-full bg-surface-3 rounded-full h-3">
-            <div
-              className={cn(
-                "h-3 rounded-full transition-all duration-500",
-                passed ? "bg-green-500" : "bg-orange-500",
-              )}
-              style={{ width: `${percentage}%` }}
-            />
-          </div>
-        </div>
+    <motion.div
+      className="mt-12 flex-1 flex flex-col px-4"
+      variants={stateVariants}
+      initial="initial"
+      animate="animate"
+    >
+      <div className="flex flex-col gap-8 items-center px-2">
+        <h2 className="text-[32px]/[95%] font-black text-white tracking-[-1px] uppercase">
+          Quiz Complete!
+        </h2>
+        <p className="text-xl/tight font-medium text-surface-3 text-pretty text-center">
+          Great job! You&apos;ve successfully completed the quiz.
+        </p>
       </div>
-      <div className="mx-auto mb-6">
-        <LinkButton href="/leaderboard">View the Leaderboard</LinkButton>
+      <div className="mt-[30px] bg-surface-2 rounded-2xl text-center px-2 py-5">
+        <div className="text-[64px]/[100%] font-black text-foreground">
+          {result.score}/{result.totalQuestions}
+        </div>
+        <div className="mt-2 text-base text-brand">Correct Answers</div>
+        <div className="mt-5 text-base text-brand">
+          Signed in as {walletAddress?.slice(0, 4)}…{walletAddress?.slice(-4)}
+        </div>
+        <LinkButton href="/leaderboard" className="mt-6">
+          View the Leaderboard
+        </LinkButton>
       </div>
-    </>
+    </motion.div>
   );
 }
 
@@ -473,10 +464,7 @@ function QuizAlreadyCompletedState({
   totalQuestions: number;
   completedAt: Date;
 }) {
-  const { signOut } = useWalletAuth();
-  const { navigate } = useMiniRouter();
-  const percentage = (score / totalQuestions) * 100;
-  const passed = percentage >= 60;
+  const { walletAddress } = useWalletAuth();
 
   // Format the completion date
   const formattedDate = new Date(completedAt).toLocaleDateString("en-US", {
@@ -491,71 +479,39 @@ function QuizAlreadyCompletedState({
 
   return (
     <motion.div
-      className="flex-1 flex flex-col"
+      className="mt-12 flex-1 flex flex-col px-4"
       variants={stateVariants}
       initial="initial"
       animate="animate"
-      exit="exit"
     >
-      <motion.div
-        variants={staggerChildren}
-        initial="initial"
-        animate="animate"
-        className="flex-1 flex flex-col items-center justify-center gap-6 px-4"
-      >
-        <motion.div variants={fadeSlideUp}>
-          {passed ? (
-            <CheckCircle2 className="size-24 text-green-600" />
-          ) : (
-            <AlertTriangle className="size-24 text-orange-500" />
-          )}
-        </motion.div>
-        <motion.div className="text-center" variants={fadeSlideUp}>
-          <h2 className="text-[32px]/[95%] font-black text-neutral tracking-[-0.4px] font-futura">
-            Quiz Completed
-          </h2>
-          <p className="mt-4 text-sm text-[#7E1D1D]">
-            You completed this quiz on {formattedDate} at {formattedTime}
-          </p>
-        </motion.div>
-
-        {/* Score display */}
-        <motion.div
-          className="w-full max-w-xs bg-surface-1 rounded-2xl p-6 space-y-4"
-          variants={fadeSlideUp}
+      <div className="flex flex-col gap-8 items-center px-2">
+        <h2 className="text-[32px]/[95%] font-black text-white tracking-[-1px] uppercase">
+          Quiz Complete!
+        </h2>
+        <p className="text-xl/tight font-medium text-surface-3 text-pretty text-center">
+          You completed this quiz on {formattedDate}&nbsp;at&nbsp;
+          {formattedTime}
+        </p>
+      </div>
+      <div className="mt-[30px] bg-surface-2 rounded-2xl text-center px-2 py-5">
+        <div className="text-[64px]/[100%] font-black text-foreground">
+          {score}/{totalQuestions}
+        </div>
+        <div className="mt-2 text-base text-brand">Correct Answers</div>
+        <div className="mt-5 text-base text-brand">
+          Signed in as {walletAddress?.slice(0, 4)}…{walletAddress?.slice(-4)}
+        </div>
+        <LinkButton href="/leaderboard" className="mt-6">
+          View the Leaderboard
+        </LinkButton>
+        <Button
+          onClick={() => alert("Unimplemented")}
+          variant="soft"
+          className="mt-2 w-full"
         >
-          <div className="text-center space-y-1">
-            <div className="text-5xl font-black text-neutral">
-              {score}/{totalQuestions}
-            </div>
-            <div className="text-sm text-[#7E1D1D]">Correct Answers</div>
-          </div>
-
-          {/* Progress bar */}
-          <div className="w-full bg-surface-3 rounded-full h-3">
-            <div
-              className={cn(
-                "h-3 rounded-full",
-                passed ? "bg-green-500" : "bg-orange-500",
-              )}
-              style={{ width: `${percentage}%` }}
-            />
-          </div>
-        </motion.div>
-
-        <motion.div className="flex flex-col gap-3" variants={fadeSlideUp}>
-          <LinkButton href="/leaderboard">View the Leaderboard</LinkButton>
-          <button
-            onClick={async () => {
-              await signOut();
-              navigate("sign-in");
-            }}
-            className="text-sm text-[#A37878] hover:text-neutral"
-          >
-            Disconnect Wallet
-          </button>
-        </motion.div>
-      </motion.div>
+          Stake more SOL
+        </Button>
+      </div>
     </motion.div>
   );
 }
@@ -565,11 +521,13 @@ function Button({
   disabled,
   variant = "default",
   children,
+  className,
 }: {
   onClick: () => void;
   disabled?: boolean;
-  variant?: "default" | "outline";
+  variant?: "default" | "soft";
   children: ReactNode;
+  className?: string;
 }) {
   return (
     <motion.button
@@ -580,11 +538,11 @@ function Button({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex-1 h-14 px-6 rounded-full text-[16px]/[130%] font-medium transition-opacity",
-        variant === "default" && "text-surface-2 bg-brand",
-        variant === "outline" &&
-          "text-brand bg-transparent border-2 border-brand",
+        "flex-1 h-[54px] px-6 rounded-full text-[16px]/[130%] font-medium transition-opacity",
+        variant === "default" && "text-foreground-muted bg-neutral",
+        variant === "soft" && "text-foreground bg-surface-3",
         disabled && "opacity-50 cursor-not-allowed",
+        className,
       )}
     >
       {children}
@@ -592,15 +550,29 @@ function Button({
   );
 }
 
-function LinkButton({ href, children }: { href: string; children: ReactNode }) {
+const MotionLink = motion(Link);
+
+function LinkButton({
+  href,
+  children,
+  className,
+}: {
+  href: string;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}>
-      <Link
-        href={href}
-        className="flex items-center justify-center h-14 px-6 rounded-full text-[16px]/[130%] font-medium text-surface-2 bg-brand"
-      >
-        {children}
-      </Link>
-    </motion.div>
+    <MotionLink
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.96 }}
+      href={href}
+      className={cn(
+        "flex items-center justify-center h-[54px] px-6 rounded-full text-[16px]/[130%] font-medium transition-opacity",
+        "text-white bg-brand-dark",
+        className,
+      )}
+    >
+      {children}
+    </MotionLink>
   );
 }

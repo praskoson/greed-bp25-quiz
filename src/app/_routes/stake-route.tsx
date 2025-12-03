@@ -19,6 +19,14 @@ import {
   WalletSignTransactionError,
 } from "@solana/wallet-adapter-base";
 import { PendingWrapper } from "@/components/pending-wrapper";
+import { ConnectedWalletButton } from "@/components/connected-wallet-button";
+import { GreedAcademyLogo } from "@/components/ga-logo";
+import dynamic from "next/dynamic";
+import { GreedAcademyDottedBackground } from "@/components/ga-dotted-bg";
+
+const DynamicHowItWorks = dynamic(() => import("@/components/how-it-works"), {
+  ssr: false,
+});
 
 const formSchema = z.object({
   amount: z.number().min(0.01, "Minimum stake amount is 0.1 SOL"),
@@ -100,22 +108,20 @@ export function StakeRoute() {
   };
 
   return (
-    <RouteContainer>
-      <header className="flex justify-between items-center">
-        <GreedLogoImage className="text-[#7E1D1D]" />
-        <div className="text-right text-sm/4 text-[#7E1D1D] px-2 gap-2 font-base">
-          <div>Connected as</div>
-          <div className="font-bold">{shorten(walletAddress ?? "")}</div>
-        </div>
-      </header>
-      <h1 className="mt-10 text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] w-full text-center font-futura">
-        Stake, Learn & <span className="text-brand">Win</span>
+    <div className="relative h-full bg-surface-2 flex items-center flex-col p-4">
+      <ConnectedWalletButton
+        className="h-14 w-full"
+        onDisconnect={() => navigate("sign-in")}
+      />
+      <GreedAcademyLogo className="mt-5 text-foreground" />
+
+      <h1 className="mt-2 text-[36px]/[95%] font-black text-foreground tracking-[-1.1px] w-full text-center">
+        CAN YOU TOP THE LEADERBOARD?
       </h1>
-      <HowItWorksCollapsible />
       <form
         id="stake-form"
         onSubmit={handleSubmit}
-        className="mt-10 flex flex-col gap-6"
+        className="mt-8 flex flex-col gap-5 py-2"
       >
         <div>
           <InputGroup
@@ -125,13 +131,13 @@ export function StakeRoute() {
             ariaInvalid={!!errors.amount}
             disabled={isPending}
             placeholder="Enter SOL amount"
-            icon={<Solana height={30} width={30} />}
+            icon={<Solana height={26} width={26} />}
           />
 
           <span
             className={cn(
               errors?.amount ? "text-destructive" : "text-[#A37878]",
-              "pl-8 text-sm mt-1",
+              "pl-8 text-sm/[130%] mt-2",
             )}
           >
             Minimum amount is 0.01 SOL
@@ -149,39 +155,35 @@ export function StakeRoute() {
           <span
             className={cn(
               errors?.duration ? "text-destructive" : "text-[#A37878]",
-              "pl-8 text-sm mt-1",
+              "pl-8 text-sm/[130%] mt-2",
             )}
           >
             Minimum duration is 60 days
           </span>
         </div>
+        <Button
+          type="submit"
+          form="stake-form"
+          disabled={isPending}
+          className="relative flex items-center gap-1 justify-center"
+        >
+          <PendingWrapper isPending={isPending}>Stake SOL</PendingWrapper>
+        </Button>
       </form>
 
-      <Button
-        type="submit"
-        form="stake-form"
-        disabled={isPending}
-        className="mt-10 mx-auto relative flex items-center gap-1 justify-center"
-      >
-        <PendingWrapper isPending={isPending}>Stake SOL</PendingWrapper>
-      </Button>
-      <button
-        type="button"
-        onClick={async () => {
-          await signOut();
-          navigate("sign-in");
-        }}
-        className="mt-4 w-full text-sm text-[#A37878] hover:text-neutral"
-      >
-        ← Sign Out
-      </button>
+      <div className="relative h-6 w-full max-w-[350px]">
+        {error && !isExpectedError(error) && (
+          <div className="absolute z-1 top-0 inset-x-0 h-auto w-full rounded-lg bg-white border border-red-500 p-4 mt-4">
+            <p className="text-sm text-red-700 font-medium">{error.message}</p>
+          </div>
+        )}
+      </div>
+      <GreedAcademyDottedBackground />
 
-      {error && !isExpectedError(error) && (
-        <div className="rounded-lg bg-red-50 p-4 mt-4">
-          <p className="text-sm text-red-900 font-medium">{error.message}</p>
-        </div>
-      )}
-    </RouteContainer>
+      <div className="mt-auto w-full">
+        <DynamicHowItWorks className="mt-4" />
+      </div>
+    </div>
   );
 }
 
@@ -235,7 +237,7 @@ function InputGroup({
   icon?: ReactNode;
 }) {
   return (
-    <div className="flex h-[70px] items-stretch gap-1">
+    <div className="flex h-[52px] items-stretch gap-1">
       <input
         type={type}
         value={value}
@@ -244,7 +246,7 @@ function InputGroup({
         aria-invalid={ariaInvalid}
         disabled={disabled}
         className={cn(
-          "text-foreground bg-surface-1 placeholder:text-[#A37878] min-w-0 grow rounded-full px-6 text-[18px]/[130%] font-medium",
+          "text-foreground bg-surface-1 placeholder:text-[#A37878] min-w-0 grow rounded-full px-6 text-base/[130%] font-medium",
           "border-8 border-surface-1 focus:outline-none",
           "ring-2 ring-transparent focus-visible:ring-brand transition-shadow duration-150",
           "aria-invalid:ring-destructive/50",
@@ -254,7 +256,7 @@ function InputGroup({
         placeholder={placeholder}
       />
       {icon && (
-        <div className="bg-surface-1 grid w-[78px] shrink-0 place-content-center rounded-full">
+        <div className="bg-surface-1 grid w-[58px] shrink-0 place-content-center rounded-full">
           {icon}
         </div>
       )}
@@ -284,7 +286,7 @@ function Button({
       form={form}
       disabled={disabled}
       className={cn(
-        "w-full max-w-[350px] text-surface-2 bg-brand h-[70px] rounded-full text-[18px]/[130%] font-medium",
+        "w-full max-w-[350px] bg-brand-dark text-foreground-muted h-14 rounded-full text-sm/[130%] font-medium",
         className,
       )}
     >

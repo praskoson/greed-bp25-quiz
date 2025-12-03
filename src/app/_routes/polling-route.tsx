@@ -4,11 +4,12 @@ import { useMiniRouter } from "@/state/mini-router";
 import { stakeStatusOptions } from "@/state/queries/stake-status-options";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { XCircle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { ReactNode } from "react";
-import { RouteContainer } from "./route-container";
 import { quizQuestionsOptions } from "@/state/queries/quiz-questions";
+import { GreedAcademyLogo } from "@/components/ga-logo";
+import { GreedAcademyDottedBackground } from "@/components/ga-dotted-bg";
 
 const stateTransition = {
   duration: 0.4,
@@ -54,6 +55,7 @@ function getState(
   failureCount: number,
 ): PollingState {
   if (error && failureCount >= 3) return "error";
+  if (data?.status === "failed") return "error";
   if (data?.status === "success") return "success";
   return "loading";
 }
@@ -68,79 +70,73 @@ export function PollingRoute() {
 
   const state = getState(data, error, failureCount);
 
+  if (state === "error") {
+    return (
+      <div
+        key="error"
+        className="h-full flex flex-col items-center justify-center gap-6"
+      >
+        <motion.div
+          variants={staggerChildren}
+          initial="initial"
+          animate="animate"
+          className="flex flex-col items-center gap-6"
+        >
+          <div className="h-14" />
+
+          <motion.div variants={fadeSlideUp}>
+            <XCircle className="size-24 text-destructive" />
+          </motion.div>
+          <motion.div className="text-center" variants={fadeSlideUp}>
+            <h2 className="mt-2 text-[28px]/[95%] font-black text-foreground tracking-[-1.1px] w-full text-center">
+              Verification Failed
+            </h2>
+            <p className="mt-4 text-sm text-[#7E1D1D]">
+              We encountered an error while verifying your stake.
+            </p>
+            <p className="mt-2 text-xs text-[#A37878]">
+              {error?.message || "An unknown error occurred"}
+            </p>
+          </motion.div>
+          <motion.div variants={fadeSlideUp}>
+            <Button onClick={() => navigate("stake")}>Try Again</Button>
+          </motion.div>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
-    <RouteContainer>
-      <AnimatePresence mode="wait">
-        {state === "error" && (
-          <motion.div
-            key="error"
-            className="flex-1 flex flex-col items-center justify-center gap-6"
-            variants={stateVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-          >
-            <motion.div
-              variants={staggerChildren}
-              initial="initial"
-              animate="animate"
-              className="flex flex-col items-center gap-6"
-            >
-              <motion.div variants={fadeSlideUp}>
-                <XCircle className="size-24 text-destructive" />
-              </motion.div>
-              <motion.div className="text-center" variants={fadeSlideUp}>
-                <h2 className="text-[28px]/[95%] font-black text-neutral tracking-[-0.4px] font-futura">
-                  Verification Failed
-                </h2>
-                <p className="mt-4 text-sm text-[#7E1D1D]">
-                  We encountered an error while verifying your stake.
-                </p>
-                <p className="mt-2 text-xs text-[#A37878]">
-                  {error?.message || "An unknown error occurred"}
-                </p>
-              </motion.div>
-              <motion.div variants={fadeSlideUp}>
-                <Button onClick={() => navigate("stake")}>Try Again</Button>
-              </motion.div>
-            </motion.div>
-          </motion.div>
+    <div className="relative bg-surface-2 h-full overflow-hidden">
+      <motion.div
+        aria-hidden={state === "success" ? true : undefined}
+        variants={staggerChildren}
+        initial="initial"
+        animate="animate"
+        className={cn(
+          "relative h-full flex items-center flex-col p-4",
+          state === "success" && "pointer-events-none",
         )}
+      >
+        <div className="h-14" />
+        <GreedAcademyLogo className="mt-5 text-foreground" />
 
+        <motion.div className="text-center" variants={fadeSlideUp}>
+          <h1 className="mt-2 text-[36px]/[95%] font-black text-foreground tracking-[-1.1px] w-full text-center">
+            VERIFYING STAKE
+          </h1>
+
+          <p className="mt-4 text-[19px] text-[#7E1D1D] tracking-[-0.6px] font-medium">
+            This usually takes a few seconds
+          </p>
+        </motion.div>
+        <AnimatedGreedLoader className="mt-[30px] w-full min-w-[350px] max-w-[540px]" />
+      </motion.div>
+
+      <AnimatePresence>
         {state === "success" && <SuccessState />}
-
-        {state === "loading" && (
-          <motion.div
-            key="loading"
-            className="flex-1 flex flex-col items-center justify-center gap-2 pb-40"
-            variants={stateVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-          >
-            <motion.div
-              variants={staggerChildren}
-              initial="initial"
-              animate="animate"
-              className="flex flex-col items-center gap-2"
-            >
-              {/* Use div instead of motion.div to prevent variant inheritance from breaking the loader's animation */}
-              <div>
-                <AnimatedGreedLoader />
-              </div>
-              <motion.div className="text-center" variants={fadeSlideUp}>
-                <h2 className="text-[32px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
-                  Verifying Stake...
-                </h2>
-                <p className="mt-4 text-sm text-[#7E1D1D]">
-                  This usually takes a few seconds
-                </p>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        )}
       </AnimatePresence>
-    </RouteContainer>
+    </div>
   );
 }
 
@@ -157,33 +153,34 @@ function SuccessState() {
   return (
     <motion.div
       key="success"
-      className="flex-1 flex flex-col items-center justify-center gap-6"
-      variants={stateVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
+      initial={{ y: "100%" }}
+      animate={{ y: "0%" }}
+      exit={{ y: "100%" }}
+      transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+      className="absolute inset-0 h-full bg-[#00522F] flex flex-col px-4"
     >
-      <motion.div
-        variants={staggerChildren}
-        initial="initial"
-        animate="animate"
-        className="flex flex-col items-center gap-6"
+      <GreedAcademyLogo className="mx-auto mt-10 text-white" />
+      <h1 className="mt-12 text-[32px]/[100%] font-black text-white tracking-[-1.1px] w-full text-center">
+        VERIFICATION COMPLETE!
+      </h1>
+      <p className="mt-8 text-[19px] text-foreground-2 tracking-[-0.6px] text-center px-4">
+        Your stake has been verified. You
+        can&nbsp;now&nbsp;start&nbsp;the&nbsp;quiz.
+      </p>
+      <motion.button
+        whileTap={{ scale: 0.96 }}
+        whileHover={{ scale: 1.04 }}
+        className={cn(
+          "h-[54px] w-full mt-6",
+          "flex items-center justify-center rounded-full",
+          "text-white bg-neutral font-medium text-sm/[130%]",
+        )}
+        onClick={() => navigate("quiz")}
       >
-        <motion.div variants={fadeSlideUp}>
-          <CheckCircle2 className="size-24 text-green-600" />
-        </motion.div>
-        <motion.div className="text-center" variants={fadeSlideUp}>
-          <h2 className="text-[28px]/[85%] font-black text-neutral tracking-[-0.4px] font-futura">
-            Verification Complete!
-          </h2>
-          <p className="mt-4 text-sm text-[#7E1D1D]">
-            Your stake has been verified. You can now start&nbsp;the&nbsp;quiz.
-          </p>
-        </motion.div>
-        <motion.div variants={fadeSlideUp}>
-          <Button onClick={() => navigate("quiz")}>Start Quiz</Button>
-        </motion.div>
-      </motion.div>
+        Start Quiz
+      </motion.button>
+
+      <GreedAcademyDottedBackground />
     </motion.div>
   );
 }
@@ -203,7 +200,7 @@ function Button({
       type="button"
       onClick={onClick}
       className={cn(
-        "w-full text-surface-2 bg-brand h-[70px] px-24 rounded-full text-[18px]/[130%] font-medium",
+        "w-full text-surface-2 bg-brand h-[58px] px-24 rounded-full text-[18px]/[130%] font-medium",
       )}
     >
       {children}

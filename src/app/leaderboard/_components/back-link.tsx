@@ -3,7 +3,6 @@
 import { Spinner } from "@/components/spinner";
 import { useMiniRouter } from "@/state/mini-router";
 import { useWalletAuth } from "@/state/use-wallet-auth";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -22,7 +21,7 @@ export function BackLink() {
 
         push("/");
       }}
-      className="text-sm text-[#A37878] hover:text-neutral whitespace-pre"
+      className="w-full bg-neutral rounded-full py-4 px-8 text-sm/[130%] text-white whitespace-pre"
     >
       {isSigningOut ? <Spinner className="size-3.5 inline" /> : "←"} Back to
       Home

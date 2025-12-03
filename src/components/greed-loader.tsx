@@ -50,80 +50,75 @@ const animations: Record<
 
 export function AnimatedGreedLoader({ className }: { className?: string }) {
   return (
-    <div className={cn("relative backdrop-blur", className)}>
-      <motion.svg
-        viewBox="0 0 962 693"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-64 h-auto"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <defs>
-          <clipPath id="clip0_386_357">
-            <rect
-              width="698.938"
-              height="415.854"
-              fill="currentColor"
-              transform="translate(129.69 138.153)"
-            />
-          </clipPath>
-          <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            {/*<stop offset="0%" stopColor="#818cf8" />
-            <stop offset="50%" stopColor="#a78bfa" />
-            <stop offset="100%" stopColor="#c084fc" />*/}
-            <stop offset="0%" stopColor="#7e1d1d" />
-            <stop offset="50%" stopColor="#7e1d1d" />
-            <stop offset="100%" stopColor="#7e1d1d" />
-          </linearGradient>
-        </defs>
-
-        <g clipPath="url(#clip0_386_357)">
-          {/* Background path (faded) */}
-          <path
-            d={mainPath}
-            stroke="rgb(126 29 29 / 0.2)"
-            strokeWidth="6"
-            fill="none"
+    <motion.svg
+      viewBox="0 0 962 693"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("w-64 h-auto", className)}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <defs>
+        <clipPath id="clip0_386_357">
+          <rect
+            width="698.938"
+            height="415.854"
+            fill="currentColor"
+            transform="translate(129.69 138.153)"
           />
-          <path
-            d={secondPath}
-            stroke="rgb(126 29 29 / 0.2)"
-            strokeWidth="6"
-            fill="none"
-          />
+        </clipPath>
+        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#7e1d1d" />
+          <stop offset="50%" stopColor="#7e1d1d" />
+          <stop offset="100%" stopColor="#7e1d1d" />
+        </linearGradient>
+      </defs>
 
-          {/* Animated main path */}
-          <motion.path
-            d={mainPath}
-            stroke="url(#logoGradient)"
-            strokeWidth="6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-            {...animations["sequential"]}
-          />
+      <g clipPath="url(#clip0_386_357)">
+        {/* Background path (faded) */}
+        <path
+          d={mainPath}
+          stroke="rgb(126 29 29 / 0.2)"
+          strokeWidth="6"
+          fill="none"
+        />
+        <path
+          d={secondPath}
+          stroke="rgb(126 29 29 / 0.2)"
+          strokeWidth="6"
+          fill="none"
+        />
 
-          {/* Animated second path with delay */}
-          <motion.path
-            d={secondPath}
-            stroke="url(#logoGradient)"
-            strokeWidth="6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-            initial={animations["sequential"].initial}
-            animate={animations["sequential"].animate}
-            transition={{ repeat: Infinity }}
-            // transition={{
-            //   ...animations["draw"].animate?.transition,
+        {/* Animated main path */}
+        <motion.path
+          d={mainPath}
+          stroke="url(#logoGradient)"
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          {...animations["sequential"]}
+        />
 
-            //   // delay: animationType === "draw" ? 0.5 : 0,
-            // }}
-          />
-        </g>
-      </motion.svg>
-    </div>
+        {/* Animated second path with delay */}
+        <motion.path
+          d={secondPath}
+          stroke="url(#logoGradient)"
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          initial={animations["sequential"].initial}
+          animate={animations["sequential"].animate}
+          transition={{ repeat: Infinity }}
+          // transition={{
+          //   ...animations["draw"].animate?.transition,
+
+          //   // delay: animationType === "draw" ? 0.5 : 0,
+          // }}
+        />
+      </g>
+    </motion.svg>
   );
 }
