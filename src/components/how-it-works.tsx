@@ -3,6 +3,9 @@
 import clsx from "clsx";
 import { Drawer } from "vaul";
 import { QuestionCircle } from "./svg/question-circle";
+import { ArrowUpRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { motion } from "motion/react";
 
 export default function HowItWorks({ className }: { className?: string }) {
   return (
@@ -18,59 +21,48 @@ export default function HowItWorks({ className }: { className?: string }) {
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-foreground-2 border-t-4 border-x-4 border-[#EDD8D8] flex flex-col rounded-t-2xl mt-24 h-fit fixed bottom-0 left-0 right-0 outline-none">
+        <Drawer.Content className="bg-neutral flex flex-col rounded-t-2xl mt-24 h-fit fixed bottom-0 left-0 right-0 outline-none">
           <div className="p-4">
             <Drawer.Handle
               aria-hidden
-              className="mx-auto w-12 h-1.5 shrink-0 rounded-full bg-gray-300 mb-8"
+              className="mx-auto w-12 h-1.5 shrink-0 rounded-full bg-gray-300 mb-4"
             />
-            <div className="max-w-md mx-auto pb-12">
-              <Drawer.Title className="text-foreground font-futura text-lg mb-4">
+            <div className="max-w-md mx-auto px-3 py-4">
+              <Drawer.Title className="text-[#F9F6F6] text-center font-semibold text-2xl">
                 How does it work
               </Drawer.Title>
               <Drawer.Description className="sr-only">
-                Instructions on how the quiz works
+                How does the quiz work
               </Drawer.Description>
-              <ul className="text-foreground font-base space-y-3 text-sm">
+              <ul className="mt-4 text-[#F7F7F7] text-sm/5 font-base space-y-1">
                 <li className="flex items-start gap-2">
-                  <span className="text-brand-dark">•</span>
+                  <span>•</span>
                   <span>Stake SOL for at least 60 days to participate</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-brand-dark">•</span>
+                  <span>•</span>
                   <span>Answer 5 quiz questions</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-brand-dark">•</span>
+                  <span>•</span>
                   <span>Your score = Stake Amount × Correct Answers</span>
                 </li>
               </ul>
             </div>
-          </div>
-          <div className="p-4 bg-[#EDD8D8] text-foreground mt-auto">
-            <a
-              className="text-xs font-semibold flex items-center gap-px"
+            <motion.a
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
               href="https://x.com/GreedAcademy"
               target="_blank"
+              className={cn(
+                "mt-4 mb-8 flex items-center justify-center gap-1.5",
+                "px-2 py-4 rounded-full",
+                "bg-brand text-[#F7F7F7]",
+                "font-semibold text-sm/5",
+              )}
             >
-              Greed Academy
-              <svg
-                fill="none"
-                height="16"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                width="16"
-                aria-hidden="true"
-                className="w-3 h-3 ml-1"
-              >
-                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
-                <path d="M15 3h6v6"></path>
-                <path d="M10 14L21 3"></path>
-              </svg>
-            </a>
+              Greed Academy <ArrowUpRight className="size-5" />
+            </motion.a>
           </div>
         </Drawer.Content>
       </Drawer.Portal>
