@@ -365,6 +365,7 @@ function QuizContent({
             onClick={handlePrevious}
             disabled={isFirstQuestion}
             variant="soft"
+            className="flex-1"
           >
             Previous
           </Button>
@@ -374,7 +375,7 @@ function QuizContent({
           <Button
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className={isPending ? "pointer-events-none" : ""}
+            className={isPending ? "pointer-events-none flex-1" : "flex-1"}
           >
             {canSubmit ? (
               <PendingWrapper isPending={isPending}>Submit Quiz</PendingWrapper>
@@ -383,7 +384,9 @@ function QuizContent({
             )}
           </Button>
         ) : (
-          <Button onClick={handleNext}>Next</Button>
+          <Button onClick={handleNext} className="flex-1">
+            Next
+          </Button>
         )}
       </div>
     </motion.div>
@@ -654,12 +657,17 @@ function QuizAnswersSheet({
             onClick={handlePrevious}
             disabled={isFirstQuestion}
             variant="soft"
+            className="flex-1"
           >
             Previous
           </Button>
         )}
 
-        {!isLastQuestion && <Button onClick={handleNext}>Next</Button>}
+        {!isLastQuestion && (
+          <Button className="flex-1" onClick={handleNext}>
+            Next
+          </Button>
+        )}
       </div>
     </motion.div>
   );
