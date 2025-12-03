@@ -38,16 +38,17 @@ const pageVariants: Variants = {
     x: 0,
     opacity: 1,
     transition: {
-      x: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
-      opacity: { duration: 0.3 },
+      duration: 0.4,
+      x: { ease: [0.4, 0, 0.2, 1] },
+      opacity: { ease: "easeIn" },
     },
   },
   exit: (direction: number) => ({
     x: direction > 0 ? "-100%" : "100%",
     opacity: 0,
     transition: {
-      x: { duration: 0.4, ease: [0.4, 0, 0.2, 1] },
-      opacity: { duration: 0.3 },
+      x: { ease: [0.4, 0, 0.2, 1] },
+      opacity: { ease: "easeIn" },
     },
   }),
 };
