@@ -21,7 +21,7 @@ export function PendingWrapper({
             filter: isPending ? "blur(0px)" : "blur(2px)",
             opacity: isPending ? 1 : 0,
           }}
-          className="absolute top-1/2 size-[1em] -translate-y-1/2 transition-transform ease-out"
+          className="absolute top-1/2 size-[1.1em] -translate-y-1/2 transition-transform ease-out"
         >
           <Spinner className="size-full stroke-current text-current" />
         </div>

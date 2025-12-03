@@ -4,7 +4,6 @@ import type {
   SubmitQuizAnswersResult,
 } from "@/lib/stake/quiz.schemas";
 import { cn } from "@/lib/utils";
-import { useMiniRouter } from "@/state/mini-router";
 import { submitAnswersMutationOption } from "@/state/mutations/use-submit-quiz-answers";
 import { quizQuestionsOptions } from "@/state/queries/quiz-questions";
 import { useWalletAuth } from "@/state/use-wallet-auth";
@@ -14,7 +13,7 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import { XCircle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { ReactNode, useState, useEffect } from "react";
@@ -111,9 +110,16 @@ export function QuizRoute() {
   else state = "ready";
 
   return (
-    <RouteContainer className="bg-brand overflow-hidden flex flex-col">
+    <RouteContainer
+      className={cn(
+        "bg-brand flex flex-col",
+        state === "ready"
+          ? "overflow-y-auto overflow-x-hidden"
+          : "overflow-hidden",
+      )}
+    >
       <GreedAcademyLogo className="w-full mx-auto mt-10 text-white justify-center" />
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" initial={false}>
         {state === "pending" && showPending && (
           <QuizPendingState key="pending" />
         )}
