@@ -41,7 +41,7 @@ export function ConnectedWalletButton({
     <Popover>
       <PopoverTrigger
         className={cn(
-          "flex items-center justify-center gap-[7px]",
+          "flex items-center justify-center gap-[7px] py-[18px]",
           "rounded-full font-medium text-sm/6 text-brand",
           "bg-surface-3 aria-disabled:pointer-events-none",
           className,

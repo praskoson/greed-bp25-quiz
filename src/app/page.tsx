@@ -4,7 +4,7 @@ import { type Route, useMiniRouter } from "@/state/mini-router";
 import { HomeRoute } from "./_routes/home-route";
 import { StakeRoute } from "./_routes/stake-route";
 import { PollingRoute } from "./_routes/polling-route";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, Variants } from "motion/react";
 import { QuizRoute } from "./_routes/quiz-route";
 
 // Route order for determining navigation direction
@@ -27,7 +27,7 @@ function getDirection(
   return routeOrder[currentRoute] > routeOrder[previousRoute] ? 1 : -1;
 }
 
-const pageVariants = {
+const pageVariants: Variants = {
   initial: (direction: number) => ({
     x: direction > 0 ? "100%" : "-100%",
     opacity: 0,
@@ -36,7 +36,7 @@ const pageVariants = {
     x: 0,
     opacity: 1,
     transition: {
-      x: { type: "tween" as const, duration: 0.3, ease: "easeOut" as const },
+      x: { duration: 0.3, ease: [0.32, 0.72, 0, 1] },
       opacity: { duration: 0.25 },
     },
   },
@@ -44,7 +44,7 @@ const pageVariants = {
     x: direction > 0 ? "-100%" : "100%",
     opacity: 0,
     transition: {
-      x: { type: "tween" as const, duration: 0.3, ease: "easeOut" as const },
+      x: { duration: 0.3, ease: [0.32, 0.72, 0, 1] },
       opacity: { duration: 0.25 },
     },
   }),
