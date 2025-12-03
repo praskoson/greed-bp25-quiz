@@ -110,14 +110,7 @@ export function QuizRoute() {
   else state = "ready";
 
   return (
-    <RouteContainer
-      className={cn(
-        "bg-brand flex flex-col",
-        state === "ready"
-          ? "overflow-y-auto overflow-x-hidden"
-          : "overflow-hidden",
-      )}
-    >
+    <RouteContainer className="bg-brand flex flex-col overflow-hidden">
       <GreedAcademyLogo className="w-full mx-auto mt-10 text-white justify-center" />
       <AnimatePresence mode="wait" initial={false}>
         {state === "pending" && showPending && (
@@ -152,7 +145,7 @@ export function QuizRoute() {
 
         {state === "completed" && <QuizResultsState result={mutationData!} />}
       </AnimatePresence>
-      <GreedAcademyDottedBackground className="absolute bottom-10 z-0" />
+      <GreedAcademyDottedBackground className="absolute bottom-10" />
     </RouteContainer>
   );
 }
@@ -303,7 +296,7 @@ function QuizContent({
       animate={{ y: "0%" }}
       exit={{ y: "100%" }}
       transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1], delay: 0.1 }}
-      className="mt-8 z-1 flex-1 flex flex-col bg-[#F9F6F6] rounded-t-2xl px-4 py-5"
+      className="mt-8 z-1 flex-1 flex flex-col bg-[#F9F6F6] rounded-t-2xl px-4 py-5 overflow-y-scroll"
     >
       <span className="bg-surface-3 text-foreground rounded-[4px] font-medium text-base/[130%] w-fit px-2 py-1">
         {currentQuestion.categoryName}
@@ -432,7 +425,7 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
 
   return (
     <motion.div
-      className="mt-12 flex-1 flex flex-col px-4"
+      className="mt-12 flex-1 flex flex-col px-4 z-1"
       variants={stateVariants}
       initial="initial"
       animate="animate"
@@ -485,7 +478,7 @@ function QuizAlreadyCompletedState({
 
   return (
     <motion.div
-      className="mt-12 flex-1 flex flex-col px-4"
+      className="mt-12 flex-1 flex flex-col px-4 z-1"
       variants={stateVariants}
       initial="initial"
       animate="animate"
@@ -556,7 +549,7 @@ function Button({
   );
 }
 
-const MotionLink = motion(Link);
+const MotionLink = motion.create(Link);
 
 function LinkButton({
   href,
