@@ -13,7 +13,9 @@ import { sql, eq, inArray, and, isNull, isNotNull } from "drizzle-orm";
 import {
   LeaderboardEntry,
   QuizAnswer,
+  QuizAnswerWithResult,
   QuizQuestion,
+  QuizQuestionResult,
   QuizStateWithQuestions,
   SubmitQuizAnswersParams,
   SubmitQuizAnswersResult,
@@ -102,12 +104,11 @@ export class QuizService {
     if (!session) throw Error(`No session found for user ${userId}`);
 
     if (session.completedAt !== null && session.score !== null) {
-      // This quiz was already completed! Get the assignments
-
+      // This quiz was already completed! Get the assignments with user answers
       const assignments = await db
         .select({
-          assignmentId: quizQuestionAssignments.id,
           displayOrder: quizQuestionAssignments.displayOrder,
+          userAnswerId: quizQuestionAssignments.userAnswerId,
           questionId: quizQuestions.id,
           questionText: quizQuestions.questionText,
           categoryName: quizCategories.name,
@@ -128,11 +129,45 @@ export class QuizService {
         throw Error(`No questions found for session ${session.id}`);
       }
 
+      // Get all answers for these questions (including isCorrect)
+      const questionIds = assignments.map((a) => a.questionId);
+      const answers = await db
+        .select({
+          questionId: quizAnswers.questionId,
+          id: quizAnswers.id,
+          answerText: quizAnswers.answerText,
+          isCorrect: quizAnswers.isCorrect,
+        })
+        .from(quizAnswers)
+        .where(inArray(quizAnswers.questionId, questionIds));
+
+      const answersByQuestion = new Map<string, QuizAnswerWithResult[]>();
+      for (const answer of answers) {
+        if (!answersByQuestion.has(answer.questionId)) {
+          answersByQuestion.set(answer.questionId, []);
+        }
+        answersByQuestion.get(answer.questionId)!.push({
+          id: answer.id,
+          answerText: answer.answerText,
+          isCorrect: answer.isCorrect,
+        });
+      }
+
+      const questions: QuizQuestionResult[] = assignments.map((assignment) => ({
+        questionId: assignment.questionId,
+        questionText: assignment.questionText,
+        categoryName: assignment.categoryName,
+        displayOrder: assignment.displayOrder,
+        userAnswerId: assignment.userAnswerId,
+        answers: answersByQuestion.get(assignment.questionId) || [],
+      }));
+
       return {
         state: "finished",
         score: session.score,
         completedAt: session.completedAt,
         totalQuestions: assignments.length,
+        questions,
       };
     }
 
@@ -279,10 +314,67 @@ export class QuizService {
       })
       .where(eq(userQuizSessions.id, activeSession.id));
 
+    // Fetch full question details for the response
+    const questionAssignments = await db
+      .select({
+        displayOrder: quizQuestionAssignments.displayOrder,
+        userAnswerId: quizQuestionAssignments.userAnswerId,
+        questionId: quizQuestions.id,
+        questionText: quizQuestions.questionText,
+        categoryName: quizCategories.name,
+      })
+      .from(quizQuestionAssignments)
+      .innerJoin(
+        quizQuestions,
+        eq(quizQuestionAssignments.questionId, quizQuestions.id),
+      )
+      .innerJoin(
+        quizCategories,
+        eq(quizQuestions.categoryId, quizCategories.id),
+      )
+      .where(eq(quizQuestionAssignments.sessionId, activeSession.id))
+      .orderBy(quizQuestionAssignments.displayOrder);
+
+    // Get all answers for these questions (including isCorrect)
+    const questionIds = questionAssignments.map((a) => a.questionId);
+    const allAnswers = await db
+      .select({
+        questionId: quizAnswers.questionId,
+        id: quizAnswers.id,
+        answerText: quizAnswers.answerText,
+        isCorrect: quizAnswers.isCorrect,
+      })
+      .from(quizAnswers)
+      .where(inArray(quizAnswers.questionId, questionIds));
+
+    const answersByQuestion = new Map<string, QuizAnswerWithResult[]>();
+    for (const answer of allAnswers) {
+      if (!answersByQuestion.has(answer.questionId)) {
+        answersByQuestion.set(answer.questionId, []);
+      }
+      answersByQuestion.get(answer.questionId)!.push({
+        id: answer.id,
+        answerText: answer.answerText,
+        isCorrect: answer.isCorrect,
+      });
+    }
+
+    const questions: QuizQuestionResult[] = questionAssignments.map(
+      (assignment) => ({
+        questionId: assignment.questionId,
+        questionText: assignment.questionText,
+        categoryName: assignment.categoryName,
+        displayOrder: assignment.displayOrder,
+        userAnswerId: assignment.userAnswerId,
+        answers: answersByQuestion.get(assignment.questionId) || [],
+      }),
+    );
+
     return {
       score,
       totalQuestions: assignments.length,
       completedAt: answeredAt,
+      questions,
     };
   }
 

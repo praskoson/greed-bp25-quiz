@@ -89,12 +89,15 @@ export function useSubmitStakeMutation() {
         throw Error(JSON.stringify(simulationResult.value.err));
       }
 
-      const signature = await sendTransaction(signed, connection, {
-        minContextSlot: context.slot,
-        maxRetries: 0,
-        preflightCommitment: "confirmed",
-        skipPreflight: true,
-      });
+      const signature = await connection.sendRawTransaction(
+        signed.serialize(),
+        {
+          minContextSlot: context.slot,
+          maxRetries: 0,
+          preflightCommitment: "confirmed",
+          skipPreflight: true,
+        },
+      );
 
       const response = await fetch("/api/stake", {
         method: "POST",

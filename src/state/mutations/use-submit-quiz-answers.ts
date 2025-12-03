@@ -41,6 +41,7 @@ export const submitAnswersMutationOption = (walletAddress: string) =>
             score: data.score,
             totalQuestions: data.totalQuestions,
             completedAt: data.completedAt,
+            questions: data.questions,
           },
         );
       }

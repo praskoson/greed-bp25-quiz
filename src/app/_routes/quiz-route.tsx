@@ -1,6 +1,7 @@
 import { Spinner } from "@/components/spinner";
 import type {
   QuizQuestion,
+  QuizQuestionResult,
   SubmitQuizAnswersResult,
 } from "@/lib/stake/quiz.schemas";
 import { cn } from "@/lib/utils";
@@ -13,7 +14,7 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { XCircle } from "lucide-react";
+import { XCircle, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { ReactNode, useState, useEffect } from "react";
@@ -127,6 +128,7 @@ export function QuizRoute() {
             score={data.score}
             totalQuestions={data.totalQuestions}
             completedAt={data.completedAt}
+            questions={data.questions}
           />
         )}
 
@@ -140,10 +142,12 @@ export function QuizRoute() {
         )}
 
         {state === "submit-error" && (
-          <QuizSubmissionErrorState error={mutationError!} />
+          <QuizSubmissionErrorState key="submit-error" error={mutationError!} />
         )}
 
-        {state === "completed" && <QuizResultsState result={mutationData!} />}
+        {state === "completed" && (
+          <QuizResultsState key="completed" result={mutationData!} />
+        )}
       </AnimatePresence>
       <GreedAcademyDottedBackground className="absolute bottom-10" />
     </RouteContainer>
@@ -296,7 +300,7 @@ function QuizContent({
       animate={{ y: "0%" }}
       exit={{ y: "100%" }}
       transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1], delay: 0.1 }}
-      className="mt-8 z-1 flex-1 flex flex-col bg-[#F9F6F6] rounded-t-2xl px-4 py-5 overflow-y-scroll"
+      className="mt-8 z-1 flex-1 flex flex-col bg-[#F9F6F6] rounded-t-2xl px-4 py-5 overflow-y-auto"
     >
       <span className="bg-surface-3 text-foreground rounded-[4px] font-medium text-base/[130%] w-fit px-2 py-1">
         {currentQuestion.categoryName}
@@ -430,9 +434,21 @@ function QuizSubmissionErrorState({ error }: { error: Error }) {
 
 function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
   const { walletAddress } = useWalletAuth();
+  const [openAnswers, setOpenAnswers] = useState(false);
+
+  if (openAnswers) {
+    return (
+      <QuizAnswersSheet
+        key="completed-answers"
+        questions={result.questions}
+        onClose={() => setOpenAnswers(false)}
+      />
+    );
+  }
 
   return (
     <motion.div
+      key="completed-preview"
       className="mt-12 flex-1 flex flex-col px-4 z-1"
       variants={stateVariants}
       initial="initial"
@@ -454,9 +470,16 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
         <div className="mt-5 text-base text-brand">
           Signed in as {walletAddress?.slice(0, 4)}…{walletAddress?.slice(-4)}
         </div>
-        <LinkButton href="/leaderboard" className="mt-6">
-          View the Leaderboard
-        </LinkButton>
+        <div className="mt-6 flex flex-col gap-2 px-3">
+          <LinkButton href="/leaderboard">View the Leaderboard</LinkButton>
+          <Button
+            onClick={() => setOpenAnswers(true)}
+            variant="soft"
+            className="w-full"
+          >
+            View Answers
+          </Button>
+        </div>
       </div>
     </motion.div>
   );
@@ -466,12 +489,15 @@ function QuizAlreadyCompletedState({
   score,
   totalQuestions,
   completedAt,
+  questions,
 }: {
   score: number;
   totalQuestions: number;
   completedAt: Date;
+  questions: QuizQuestionResult[];
 }) {
   const { walletAddress } = useWalletAuth();
+  const [openAnswers, setOpenAnswers] = useState(false);
 
   // Format the completion date
   const formattedDate = new Date(completedAt).toLocaleDateString("en-US", {
@@ -484,12 +510,24 @@ function QuizAlreadyCompletedState({
     minute: "2-digit",
   });
 
+  if (openAnswers) {
+    return (
+      <QuizAnswersSheet
+        key="finished-questions"
+        questions={questions}
+        onClose={() => setOpenAnswers(false)}
+      />
+    );
+  }
+
   return (
     <motion.div
+      key="finished-preview"
       className="mt-12 flex-1 flex flex-col px-4 z-1"
       variants={stateVariants}
       initial="initial"
       animate="animate"
+      exit="exit"
     >
       <div className="flex flex-col gap-8 items-center px-2">
         <h2 className="text-[32px]/[95%] font-black text-white tracking-[-1px] uppercase">
@@ -508,16 +546,109 @@ function QuizAlreadyCompletedState({
         <div className="mt-5 text-base text-brand">
           Signed in as {walletAddress?.slice(0, 4)}…{walletAddress?.slice(-4)}
         </div>
-        <LinkButton href="/leaderboard" className="mt-6">
-          View the Leaderboard
-        </LinkButton>
-        <Button
-          onClick={() => alert("Unimplemented")}
-          variant="soft"
-          className="mt-2 w-full"
-        >
-          Stake more SOL
-        </Button>
+        <div className="mt-6 flex flex-col gap-2 px-3">
+          <LinkButton href="/leaderboard">View the Leaderboard</LinkButton>
+          <Button
+            onClick={() => setOpenAnswers(true)}
+            variant="soft"
+            className="w-full shrink-0"
+          >
+            View Answers
+          </Button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function QuizAnswersSheet({
+  questions,
+  onClose,
+}: {
+  questions: QuizQuestionResult[];
+  onClose: () => void;
+}) {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const isFirstQuestion = currentQuestionIndex === 0;
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
+
+  const handleNext = () => {
+    if (!isLastQuestion) {
+      setCurrentQuestionIndex((prev) => prev + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (!isFirstQuestion) {
+      setCurrentQuestionIndex((prev) => prev - 1);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ y: "100%" }}
+      animate={{ y: "0%" }}
+      exit={{ y: "100%" }}
+      transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1], delay: 0.1 }}
+      className="mt-8 z-1 flex-1 flex flex-col bg-[#F9F6F6] rounded-t-2xl px-4 py-5 overflow-y-auto"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="bg-surface-3 text-foreground rounded-[4px] font-medium text-base/[130%] w-fit px-2 py-1">
+          {currentQuestion.categoryName}
+        </span>
+        <button aria-label="Close answers" onClick={onClose}>
+          <XIcon className="size-5 text-foreground" />
+        </button>
+      </div>
+
+      <div className="pt-4">
+        <h2 className="font-medium text-foreground text-xl/tight">
+          {currentQuestion.questionText}
+        </h2>
+        <div className="mt-8 flex flex-col gap-4">
+          {currentQuestion.answers.map((answer) => {
+            return (
+              <div
+                key={answer.id}
+                className={cn(
+                  "w-full py-4 px-6 rounded-full border-2 text-left transition-colors duration-200",
+                  answer.isCorrect
+                    ? "border-[#00522F] bg-[#00522F]/10 text-[#00522F]"
+                    : !answer.isCorrect &&
+                        answer.id === currentQuestion.userAnswerId
+                      ? "border-red-500 text-red-700 bg-white"
+                      : "border-[#DAC0C0] bg-white text-foreground",
+                )}
+              >
+                <span className="text-base/[130%] font-medium">
+                  {answer.answerText}{" "}
+                  {currentQuestion.userAnswerId === answer.id
+                    ? "← Your answer"
+                    : answer.isCorrect
+                      ? "← Correct answer"
+                      : ""}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Navigation buttons */}
+      <div className="mt-auto flex gap-3 py-6">
+        {!isFirstQuestion && (
+          <Button
+            onClick={handlePrevious}
+            disabled={isFirstQuestion}
+            variant="soft"
+          >
+            Previous
+          </Button>
+        )}
+
+        {!isLastQuestion && <Button onClick={handleNext}>Next</Button>}
       </div>
     </motion.div>
   );
@@ -545,7 +676,7 @@ function Button({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex-1 h-[54px] px-6 rounded-full text-[16px]/[130%] font-medium transition-opacity",
+        "flex items-center justify-center h-[54px] px-6 rounded-full text-[16px]/[130%] font-medium transition-opacity",
         variant === "default" && "text-foreground-muted bg-neutral",
         variant === "soft" && "text-foreground bg-surface-3",
         disabled && "opacity-50 cursor-not-allowed",

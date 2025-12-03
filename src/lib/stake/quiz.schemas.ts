@@ -12,15 +12,13 @@ export interface SubmitQuizAnswersParams {
   answers: z.infer<typeof quizAnswersSchema>;
 }
 
-export interface SubmitQuizAnswersResult {
-  score: number;
-  totalQuestions: number;
-  completedAt: Date;
-}
-
 export interface QuizAnswer {
   id: string;
   answerText: string;
+}
+
+export interface QuizAnswerWithResult extends QuizAnswer {
+  isCorrect: boolean;
 }
 
 export interface QuizQuestion {
@@ -32,6 +30,22 @@ export interface QuizQuestion {
   answers: QuizAnswer[];
 }
 
+export interface QuizQuestionResult {
+  questionId: string;
+  questionText: string;
+  categoryName: string;
+  displayOrder: number;
+  userAnswerId: string | null;
+  answers: QuizAnswerWithResult[];
+}
+
+export interface SubmitQuizAnswersResult {
+  score: number;
+  totalQuestions: number;
+  completedAt: Date;
+  questions: QuizQuestionResult[];
+}
+
 export type QuizStateWithQuestions =
   | { state: "ready"; questions: QuizQuestion[] }
   | {
@@ -39,6 +53,7 @@ export type QuizStateWithQuestions =
       score: number;
       totalQuestions: number;
       completedAt: Date;
+      questions: QuizQuestionResult[];
     };
 
 export interface LeaderboardEntry {

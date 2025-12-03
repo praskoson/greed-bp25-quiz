@@ -9,7 +9,7 @@ export function HomeRoute() {
       <div className="h-[90px] flex items-end justify-center pb-1">
         <GreedAcademyLogo className="text-white" />
       </div>
-      <div className="relative bg-surface-2 mx-4 mb-4 mt-3 grow min-h-0 rounded-2xl">
+      <div className="relative bg-surface-2 mx-4 mb-4 mt-3 grow min-h-0 rounded-2xl overflow-hidden">
         <div className="mt-[12%] flex flex-col gap-8">
           <h1 className="text-foreground text-center text-[46px]/[110%] font-black tracking-[-1.9px] uppercase px-4">
             CONNECT WALLET TO CONTINUE

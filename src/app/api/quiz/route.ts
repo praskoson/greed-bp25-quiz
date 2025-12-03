@@ -43,7 +43,7 @@ const submitAnswersHandler = async (
     const body = await request.json();
     const answers = quizAnswersSchema.parse(body);
 
-    const { score, totalQuestions, completedAt } =
+    const { score, totalQuestions, completedAt, questions } =
       await QuizService.submitQuizAnswers({
         userId,
         answers,
@@ -59,6 +59,7 @@ const submitAnswersHandler = async (
         score,
         totalQuestions,
         completedAt,
+        questions,
       },
     });
   } catch (error: any) {
