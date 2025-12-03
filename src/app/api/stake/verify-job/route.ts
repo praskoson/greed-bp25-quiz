@@ -52,9 +52,11 @@ async function handler(request: NextRequest) {
     }
 
     const expectedLamportsAmount = BigInt(amount * LAMPORTS_PER_SOL);
+    const expectedDurationSeconds = Number(duration) * 24 * 60 * 60;
     const result = await validateStakeTransaction(session.stakeSignature, {
       expectedLamportsAmount,
       expectedOwner: walletAddress,
+      expectedDurationSeconds,
     });
 
     if (!result.success) {

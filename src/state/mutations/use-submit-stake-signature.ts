@@ -4,12 +4,15 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import {
   Keypair,
   LAMPORTS_PER_SOL,
+  Lockup,
   PublicKey,
   StakeProgram,
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
 import { retryWithBackoff } from "@/lib/utils";
+import { env } from "@/env";
+import { CUSTODIAN, VALIDATOR_VOTE_ACCOUNT } from "@/lib/solana";
 
 export type SubmitStakeResponse = {
   success: true;
@@ -17,9 +20,8 @@ export type SubmitStakeResponse = {
   stakeConfirmed: boolean;
 };
 
-const VALIDATOR_PUBKEY = new PublicKey(
-  "GREEDkpTvpKzcGvBu9qd36yk6BfjTWPShB67gLWuixMv",
-);
+export const CUSTODIAN_PUBKEY = new PublicKey(CUSTODIAN);
+const VALIDATOR_PUBKEY = new PublicKey(VALIDATOR_VOTE_ACCOUNT);
 
 export function useSubmitStakeMutation() {
   const { connection } = useConnection();
@@ -41,10 +43,14 @@ export function useSubmitStakeMutation() {
       );
 
       const signer = Keypair.generate();
-      // const lockupTimestamp =
-      //   Math.floor(new Date().getTime() / 1000) + days * 24 * 60 * 60;
-      // // const lockup = new Lockup(lockupTimestamp, 0, publicKey);
       const lamports = solAmount * LAMPORTS_PER_SOL;
+
+      const lockupTimestamp =
+        Math.floor(new Date().getTime() / 1000) + duration * 24 * 60 * 60;
+      let lockup: Lockup | undefined;
+      if (env.NEXT_PUBLIC_ENABLE_LOCKUP) {
+        lockup = new Lockup(lockupTimestamp, 0, CUSTODIAN_PUBKEY);
+      }
 
       const instructions = [
         ...StakeProgram.createAccount({
@@ -55,7 +61,7 @@ export function useSubmitStakeMutation() {
             staker: publicKey,
             withdrawer: publicKey,
           },
-          // lockup,
+          lockup,
         }).instructions,
         ...StakeProgram.delegate({
           stakePubkey: signer.publicKey,

@@ -35,3 +35,7 @@ export function createClient(): Client {
   }
   return client;
 }
+
+export const CUSTODIAN = "EXnRxsXiRbTe1s1S4Gh73AdZP8Vdp6rg2VV5daTPcx1u";
+export const VALIDATOR_VOTE_ACCOUNT =
+  "GREEDkpTvpKzcGvBu9qd36yk6BfjTWPShB67gLWuixMv";

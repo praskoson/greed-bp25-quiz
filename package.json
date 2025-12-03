@@ -10,7 +10,8 @@
     "check": "tsc --noEmit",
     "seed:questions": "tsx src/scripts/seed_db_questions.ts",
     "seed:leaderboard": "tsx src/scripts/seed_db_leaderboard.ts",
-    "admin:add-user": "tsx src/scripts/add_admin_user.ts"
+    "admin:add-user": "tsx src/scripts/add_admin_user.ts",
+    "test:verifier": "tsx src/scripts/test-verifier.ts"
   },
   "dependencies": {
     "@base-ui-components/react": "1.0.0-beta.7",

@@ -1,14 +1,15 @@
 import { signature } from "@solana/kit";
-import { createClient } from "@/lib/solana";
+import { createClient, VALIDATOR_VOTE_ACCOUNT, CUSTODIAN } from "@/lib/solana";
+import { env } from "@/env";
 
 const STAKE_PROGRAM_ID = "Stake11111111111111111111111111111111111111";
 const SYSTEM_PROGRAM_ID = "11111111111111111111111111111111";
-const VALIDATOR_PUBKEY = "GREEDkpTvpKzcGvBu9qd36yk6BfjTWPShB67gLWuixMv";
 
 /**
  * @typedef {Object} ValidationParams
  * @property {string} expectedOwner - The expected owner of the stake account
  * @property {bigint} expectedLamportsAmount - The expected amount of lamports
+ * @property {number} expectedDurationSeconds - The expected lock duration in seconds
  */
 
 /**
@@ -19,7 +20,8 @@ const VALIDATOR_PUBKEY = "GREEDkpTvpKzcGvBu9qd36yk6BfjTWPShB67gLWuixMv";
  * @throws {Error} If validation fails or transaction is not found
  */
 export async function validateStakeTransaction(txSignature, params) {
-  const { expectedOwner, expectedLamportsAmount } = params;
+  const { expectedOwner, expectedLamportsAmount, expectedDurationSeconds } =
+    params;
 
   const client = createClient();
   const response = await client.rpc
@@ -106,6 +108,38 @@ export async function validateStakeTransaction(txSignature, params) {
     );
   }
 
+  if (env.NEXT_PUBLIC_ENABLE_LOCKUP) {
+    // Validate lockup
+    if (!initInfo?.lockup) {
+      throw new Error(`Validation failed: lockup not found.`);
+    }
+
+    if (initInfo?.lockup?.custodian !== CUSTODIAN.toString()) {
+      throw new Error(
+        `Validation failed: initialize lockup custodian mismatch. Expected ${CUSTODIAN.toString()}, got ${initInfo.lockup.custodian}`,
+      );
+    }
+
+    if (typeof initInfo?.lockup?.unixTimestamp !== "bigint") {
+      throw new Error(
+        `Validation failed: lockup unixTimestamp is not a bigint.`,
+      );
+    }
+
+    const lockupTimestamp = Number(initInfo?.lockup?.unixTimestamp);
+    if (
+      !validateUnlockTime(
+        Number(response.blockTime),
+        expectedDurationSeconds,
+        lockupTimestamp,
+      )
+    ) {
+      throw new Error(
+        `Validation failed: unlock unixTimestamp not valid, tx blockTime: ${response.blockTime.toString()}, expected duration: ${expectedDurationSeconds}, actual unlock timestamp: ${lockupTimestamp}`,
+      );
+    }
+  }
+
   // Step 3: Find and validate delegate instruction
   const delegateIx = instructions.find(
     (ix) => ix.programId === STAKE_PROGRAM_ID && ix.parsed?.type === "delegate",
@@ -125,9 +159,9 @@ export async function validateStakeTransaction(txSignature, params) {
   }
 
   // Validate vote account
-  if (delegateInfo.voteAccount !== VALIDATOR_PUBKEY) {
+  if (delegateInfo.voteAccount !== VALIDATOR_VOTE_ACCOUNT) {
     throw new Error(
-      `Validation failed: delegate voteAccount mismatch. Expected ${VALIDATOR_PUBKEY}, got ${delegateInfo.voteAccount}`,
+      `Validation failed: delegate voteAccount mismatch. Expected ${VALIDATOR_VOTE_ACCOUNT}, got ${delegateInfo.voteAccount}`,
     );
   }
 
@@ -136,4 +170,21 @@ export async function validateStakeTransaction(txSignature, params) {
     success: true,
     stakeAccount: newStakeAccount,
   };
+}
+
+/**
+ * Check the timestamps
+ * @param {number} start - unix timestamp
+ * @param {number} expectedLockTime - number of locked seconds
+ * @param {number} actualUnlockTimestamp - the actual unlock time from the transaction
+ * @returns {boolean} - true if the unlock time is within the expected range, false otherwise
+ */
+function validateUnlockTime(start, expectedLockTime, actualUnlockTimestamp) {
+  const expectedUnlockTimestamp = start + expectedLockTime;
+  const timeDifference = Math.abs(
+    actualUnlockTimestamp - expectedUnlockTimestamp,
+  );
+  const twelveHoursInSeconds = 12 * 60 * 60; // 43200 seconds
+
+  return timeDifference <= twelveHoursInSeconds;
 }

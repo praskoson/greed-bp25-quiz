@@ -20,6 +20,7 @@ export const env = createEnv({
   },
   client: {
     NEXT_PUBLIC_RPC_URL: z.url(),
+    NEXT_PUBLIC_ENABLE_LOCKUP: z.stringbool(),
   },
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
@@ -28,6 +29,7 @@ export const env = createEnv({
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.REDIS_REST_TOKEN,
     NEXT_PUBLIC_RPC_URL: process.env.NEXT_PUBLIC_RPC_URL,
+    NEXT_PUBLIC_ENABLE_LOCKUP: process.env.NEXT_PUBLIC_ENABLE_LOCKUP,
     QSTASH_URL: process.env.QSTASH_URL,
     QSTASH_TOKEN: process.env.QSTASH_TOKEN,
     QSTASH_CURRENT_SIGNING_KEY: process.env.QSTASH_CURRENT_SIGNING_KEY,
