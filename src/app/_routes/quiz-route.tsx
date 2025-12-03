@@ -302,20 +302,28 @@ function QuizContent({
         {currentQuestion.categoryName}
       </span>
 
-      <div className="pt-12 pb-6">
+      <div className="pt-10 pb-6">
         <span className="sr-only">
           Progress: {currentQuestionIndex + 1} / {totalQuestions}
         </span>
         <div className="w-full grid grid-cols-5 gap-1 h-1 *:rounded-[30px]">
           <div className="bg-brand" />
-          {/* prettier-ignore */}
-          <div className={currentQuestionIndex > 0 ? "bg-brand" : "bg-surface-3"} />
-          {/* prettier-ignore */}
-          <div className={currentQuestionIndex > 1 ? "bg-brand" : "bg-surface-3"} />
-          {/* prettier-ignore */}
-          <div className={currentQuestionIndex > 2 ? "bg-brand" : "bg-surface-3"} />
-          {/* prettier-ignore */}
-          <div className={currentQuestionIndex > 3 ? "bg-brand" : "bg-surface-3"} />
+          {new Array(4).fill(null).map((_, index) => {
+            const isActive = currentQuestionIndex > index;
+            return (
+              <div
+                key={index}
+                className="bg-surface-3 relative overflow-hidden rounded-[30px]"
+              >
+                <motion.div
+                  className="absolute inset-0 bg-brand origin-left"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: isActive ? 1 : 0 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
       <div>
