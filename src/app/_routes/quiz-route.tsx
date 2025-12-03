@@ -96,7 +96,7 @@ export function QuizRoute() {
     data: mutationData,
     mutate,
     isPending: isMutationPending,
-  } = useMutation(submitAnswersMutationOption);
+  } = useMutation(submitAnswersMutationOption(publicKey?.toBase58() ?? ""));
 
   const showPending = useDelayedPending(isPending, PENDING_DELAY_MS);
 
