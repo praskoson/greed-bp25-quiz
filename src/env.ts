@@ -17,6 +17,7 @@ export const env = createEnv({
     QSTASH_TOKEN: z.string(),
     QSTASH_CURRENT_SIGNING_KEY: z.string(),
     QSTASH_NEXT_SIGNING_KEY: z.string(),
+    BETTER_AUTH_SECRET: z.string(),
   },
   client: {
     NEXT_PUBLIC_RPC_URL: z.url(),
@@ -34,5 +35,6 @@ export const env = createEnv({
     QSTASH_TOKEN: process.env.QSTASH_TOKEN,
     QSTASH_CURRENT_SIGNING_KEY: process.env.QSTASH_CURRENT_SIGNING_KEY,
     QSTASH_NEXT_SIGNING_KEY: process.env.QSTASH_NEXT_SIGNING_KEY,
+    BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
   },
 });
