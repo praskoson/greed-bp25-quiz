@@ -200,7 +200,7 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
               </div>
             </div>
 
-            <div className="xl:hidden flex items-center gap-3 sm:gap-4">
+            <div className="xl:hidden flex items-center gap-3 sm:gap-4 w-full">
               {/* Rank badge */}
               <div
                 className={cn(
