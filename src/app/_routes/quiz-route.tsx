@@ -516,62 +516,72 @@ function QuizAlreadyCompletedState({
     minute: "2-digit",
   });
 
-  if (openAnswers) {
-    return (
-      <QuizAnswersSheet
-        key="finished-questions"
-        questions={questions}
-        onClose={() => setOpenAnswers(false)}
-      />
-    );
-  }
-
   return (
     <motion.div
-      key="finished-preview"
-      className="mt-7 flex-1 flex flex-col px-4 z-1"
+      className="relative mt-7 flex-1 flex flex-col z-1"
       variants={stateVariants}
       initial="initial"
       animate="animate"
       exit="exit"
     >
-      <div className="flex flex-col gap-8 items-center px-2">
-        <h2 className="text-[32px]/[95%] font-black text-white tracking-[-1px] uppercase">
-          Quiz Complete!
-        </h2>
-        <p className="text-xl/tight font-medium text-surface-3 text-pretty text-center">
-          You completed this quiz on {formattedDate}&nbsp;at&nbsp;
-          {formattedTime}
-        </p>
-      </div>
-      <div className="mt-[30px] bg-surface-2 rounded-2xl text-center px-2 py-5">
-        <div className="text-[64px]/[100%] font-black text-foreground">
-          {score}/{totalQuestions}
-        </div>
-        <div className="mt-2 text-sm text-[#A37878]">Correct Answers</div>
-        <div className="mt-4 text-sm text-brand">
-          Signed in as {walletAddress?.slice(0, 4)}…{walletAddress?.slice(-4)}
-        </div>
-        <div className="mt-6 grid grid-cols-2 gap-2 px-3">
-          <LinkButton href="/leaderboard" className="col-span-2">
-            View the Leaderboard
-          </LinkButton>
-          <Button
-            onClick={() => setOpenAnswers(true)}
-            variant="soft"
-            className="w-full shrink-0 px-0"
+      <AnimatePresence mode="popLayout" initial={false}>
+        {openAnswers ? (
+          <QuizAnswersSheet
+            key="finished-questions"
+            questions={questions}
+            onClose={() => setOpenAnswers(false)}
+            className="absolute inset-0"
+          />
+        ) : (
+          <motion.div
+            key="finished-preview"
+            className="px-4"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={{ delay: 0.1, bounce: 0 }}
           >
-            View Answers
-          </Button>
-          <Button
-            onClick={() => navigate("stake-more")}
-            variant="default"
-            className="w-full shrink-0 px-0"
-          >
-            Stake More
-          </Button>
-        </div>
-      </div>
+            <div className="flex flex-col gap-8 items-center px-2">
+              <h2 className="text-[32px]/[95%] font-black text-white tracking-[-1px] uppercase">
+                Quiz Complete!
+              </h2>
+              <p className="text-xl/tight font-medium text-surface-3 text-pretty text-center">
+                You completed this quiz on {formattedDate}&nbsp;at&nbsp;
+                {formattedTime}
+              </p>
+            </div>
+            <div className="mt-[30px] bg-surface-2 rounded-2xl text-center px-2 py-5">
+              <div className="text-[64px]/[100%] font-black text-foreground">
+                {score}/{totalQuestions}
+              </div>
+              <div className="mt-2 text-sm text-[#A37878]">Correct Answers</div>
+              <div className="mt-4 text-sm text-brand">
+                Signed in as {walletAddress?.slice(0, 4)}…
+                {walletAddress?.slice(-4)}
+              </div>
+              <div className="mt-6 grid grid-cols-2 gap-2 px-3">
+                <LinkButton href="/leaderboard" className="col-span-2">
+                  View the Leaderboard
+                </LinkButton>
+                <Button
+                  onClick={() => navigate("stake-more")}
+                  variant="soft"
+                  className="w-full shrink-0 px-0"
+                >
+                  Stake More
+                </Button>
+                <Button
+                  onClick={() => setOpenAnswers(true)}
+                  variant="default"
+                  className="w-full shrink-0 px-0"
+                >
+                  View Answers
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -579,9 +589,11 @@ function QuizAlreadyCompletedState({
 function QuizAnswersSheet({
   questions,
   onClose,
+  className,
 }: {
   questions: QuizQuestionResult[];
   onClose: () => void;
+  className?: string;
 }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
@@ -607,7 +619,10 @@ function QuizAnswersSheet({
       animate={{ y: "0%" }}
       exit={{ y: "100%" }}
       transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1], delay: 0.1 }}
-      className="z-1 flex-1 flex flex-col bg-[#F9F6F6] rounded-t-2xl px-4 py-5 overflow-y-auto"
+      className={cn(
+        "z-1 flex-1 flex flex-col bg-[#F9F6F6] rounded-t-2xl px-4 py-5 overflow-y-auto",
+        className,
+      )}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="bg-surface-3 text-foreground rounded-[4px] font-medium text-base/[130%] w-fit px-2 py-1">
