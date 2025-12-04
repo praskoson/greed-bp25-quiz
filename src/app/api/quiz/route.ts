@@ -34,7 +34,7 @@ const submitAnswersHandler = async (
     const isPaused = await SettingsService.isQuizPaused();
     if (isPaused) {
       return NextResponse.json(
-        { success: false, message: "Quiz submissions are currently paused" },
+        { success: false, message: "Quiz submissions are paused." },
         { status: 503 },
       );
     }

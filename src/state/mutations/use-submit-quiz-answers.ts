@@ -7,9 +7,14 @@ import {
 } from "@/lib/stake/quiz.schemas";
 import { quizQuestionsOptions } from "../queries/quiz-questions";
 
-type SubmitResponseData = {
+type SuccessSubmitResponseData = {
   success: true;
   data: SubmitQuizAnswersResult;
+};
+
+type ErrorSubmitResponseData = {
+  success: false;
+  message: string;
 };
 
 export const submitAnswersMutationOption = (walletAddress: string) =>
@@ -23,12 +28,19 @@ export const submitAnswersMutationOption = (walletAddress: string) =>
       });
 
       if (!response.ok) {
-        console.log(response);
-        // const error = await response.json();
-        throw new Error("Failed to submit quiz answers");
+        let message = "Failed to submit quiz answers";
+        try {
+          const errorData = (await response.json()) as ErrorSubmitResponseData;
+          if (errorData.message) {
+            message = errorData.message;
+          }
+        } catch {
+          // JSON parsing failed, use default message
+        }
+        throw new Error(message);
       }
 
-      const data = (await response.json()) as SubmitResponseData;
+      const data = (await response.json()) as SuccessSubmitResponseData;
 
       return data.data;
     },

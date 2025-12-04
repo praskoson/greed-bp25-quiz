@@ -168,7 +168,7 @@ function QuizPendingState() {
         variants={staggerChildren}
         initial="initial"
         animate="animate"
-        className="flex flex-col items-center gap-6"
+        className="mt-8 flex flex-col items-center gap-6"
       >
         <motion.div variants={fadeSlideUp}>
           <Spinner className="size-20 text-white" />
@@ -399,7 +399,7 @@ function QuizSubmissionErrorState({ error }: { error: Error }) {
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="mt-8 flex-1 flex flex-col">
       <motion.div
         variants={staggerChildren}
         initial="initial"
@@ -413,12 +413,14 @@ function QuizSubmissionErrorState({ error }: { error: Error }) {
           <h2 className="text-[28px]/[100%] font-black text-white tracking-[-0.4px]">
             Quiz Submit Failed
           </h2>
-          <p className="mt-4 text-sm text-surface-2">
-            There was an error while submitting your&nbsp;quiz&nbsp;answers.
-          </p>
-          {error?.message && (
+          {error?.message ? (
             <p className="mt-2 text-sm text-surface-2 wrap-break-word">
               {error.message}
+            </p>
+          ) : (
+            <p>
+              There was an error while submitting
+              your&nbsp;quiz&nbsp;answers.{" "}
             </p>
           )}
         </motion.div>
