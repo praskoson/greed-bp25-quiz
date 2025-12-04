@@ -18,7 +18,13 @@ import {
   WalletSignTransactionError,
 } from "@solana/wallet-adapter-base";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle, ChevronDown, CircleHelp, XCircle } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle,
+  ChevronDown,
+  CircleHelp,
+  XCircle,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { ReactNode, useState } from "react";
 import { z } from "zod";
@@ -156,9 +162,9 @@ export function StakeMoreRoute() {
           <button
             type="button"
             onClick={() => goBack()}
-            className="text-foreground underline underline-offset-2 text-sm"
+            className="text-foreground underline underline-offset-2 text-sm whitespace-pre"
           >
-            Go back →
+            Go back <ArrowRight className="inline size-3.5 -translate-px" />
           </button>
         </div>
       </form>
@@ -369,9 +375,9 @@ function VerificationSheet({
             <button
               type="button"
               onClick={onClose}
-              className="mt-4 text-foreground underline underline-offset-2 text-sm"
+              className="mt-4 text-foreground underline underline-offset-2 text-sm whitespace-pre"
             >
-              Go back →
+              Go back <ArrowRight className="inline size-3.5 -translate-px" />
             </button>
           </motion.div>
         )}
