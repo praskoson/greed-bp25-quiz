@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/lib/db";
+import { db, dbServerless } from "@/lib/db";
 import {
   users,
   userQuizSessions,
@@ -8,10 +8,7 @@ import {
 } from "@/lib/db/schema/bp25";
 import { SettingsService } from "@/lib/settings/settings.service";
 import { QuizService } from "@/lib/stake/quiz.service";
-import {
-  calculateWeightedScore,
-  sortByWeightedScore,
-} from "@/lib/stake/score";
+import { calculateWeightedScore, sortByWeightedScore } from "@/lib/stake/score";
 import { getCompletedQuizUsers } from "./queries";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
@@ -125,7 +122,7 @@ export async function deleteUser(sessionId: string) {
 export async function assignQuestionsToSession(sessionId: string) {
   await requireAuth();
 
-  await db.transaction(async (tx) => {
+  await dbServerless.transaction(async (tx) => {
     await tx
       .update(userQuizSessions)
       .set({

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 import { VerifyStakeJobPayload } from "@/lib/qstash/types";
-import { db } from "@/lib/db";
+import { db, dbServerless } from "@/lib/db";
 import { userQuizSessions } from "@/lib/db/schema/bp25";
 import { eq, and } from "drizzle-orm";
 import { logError } from "@/lib/logger";
@@ -76,7 +76,7 @@ async function handler(request: NextRequest) {
 
     // Atomically confirm stake and assign questions
     // Re-check status inside transaction to prevent race conditions
-    const updated = await db.transaction(async (tx) => {
+    const updated = await dbServerless.transaction(async (tx) => {
       const [session] = await tx
         .select({ stakeAmountLamports: userQuizSessions.stakeAmountLamports })
         .from(userQuizSessions)
