@@ -16,6 +16,8 @@
     --color-brand-dark: #470000;
     --color-brand: #7e1d1d;
     --color-neutral: #1b0e0e;
+
+    --breakpoint-tv: 2000px;
 }
 
 @theme inline {

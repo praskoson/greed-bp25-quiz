@@ -58,8 +58,8 @@ function LeaderboardRowInnerMobile({
     <motion.div
       ref={ref}
       className={cn(
-        "w-full p-4 rounded-2xl bg-surface-1 max-xl:supports-[corner-shape:squircle]:rounded-[40px] max-xl:supports-[corner-shape:squircle]:[corner-shape:squircle]",
-        "flex items-center justify-between xl:grid xl:grid-cols-subgrid xl:col-span-full xl:bg-[#F9F6F6] xl:rounded-full",
+        "w-full p-4 rounded-2xl bg-surface-1 flex items-center justify-between",
+        "supports-[corner-shape:squircle]:rounded-[40px] supports-[corner-shape:squircle]:[corner-shape:squircle]",
       )}
       initial={false}
       style={{ scale, opacity }}

@@ -87,7 +87,7 @@ function StarRating({
           <svg
             key={index}
             className={cn(
-              "size-4 sm:size-5",
+              "size-4 sm:size-5 tv:size-10",
               isFilled
                 ? "text-brand-dark fill-brand-dark"
                 : "text-surface-3 fill-surface-3",
@@ -157,7 +157,7 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
     </div>
   ) : (
     <div className="mt-8 max-xl:space-y-2 flex-1 min-h-0 w-full pb-20 xl:bg-white xl:rounded-[14px] xl:mx-2 xl:px-12 xl:py-[52px] xl:grid xl:content-start xl:grid-cols-32 xl:gap-y-4 xl:overflow-y-auto scrollbar-hidden">
-      <div className="hidden xl:grid items-center grid-cols-subgrid col-span-full font-semibold text-sm text-[#B59090] uppercase">
+      <div className="hidden xl:grid items-center grid-cols-subgrid col-span-full font-semibold text-sm text-[#B59090] uppercase tv:text-xl">
         <div className="text-center col-span-2">#</div>
         <div aria-hidden="true">{/* spacer */}</div>
         <div className="text-left col-span-13">WALLET ADDRESS</div>
@@ -176,7 +176,7 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
               <div className="col-span-2">
                 <div
                   className={cn(
-                    "flex items-center justify-center size-11 rounded-full border-2 font-bold text-sm shrink-0",
+                    "flex items-center justify-center size-11 rounded-full border-2 font-bold text-sm shrink-0 tv:size-20 tv:text-2xl",
                     getRankBadgeColor(rank),
                   )}
                 >
@@ -186,16 +186,28 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
               <div aria-hidden="true" className="col-span-1">
                 {/* spacer */}
               </div>
-              <div className="font-semibold text-base/[130%] text-foreground content-center col-span-13">
+              <div
+                data-address={entry.walletAddress}
+                className="font-semibold text-base/[130%] text-foreground content-center col-span-13 tv:text-2xl/[130%]"
+              >
                 {entry.walletAddress}
               </div>
-              <div className="font-semibold text-base/[130%] text-foreground content-center col-span-5">
+              <div
+                data-stake={solAmount}
+                className="font-semibold text-base/[130%] text-foreground content-center col-span-5 tv:text-2xl/[130%]"
+              >
                 {solAmount}
               </div>
-              <div className="font-semibold text-base/[130%] text-foreground content-center col-span-5">
+              <div
+                data-days={days}
+                className="font-semibold text-base/[130%] text-foreground content-center col-span-5 tv:text-2xl/[130%]"
+              >
                 {days}
               </div>
-              <div className="font-semibold text-base/[130%] text-foreground content-center col-span-6">
+              <div
+                data-rating={entry.score}
+                className="font-semibold text-base/[130%] text-foreground content-center col-span-6 tv:text-2xl/[130%]"
+              >
                 <StarRating score={entry.score} />
               </div>
             </div>
@@ -218,7 +230,7 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
                 </div>
 
                 {/* Stars */}
-                <div className="mt-1">
+                <div data-rating={entry.score} className="mt-1">
                   <StarRating score={entry.score} />
                 </div>
               </div>
