@@ -52,7 +52,7 @@ function LeaderboardErrorState({ error }: { error: Error }) {
       </svg>
       <div className="text-center px-4">
         <p className="mt-4 text-sm text-[#7E1D1D]">
-          We encountered an error while loading the leaderboard.
+          There was an error while loading the leaderboard.
         </p>
         {error.message && (
           <p className="mt-2 text-xs text-[#A37878] wrap-break-word">
@@ -87,7 +87,7 @@ function StarRating({
           <svg
             key={index}
             className={cn(
-              "w-4 h-4 sm:w-5 sm:h-5",
+              "size-4 sm:size-5",
               isFilled
                 ? "text-brand-dark fill-brand-dark"
                 : "text-surface-3 fill-surface-3",

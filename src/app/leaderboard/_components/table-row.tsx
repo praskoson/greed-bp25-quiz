@@ -7,6 +7,44 @@ import { useMediaQuery } from "usehooks-ts";
 
 export function LeaderboardRow({ children }: { children: React.ReactNode }) {
   const isBig = useMediaQuery("(min-width: 1280px)", { defaultValue: false });
+
+  if (isBig) {
+    return (
+      <LeaderboardRowInnerDesktop key="big">
+        {children}
+      </LeaderboardRowInnerDesktop>
+    );
+  }
+
+  return (
+    <LeaderboardRowInnerMobile key="small">
+      {children}
+    </LeaderboardRowInnerMobile>
+  );
+}
+
+function LeaderboardRowInnerDesktop({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "w-full p-4 bg-surface-1",
+        "items-center justify-between grid grid-cols-subgrid col-span-full bg-[#F9F6F6] rounded-full",
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+function LeaderboardRowInnerMobile({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -14,7 +52,7 @@ export function LeaderboardRow({ children }: { children: React.ReactNode }) {
   });
 
   const opacity = useTransform(scrollYProgress, [0, 1], [0.1, 1]);
-  const scale = useTransform(scrollYProgress, [0, 1], [isBig ? 1 : 0.92, 1]);
+  const scale = useTransform(scrollYProgress, [0, 1], [0.92, 1]);
 
   return (
     <motion.div
@@ -24,7 +62,7 @@ export function LeaderboardRow({ children }: { children: React.ReactNode }) {
         "flex items-center justify-between xl:grid xl:grid-cols-subgrid xl:col-span-full xl:bg-[#F9F6F6] xl:rounded-full",
       )}
       initial={false}
-      style={isBig ? {} : { scale, opacity }}
+      style={{ scale, opacity }}
       transition={{
         type: "spring",
         stiffness: 400,
