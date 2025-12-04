@@ -14,7 +14,7 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { XCircle, XIcon } from "lucide-react";
+import { ArrowLeft, XCircle, XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { ReactNode, useState, useEffect } from "react";
@@ -225,9 +225,9 @@ function QuizErrorState({ error }: { error: Error }) {
           {/*<Button onClick={handleRetry}>Try Again</Button>*/}
           <button
             onClick={handleGoBack}
-            className="text-sm text-surface-2 hover:text-surface-3 underline underline-offset-4"
+            className="text-sm text-surface-2 hover:text-surface-3 underline underline-offset-4 whitespace-pre"
           >
-            ← Go Back
+            <ArrowLeft className="inline size-3.5 -translate-px" /> Go Back
           </button>
         </motion.div>
       </motion.div>
@@ -426,9 +426,10 @@ function QuizSubmissionErrorState({ error }: { error: Error }) {
           {/*<Button onClick={handleRetry}>Try Again</Button>*/}
           <button
             onClick={handleGoBack}
-            className="text-sm text-surface-2 hover:text-surface-3 underline underline-offset-4"
+            className="text-sm text-surface-2 hover:text-surface-3 underline underline-offset-4 whitespace-pre"
           >
-            ← Go Back
+            <ArrowLeft className="inline size-3.5 -translate-px" />
+            Go Back
           </button>
         </motion.div>
       </motion.div>
@@ -636,13 +637,21 @@ function QuizAnswersSheet({
                       : "border-[#DAC0C0] bg-white text-foreground",
                 )}
               >
-                <span className="text-base/[130%] font-medium">
+                <span className="text-base/[130%] font-medium whitespace-pre">
                   {answer.answerText}{" "}
-                  {currentQuestion.userAnswerId === answer.id
-                    ? "← Your answer"
-                    : answer.isCorrect
-                      ? "← Correct answer"
-                      : ""}
+                  {currentQuestion.userAnswerId === answer.id ? (
+                    <>
+                      <ArrowLeft className="inline size-3.5 -translate-px" />{" "}
+                      Your answer
+                    </>
+                  ) : answer.isCorrect ? (
+                    <>
+                      <ArrowLeft className="inline size-3.5 -translate-px" />{" "}
+                      Correct answer
+                    </>
+                  ) : (
+                    ""
+                  )}
                 </span>
               </div>
             );

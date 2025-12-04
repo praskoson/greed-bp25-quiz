@@ -3,6 +3,7 @@
 import { Spinner } from "@/components/spinner";
 import { useMiniRouter } from "@/state/mini-router";
 import { useWalletAuth } from "@/state/use-wallet-auth";
+import { ArrowLeft } from "lucide-react";
 import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -75,8 +76,12 @@ export function BackLink() {
         }}
         className="absolute top-0 -translate-y-1/2 inset-x-4 bg-neutral/85 rounded-full py-4 px-8 text-sm/[130%] text-white whitespace-pre backdrop-blur-lg"
       >
-        {isSigningOut ? <Spinner className="size-4 inline" /> : "←"} Back to
-        Home
+        {isSigningOut ? (
+          <Spinner className="size-4 inline" />
+        ) : (
+          <ArrowLeft className="inline size-3.5 -translate-px" />
+        )}{" "}
+        Back to Home
       </button>
     </motion.div>
   );
