@@ -76,6 +76,7 @@ export function StakeRoute() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isPending) return;
     setShowErrors(true);
 
     const {
