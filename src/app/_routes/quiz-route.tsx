@@ -476,8 +476,10 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
         <div className="mt-4 text-sm text-brand">
           Signed in as {walletAddress?.slice(0, 4)}…{walletAddress?.slice(-4)}
         </div>
-        <div className="mt-6 flex flex-col gap-2 px-3">
-          <LinkButton href="/leaderboard">View the Leaderboard</LinkButton>
+        <div className="mt-6 grid grid-cols-2 gap-2 px-3">
+          <LinkButton href="/leaderboard" className="col-span-2">
+            View the Leaderboard
+          </LinkButton>
           <Button
             onClick={() => navigate("stake-more")}
             variant="default"
