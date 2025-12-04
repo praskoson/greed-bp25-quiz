@@ -12,8 +12,8 @@ export default function HowItWorks({ className }: { className?: string }) {
     <Drawer.Root>
       <Drawer.Trigger
         className={clsx(
-          "size-[60px] grid place-content-center rounded-full",
-          "rounded-full shadow-lg bg-brand-dark text-foreground-muted hover:bg-brand",
+          "grid size-[60px] place-content-center rounded-full",
+          "bg-brand-dark text-foreground-muted hover:bg-brand rounded-full shadow-lg",
           className,
         )}
       >
@@ -21,20 +21,20 @@ export default function HowItWorks({ className }: { className?: string }) {
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-neutral flex flex-col rounded-t-2xl mt-24 h-fit fixed bottom-0 left-0 right-0 outline-none">
+        <Drawer.Content className="bg-neutral fixed right-0 bottom-0 left-0 mt-24 flex h-fit flex-col rounded-t-2xl outline-none">
           <div className="p-4">
             <Drawer.Handle
               aria-hidden
-              className="mx-auto w-12 h-1.5 shrink-0 rounded-full bg-gray-300 mb-4"
+              className="mx-auto mb-4 h-1.5 w-12 shrink-0 rounded-full bg-gray-300"
             />
-            <div className="max-w-md mx-auto px-3 py-4">
-              <Drawer.Title className="text-[#F9F6F6] text-center font-semibold text-2xl">
+            <div className="mx-auto max-w-md px-3 py-4">
+              <Drawer.Title className="text-center text-2xl font-semibold text-[#F9F6F6]">
                 How does it work
               </Drawer.Title>
               <Drawer.Description className="sr-only">
                 How does the quiz work
               </Drawer.Description>
-              <ul className="mt-4 text-[#F7F7F7] text-sm/5 font-base space-y-1">
+              <ul className="font-base mt-4 space-y-1 text-sm/5 text-[#F7F7F7]">
                 <li className="flex items-start gap-2">
                   <span>•</span>
                   <span>Stake SOL for at least 60 days to participate</span>
@@ -56,9 +56,9 @@ export default function HowItWorks({ className }: { className?: string }) {
               target="_blank"
               className={cn(
                 "mt-4 mb-8 flex items-center justify-center gap-1.5",
-                "px-2 py-4 rounded-full",
+                "rounded-full px-2 py-4",
                 "bg-brand text-[#F7F7F7]",
-                "font-semibold text-sm/5",
+                "text-sm/5 font-semibold",
               )}
             >
               Greed Academy <ArrowUpRight className="size-5" />

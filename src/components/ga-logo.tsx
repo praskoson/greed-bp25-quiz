@@ -2,7 +2,7 @@ import clsx from "clsx";
 
 export function GreedAcademyLogo({ className }: { className?: string }) {
   return (
-    <div className={clsx("flex items-center select-none h-[38px]", className)}>
+    <div className={clsx("flex h-[38px] items-center select-none", className)}>
       <svg
         viewBox="0 0 962 693"
         fill="none"
@@ -31,7 +31,7 @@ export function GreedAcademyLogo({ className }: { className?: string }) {
         </defs>
       </svg>
 
-      <span className="font-futura text-[20px]/none font-semibold tracking-[-0.4px] whitespace-nowrap text-current pr-2.5">
+      <span className="font-futura pr-2.5 text-[20px]/none font-semibold tracking-[-0.4px] whitespace-nowrap text-current">
         GREED ACADEMY
       </span>
     </div>

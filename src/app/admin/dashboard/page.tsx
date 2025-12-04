@@ -48,12 +48,12 @@ export default async function AdminDashboard() {
   ]);
 
   return (
-    <main className="max-w-6xl mx-auto p-6">
+    <main className="mx-auto max-w-6xl p-6">
       {/* Quiz Control */}
       <QuizControl initialPaused={settings.quizPaused} />
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Verified Users</CardDescription>
@@ -85,7 +85,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* User Management Sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Verified Users with Questions */}
         <UserListCard
           title="Verified Users (Questions Assigned)"

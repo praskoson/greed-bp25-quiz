@@ -36,7 +36,7 @@ export function QuizControl({ initialPaused }: Props) {
       </CardHeader>
       <CardContent className="flex items-center gap-4">
         <div
-          className={`px-3 py-1 rounded-full text-sm font-medium ${
+          className={`rounded-full px-3 py-1 text-sm font-medium ${
             quizPaused
               ? "bg-red-100 text-red-700"
               : "bg-green-100 text-green-700"

@@ -118,7 +118,7 @@ export function AutoRefreshWrapper({
     <AnimationsEnabledContext.Provider value={animationsEnabled}>
       {isLoading && (
         <div className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-full px-4 py-2">
-          <Spinner className="size-8 text-brand-dark" />
+          <Spinner className="text-brand-dark size-8" />
         </div>
       )}
       <AnimatePresence>
@@ -127,7 +127,7 @@ export function AutoRefreshWrapper({
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className="fixed top-4 left-4 z-50 bg-neutral/85 backdrop-blur-sm text-white text-sm font-medium px-4 py-2 rounded-full"
+            className="bg-neutral/85 fixed top-4 left-4 z-50 rounded-full px-4 py-2 text-sm font-medium text-white backdrop-blur-sm"
           >
             {notification}
           </motion.div>

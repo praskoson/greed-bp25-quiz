@@ -38,7 +38,7 @@ export function AuthButton() {
 
   if (isLoading) {
     return (
-      <button disabled className="w-full px-4 py-2 bg-gray-300 rounded">
+      <button disabled className="w-full rounded bg-gray-300 px-4 py-2">
         Loading...
       </button>
     );
@@ -54,11 +54,11 @@ export function AuthButton() {
         <button
           onClick={handleSignIn}
           disabled={isSigningIn}
-          className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-gray-300"
         >
           {isSigningIn ? "Signing In..." : "Sign In"}
         </button>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && <p className="text-sm text-red-500">{error}</p>}
       </div>
     );
   }
@@ -71,7 +71,7 @@ export function AuthButton() {
       <button
         onClick={handleSignOut}
         disabled={isSigningOut}
-        className="w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+        className="w-full rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600 disabled:cursor-not-allowed disabled:bg-gray-300"
       >
         {isSigningOut ? "Signing Out..." : "Sign Out"}
       </button>

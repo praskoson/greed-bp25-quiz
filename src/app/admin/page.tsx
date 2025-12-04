@@ -14,15 +14,15 @@ export default function AdminSignIn() {
   });
 
   return (
-    <div className="min-h-screen bg-brand flex flex-col items-center justify-center p-4">
+    <div className="bg-brand flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        <div className="flex justify-center mb-8">
+        <div className="mb-8 flex justify-center">
           <GreedAcademyLogo className="text-foreground-1" />
         </div>
 
         <Card className="bg-surface-1 border-none shadow-lg">
           <CardHeader className="text-center">
-            <CardTitle className="text-xl text-brand-dark">
+            <CardTitle className="text-brand-dark text-xl">
               Admin Sign In
             </CardTitle>
           </CardHeader>
@@ -56,7 +56,7 @@ export default function AdminSignIn() {
 
               <Button
                 type="submit"
-                className="w-full mt-2 bg-brand hover:bg-brand-dark text-foreground-1"
+                className="bg-brand hover:bg-brand-dark text-foreground-1 mt-2 w-full"
                 disabled={isPending}
               >
                 {isPending ? "Signing in..." : "Sign In"}

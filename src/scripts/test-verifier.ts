@@ -7,9 +7,8 @@ async function testVerifier(
   solAmount: number,
   daysAmount: number,
 ) {
-  const { validateStakeTransaction } = await import(
-    "../app/api/stake/verify-job/verifer.js"
-  );
+  const { validateStakeTransaction } =
+    await import("../app/api/stake/verify-job/verifer.js");
 
   const result = await validateStakeTransaction(txId, {
     expectedLamportsAmount: BigInt(solAmount * 1e9),

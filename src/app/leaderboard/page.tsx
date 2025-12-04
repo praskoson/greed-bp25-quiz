@@ -37,9 +37,9 @@ export default async function LeaderboardPage() {
 
 function LeaderboardErrorState({ error }: { error: Error }) {
   return (
-    <div className="h-full flex flex-col items-center justify-center gap-6">
+    <div className="flex h-full flex-col items-center justify-center gap-6">
       <svg
-        className="size-24 text-destructive"
+        className="text-destructive size-24"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -51,12 +51,12 @@ function LeaderboardErrorState({ error }: { error: Error }) {
           d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
         />
       </svg>
-      <div className="text-center px-4">
+      <div className="px-4 text-center">
         <p className="mt-4 text-sm text-[#7E1D1D]">
           There was an error while loading the leaderboard.
         </p>
         {error.message && (
-          <p className="mt-2 text-xs text-[#A37878] wrap-break-word">
+          <p className="mt-2 text-xs wrap-break-word text-[#A37878]">
             {error.message}
           </p>
         )}
@@ -64,7 +64,7 @@ function LeaderboardErrorState({ error }: { error: Error }) {
       <div className="flex flex-col gap-3">
         <Link
           href="/leaderboard"
-          className="flex items-center justify-center h-14 px-12 rounded-full text-[16px]/[130%] font-medium text-surface-2 bg-brand"
+          className="text-surface-2 bg-brand flex h-14 items-center justify-center rounded-full px-12 text-[16px]/[130%] font-medium"
         >
           Try Again
         </Link>
@@ -88,7 +88,7 @@ function StarRating({
           <svg
             key={index}
             className={cn(
-              "size-4 sm:size-5 tv:size-10",
+              "tv:size-10 size-4 sm:size-5",
               isFilled
                 ? "text-brand-dark fill-brand-dark"
                 : "text-surface-3 fill-surface-3",
@@ -135,23 +135,23 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
 
   // Leaderboard entries
   return sortedEntries.length === 0 ? (
-    <div className="mt-8 flex-1 flex flex-col items-center justify-center gap-6">
+    <div className="mt-8 flex flex-1 flex-col items-center justify-center gap-6">
       <p className="text-[#7E1D1D]">
         No quiz results yet. Be the first to complete the quiz!
       </p>
       <Link
         href="/"
-        className="flex items-center justify-center h-14 px-12 rounded-full text-[16px]/[130%] font-medium text-surface-2 bg-brand"
+        className="text-surface-2 bg-brand flex h-14 items-center justify-center rounded-full px-12 text-[16px]/[130%] font-medium"
       >
         Take the Quiz
       </Link>
     </div>
   ) : (
-    <div className="mt-8 max-xl:space-y-2 flex-1 min-h-0 w-full pb-20 xl:bg-white xl:rounded-[14px] xl:mx-2 xl:px-12 xl:py-[52px] xl:grid xl:content-start xl:grid-cols-32 xl:gap-y-4 xl:overflow-y-auto scrollbar-hidden">
-      <div className="hidden xl:grid items-center grid-cols-subgrid col-span-full font-semibold text-sm text-[#B59090] uppercase tv:text-xl">
-        <div className="text-center col-span-2">#</div>
+    <div className="scrollbar-hidden mt-8 min-h-0 w-full flex-1 pb-20 max-xl:space-y-2 xl:mx-2 xl:grid xl:grid-cols-32 xl:content-start xl:gap-y-4 xl:overflow-y-auto xl:rounded-[14px] xl:bg-white xl:px-12 xl:py-[52px]">
+      <div className="tv:text-xl col-span-full hidden grid-cols-subgrid items-center text-sm font-semibold text-[#B59090] uppercase xl:grid">
+        <div className="col-span-2 text-center">#</div>
         <div aria-hidden="true">{/* spacer */}</div>
-        <div className="text-left col-span-13">WALLET ADDRESS</div>
+        <div className="col-span-13 text-left">WALLET ADDRESS</div>
         <div className="col-span-5">STAKE (SOL)</div>
         <div className="col-span-5">DURATION (DAYS)</div>
         <div className="col-span-6">CORRECT ANSWERS</div>
@@ -163,11 +163,11 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
 
         return (
           <LeaderboardRowNoSsr key={entry.userId}>
-            <div className="xl:grid hidden xl:grid-cols-subgrid xl:col-span-full">
+            <div className="hidden xl:col-span-full xl:grid xl:grid-cols-subgrid">
               <div className="col-span-2">
                 <div
                   className={cn(
-                    "flex items-center justify-center size-11 rounded-full border-2 font-bold text-sm shrink-0 tv:size-20 tv:text-2xl",
+                    "tv:size-20 tv:text-2xl flex size-11 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold",
                     getRankBadgeColor(rank),
                   )}
                 >
@@ -179,35 +179,35 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
               </div>
               <div
                 data-address={entry.walletAddress}
-                className="font-semibold text-base/[130%] text-foreground content-center col-span-13 tv:text-2xl/[130%]"
+                className="text-foreground tv:text-2xl/[130%] col-span-13 content-center text-base/[130%] font-semibold"
               >
                 {entry.walletAddress}
               </div>
               <div
                 data-stake={solAmount}
-                className="font-semibold text-base/[130%] text-foreground content-center col-span-5 tv:text-2xl/[130%]"
+                className="text-foreground tv:text-2xl/[130%] col-span-5 content-center text-base/[130%] font-semibold"
               >
                 {solAmount}
               </div>
               <div
                 data-days={days}
-                className="font-semibold text-base/[130%] text-foreground content-center col-span-5 tv:text-2xl/[130%]"
+                className="text-foreground tv:text-2xl/[130%] col-span-5 content-center text-base/[130%] font-semibold"
               >
                 {days}
               </div>
               <div
                 data-rating={entry.score}
-                className="font-semibold text-base/[130%] text-foreground content-center col-span-6 tv:text-2xl/[130%]"
+                className="text-foreground tv:text-2xl/[130%] col-span-6 content-center text-base/[130%] font-semibold"
               >
                 <StarRating score={entry.score} />
               </div>
             </div>
 
-            <div className="xl:hidden flex items-center gap-3 sm:gap-4 w-full">
+            <div className="flex w-full items-center gap-3 sm:gap-4 xl:hidden">
               {/* Rank badge */}
               <div
                 className={cn(
-                  "flex items-center justify-center w-10 h-10 rounded-full border-2 font-bold text-sm shrink-0",
+                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold",
                   getRankBadgeColor(rank),
                 )}
               >
@@ -215,8 +215,8 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
               </div>
 
               {/* User info */}
-              <div className="flex-1 min-w-0">
-                <div className="font-medium text-base text-foreground truncate">
+              <div className="min-w-0 flex-1">
+                <div className="text-foreground truncate text-base font-medium">
                   {formatWalletAddress(entry.walletAddress, 3)}
                 </div>
 
@@ -227,11 +227,11 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
               </div>
 
               {/* Stats */}
-              <div className="text-right shrink-0 space-y-1 text-base/[130%] font-semibold">
+              <div className="shrink-0 space-y-1 text-right text-base/[130%] font-semibold">
                 <div className="text-foreground font-semibold">
                   {solAmount} SOL
                 </div>
-                <div className=" text-[#A37878]">
+                <div className="text-[#A37878]">
                   {days} {days === 1 ? "day" : "days"}
                 </div>
               </div>

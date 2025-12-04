@@ -101,7 +101,7 @@ function UserListItem({ user }: UserListItemProps) {
   return (
     <Link
       href={`/admin/users/${user.sessionId}`}
-      className="flex items-center justify-between py-[5px] px-2 -mx-2 rounded-md hover:bg-surface-4"
+      className="hover:bg-surface-4 -mx-2 flex items-center justify-between rounded-md px-2 py-[5px]"
     >
       <div className="flex items-center gap-1 text-sm/4">
         <button
@@ -122,7 +122,7 @@ function UserListItem({ user }: UserListItemProps) {
             <Ban className="size-4 text-amber-500" />
           </span>
         )}
-        <span className="text-xs text-muted-foreground">
+        <span className="text-muted-foreground text-xs">
           {formatDate(user.createdAt)}
         </span>
       </div>

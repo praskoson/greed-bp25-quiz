@@ -31,7 +31,7 @@ export function AnimatedGreedLoader({ className }: { className?: string }) {
       viewBox="0 0 962 693"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={cn("w-64 h-auto", className)}
+      className={cn("h-auto w-64", className)}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}

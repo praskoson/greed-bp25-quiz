@@ -7,7 +7,7 @@ export const LeaderboardRowNoSsr = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-full col-span-full h-20 rounded-2xl bg-surface-1 xl:h-[76px] xl:rounded-full xl:bg-[#f9f6f6]" />
+      <div className="bg-surface-1 col-span-full h-20 w-full rounded-2xl xl:h-[76px] xl:rounded-full xl:bg-[#f9f6f6]" />
     ),
   },
 );

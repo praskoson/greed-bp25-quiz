@@ -83,8 +83,8 @@ export function UserControls({ sessionId, hasAnswers, isShadowBanned }: Props) {
         disabled={isTogglingBan}
         className={
           isShadowBanned
-            ? "bg-amber-600 hover:bg-amber-700 text-white"
-            : "bg-amber-500 hover:bg-amber-600 text-white"
+            ? "bg-amber-600 text-white hover:bg-amber-700"
+            : "bg-amber-500 text-white hover:bg-amber-600"
         }
       >
         <Ban className="size-4" />

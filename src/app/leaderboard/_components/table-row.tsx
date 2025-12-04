@@ -31,8 +31,8 @@ function LeaderboardRowInnerDesktop({
   return (
     <div
       className={cn(
-        "w-full p-4 bg-surface-1",
-        "items-center justify-between grid grid-cols-subgrid col-span-full bg-[#F9F6F6] rounded-full",
+        "bg-surface-1 w-full p-4",
+        "col-span-full grid grid-cols-subgrid items-center justify-between rounded-full bg-[#F9F6F6]",
       )}
     >
       {children}
@@ -58,7 +58,7 @@ function LeaderboardRowInnerMobile({
     <motion.div
       ref={ref}
       className={cn(
-        "w-full p-4 rounded-2xl bg-surface-1 flex items-center justify-between",
+        "bg-surface-1 flex w-full items-center justify-between rounded-2xl p-4",
         "supports-[corner-shape:squircle]:rounded-[40px] supports-[corner-shape:squircle]:[corner-shape:squircle]",
       )}
       initial={false}

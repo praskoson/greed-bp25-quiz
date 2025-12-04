@@ -25,7 +25,7 @@ export function GreedAcademyDottedBackground({
         onLoad={() => setIsLoaded(true)}
         src={DottedSvg}
         alt=""
-        className="w-full min-w-[400px] max-w-[650px] h-auto shrink-0 object-contain"
+        className="h-auto w-full max-w-[650px] min-w-[400px] shrink-0 object-contain"
       />
     </motion.div>
   );

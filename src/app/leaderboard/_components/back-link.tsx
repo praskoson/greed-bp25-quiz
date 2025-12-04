@@ -61,7 +61,7 @@ export function BackLink() {
 
   return (
     <motion.div
-      className="xl:hidden fixed z-10 inset-x-0 bottom-0 bg-surface-2 h-[50px] px-4"
+      className="bg-surface-2 fixed inset-x-0 bottom-0 z-10 h-[50px] px-4 xl:hidden"
       initial={{ y: 0 }}
       animate={{ y: isVisible ? 0 : 100 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -74,10 +74,10 @@ export function BackLink() {
 
           push("/");
         }}
-        className="absolute top-0 -translate-y-1/2 inset-x-4 bg-neutral/85 rounded-full py-4 px-8 text-sm/[130%] text-white whitespace-pre backdrop-blur-lg"
+        className="bg-neutral/85 absolute inset-x-4 top-0 -translate-y-1/2 rounded-full px-8 py-4 text-sm/[130%] whitespace-pre text-white backdrop-blur-lg"
       >
         {isSigningOut ? (
-          <Spinner className="size-4 inline" />
+          <Spinner className="inline size-4" />
         ) : (
           <ArrowLeft className="inline size-3.5 -translate-px" />
         )}{" "}

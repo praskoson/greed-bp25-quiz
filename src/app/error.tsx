@@ -15,12 +15,12 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="max-w-[500px] mx-auto min-h-dvh bg-surface-2 flex flex-col items-center justify-center p-6">
+    <div className="bg-surface-2 mx-auto flex min-h-dvh max-w-[500px] flex-col items-center justify-center p-6">
       <GreedAcademyLogo className="text-brand-dark" />
 
       <div className="mt-12 flex flex-col items-center">
         <svg
-          className="size-20 text-destructive"
+          className="text-destructive size-20"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -33,16 +33,16 @@ export default function Error({
           />
         </svg>
 
-        <h1 className="mt-6 text-[32px]/none font-black text-foreground tracking-[-1px]">
+        <h1 className="text-foreground mt-6 text-[32px]/none font-black tracking-[-1px]">
           Something went wrong
         </h1>
 
-        <p className="mt-3 text-sm text-[#7E1D1D] text-center">
+        <p className="mt-3 text-center text-sm text-[#7E1D1D]">
           An unexpected error occurred.
         </p>
 
         {error.digest && (
-          <p className="mt-2 text-xs text-[#A37878] text-center font-mono">
+          <p className="mt-2 text-center font-mono text-xs text-[#A37878]">
             Error ID: {error.digest}
           </p>
         )}
@@ -50,7 +50,7 @@ export default function Error({
 
       <button
         onClick={reset}
-        className="mt-10 flex items-center justify-center h-14 px-12 rounded-full text-[16px]/[130%] font-medium text-surface-2 bg-brand"
+        className="text-surface-2 bg-brand mt-10 flex h-14 items-center justify-center rounded-full px-12 text-[16px]/[130%] font-medium"
       >
         Try Again
       </button>

@@ -34,7 +34,7 @@ export default async function CompletedUsersPage() {
   const users = await getCompletedQuizUsers();
 
   return (
-    <main className="max-w-4xl mx-auto p-6">
+    <main className="mx-auto max-w-4xl p-6">
       <div className="mb-6 flex items-center justify-between">
         <Button variant="ghost" size="sm" asChild className="text-foreground">
           <Link href="/admin/dashboard">← Back to Dashboard</Link>
@@ -60,7 +60,7 @@ export default async function CompletedUsersPage() {
                 <Link
                   key={user.sessionId}
                   href={`/admin/users/${user.sessionId}`}
-                  className="flex items-center justify-between py-3 hover:bg-surface-4 -mx-2 px-2 rounded-md transition-colors"
+                  className="hover:bg-surface-4 -mx-2 flex items-center justify-between rounded-md px-2 py-3 transition-colors"
                 >
                   <div className="flex items-center gap-2 text-sm">
                     <span className="font-mono">
@@ -75,7 +75,7 @@ export default async function CompletedUsersPage() {
                       Score: {user.score}/{user.questionCount}
                     </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-muted-foreground text-xs">
                     {user.completedAt && formatDate(user.completedAt)}
                   </span>
                 </Link>

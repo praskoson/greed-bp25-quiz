@@ -158,7 +158,7 @@ export function QuizRoute() {
 function QuizPendingState() {
   return (
     <motion.div
-      className="flex-1 flex flex-col items-center gap-6 "
+      className="flex flex-1 flex-col items-center gap-6"
       variants={stateVariants}
       initial="initial"
       animate="animate"
@@ -174,10 +174,10 @@ function QuizPendingState() {
           <Spinner className="size-20 text-white" />
         </motion.div>
         <motion.div className="text-white" variants={fadeSlideUp}>
-          <h2 className="text-center text-[32px]/[95%] font-black text-white tracking-[-0.4px]">
+          <h2 className="text-center text-[32px]/[95%] font-black tracking-[-0.4px] text-white">
             Loading Quiz...
           </h2>
-          <p className="mt-4 text-sm text-foreground-muted">
+          <p className="text-foreground-muted mt-4 text-sm">
             Please wait while we load your questions
           </p>
         </motion.div>
@@ -193,7 +193,7 @@ function QuizErrorState({ error }: { error: Error }) {
 
   return (
     <motion.div
-      className="flex-1 flex flex-col"
+      className="flex flex-1 flex-col"
       variants={stateVariants}
       initial="initial"
       animate="animate"
@@ -203,20 +203,20 @@ function QuizErrorState({ error }: { error: Error }) {
         variants={staggerChildren}
         initial="initial"
         animate="animate"
-        className="flex-1 flex flex-col items-center justify-center gap-6"
+        className="flex flex-1 flex-col items-center justify-center gap-6"
       >
         <motion.div variants={fadeSlideUp}>
-          <XCircle className="size-24 text-destructive" />
+          <XCircle className="text-destructive size-24" />
         </motion.div>
-        <motion.div className="text-center px-4" variants={fadeSlideUp}>
-          <h2 className="text-[32px]/[100%] font-black text-white tracking-[-0.4px]">
+        <motion.div className="px-4 text-center" variants={fadeSlideUp}>
+          <h2 className="text-[32px]/[100%] font-black tracking-[-0.4px] text-white">
             Unable to Load Quiz
           </h2>
-          <p className="mt-4 text-sm text-surface-2">
+          <p className="text-surface-2 mt-4 text-sm">
             We encountered an error while loading your quiz.
           </p>
           {error.message && (
-            <p className="mt-2 text-sm text-surface-2 wrap-break-word">
+            <p className="text-surface-2 mt-2 text-sm wrap-break-word">
               {error.message}
             </p>
           )}
@@ -225,7 +225,7 @@ function QuizErrorState({ error }: { error: Error }) {
           {/*<Button onClick={handleRetry}>Try Again</Button>*/}
           <button
             onClick={handleGoBack}
-            className="text-sm text-surface-2 hover:text-surface-3 underline underline-offset-4 whitespace-pre"
+            className="text-surface-2 hover:text-surface-3 text-sm whitespace-pre underline underline-offset-4"
           >
             <ArrowLeft className="inline size-3.5 -translate-px" /> Go Back
           </button>
@@ -301,9 +301,9 @@ function QuizContent({
       animate={{ y: "0%" }}
       exit={{ y: "100%" }}
       transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1], delay: 0.1 }}
-      className="z-1 flex-1 flex flex-col bg-[#F9F6F6] rounded-t-2xl px-4 py-5 overflow-y-auto"
+      className="z-1 flex flex-1 flex-col overflow-y-auto rounded-t-2xl bg-[#F9F6F6] px-4 py-5"
     >
-      <span className="bg-surface-3 text-foreground rounded-[4px] font-medium text-base/[130%] w-fit px-2 py-1">
+      <span className="bg-surface-3 text-foreground w-fit rounded-[4px] px-2 py-1 text-base/[130%] font-medium">
         {currentQuestion.categoryName}
       </span>
 
@@ -311,7 +311,7 @@ function QuizContent({
         <span className="sr-only">
           Progress: {currentQuestionIndex + 1} / {totalQuestions}
         </span>
-        <div className="w-full grid grid-cols-5 gap-1 h-1 *:rounded-[30px]">
+        <div className="grid h-1 w-full grid-cols-5 gap-1 *:rounded-[30px]">
           <div className="bg-brand" />
           {new Array(4).fill(null).map((_, index) => {
             const isActive = currentQuestionIndex > index;
@@ -321,7 +321,7 @@ function QuizContent({
                 className="bg-surface-3 relative overflow-hidden rounded-[30px]"
               >
                 <motion.div
-                  className="absolute inset-0 bg-brand origin-left"
+                  className="bg-brand absolute inset-0 origin-left"
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: isActive ? 1 : 0 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
@@ -332,7 +332,7 @@ function QuizContent({
         </div>
       </div>
       <div>
-        <h2 className="font-medium text-foreground text-xl/tight">
+        <h2 className="text-foreground text-xl/tight font-medium">
           {currentQuestion.questionText}
         </h2>
         <div className="mt-5 flex flex-col gap-4">
@@ -343,10 +343,10 @@ function QuizContent({
                 key={answer.id}
                 onClick={() => handleAnswerSelect(answer.id)}
                 className={cn(
-                  "w-full py-4 px-6 rounded-full border-2 text-left transition-colors duration-200",
+                  "w-full rounded-full border-2 px-6 py-4 text-left transition-colors duration-200",
                   isSelected
                     ? "border-brand-dark bg-brand-dark text-foreground-muted"
-                    : "border-[#DAC0C0] bg-white text-foreground",
+                    : "text-foreground border-[#DAC0C0] bg-white",
                 )}
               >
                 <span className="text-base/[130%] font-medium">
@@ -399,22 +399,22 @@ function QuizSubmissionErrorState({ error }: { error: Error }) {
   };
 
   return (
-    <div className="mt-8 flex-1 flex flex-col">
+    <div className="mt-8 flex flex-1 flex-col">
       <motion.div
         variants={staggerChildren}
         initial="initial"
         animate="animate"
-        className="flex-1 flex flex-col items-center justify-start gap-6"
+        className="flex flex-1 flex-col items-center justify-start gap-6"
       >
         <motion.div variants={fadeSlideUp}>
-          <XCircle className="size-24 text-destructive" />
+          <XCircle className="text-destructive size-24" />
         </motion.div>
-        <motion.div className="text-center px-4" variants={fadeSlideUp}>
-          <h2 className="text-[28px]/[100%] font-black text-white tracking-[-0.4px]">
+        <motion.div className="px-4 text-center" variants={fadeSlideUp}>
+          <h2 className="text-[28px]/[100%] font-black tracking-[-0.4px] text-white">
             Quiz Submit Failed
           </h2>
           {error?.message ? (
-            <p className="mt-2 text-sm text-surface-2 wrap-break-word">
+            <p className="text-surface-2 mt-2 text-sm wrap-break-word">
               {error.message}
             </p>
           ) : (
@@ -428,7 +428,7 @@ function QuizSubmissionErrorState({ error }: { error: Error }) {
           {/*<Button onClick={handleRetry}>Try Again</Button>*/}
           <button
             onClick={handleGoBack}
-            className="text-sm text-surface-2 hover:text-surface-3 underline underline-offset-4 whitespace-pre"
+            className="text-surface-2 hover:text-surface-3 text-sm whitespace-pre underline underline-offset-4"
           >
             <ArrowLeft className="inline size-3.5 -translate-px" />
             Go Back
@@ -446,7 +446,7 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
 
   return (
     <motion.div
-      className="relative mt-7 flex-1 flex flex-col z-1"
+      className="relative z-1 mt-7 flex flex-1 flex-col"
       variants={stateVariants}
       initial="initial"
       animate="animate"
@@ -469,20 +469,20 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
             exit={{ opacity: 0, scale: 0.85 }}
             transition={{ delay: 0.1, bounce: 0 }}
           >
-            <div className="flex flex-col gap-8 items-center px-2">
-              <h2 className="text-[32px]/[95%] font-black text-white tracking-[-1px] uppercase">
+            <div className="flex flex-col items-center gap-8 px-2">
+              <h2 className="text-[32px]/[95%] font-black tracking-[-1px] text-white uppercase">
                 Quiz Complete!
               </h2>
-              <p className="text-xl/tight font-medium text-surface-3 text-pretty text-center">
+              <p className="text-surface-3 text-center text-xl/tight font-medium text-pretty">
                 Great job! You&apos;ve successfully completed the quiz.
               </p>
             </div>
-            <div className="mt-[30px] bg-surface-2 rounded-2xl text-center px-2 py-5">
-              <div className="text-[64px]/[100%] font-black text-foreground">
+            <div className="bg-surface-2 mt-[30px] rounded-2xl px-2 py-5 text-center">
+              <div className="text-foreground text-[64px]/[100%] font-black">
                 {result.score}/{result.totalQuestions}
               </div>
               <div className="mt-2 text-sm text-[#A37878]">Correct Answers</div>
-              <div className="mt-4 text-sm text-brand">
+              <div className="text-brand mt-4 text-sm">
                 Signed in as {walletAddress?.slice(0, 4)}…
                 {walletAddress?.slice(-4)}
               </div>
@@ -541,7 +541,7 @@ function QuizAlreadyCompletedState({
 
   return (
     <motion.div
-      className="relative mt-7 flex-1 flex flex-col z-1"
+      className="relative z-1 mt-7 flex flex-1 flex-col"
       variants={stateVariants}
       initial="initial"
       animate="animate"
@@ -564,21 +564,21 @@ function QuizAlreadyCompletedState({
             exit={{ opacity: 0, scale: 0.85 }}
             transition={{ delay: 0.1, bounce: 0 }}
           >
-            <div className="flex flex-col gap-8 items-center px-2">
-              <h2 className="text-[32px]/[95%] font-black text-white tracking-[-1px] uppercase">
+            <div className="flex flex-col items-center gap-8 px-2">
+              <h2 className="text-[32px]/[95%] font-black tracking-[-1px] text-white uppercase">
                 Quiz Complete!
               </h2>
-              <p className="text-xl/tight font-medium text-surface-3 text-pretty text-center">
+              <p className="text-surface-3 text-center text-xl/tight font-medium text-pretty">
                 You completed this quiz on {formattedDate}&nbsp;at&nbsp;
                 {formattedTime}
               </p>
             </div>
-            <div className="mt-[30px] bg-surface-2 rounded-2xl text-center px-2 py-5">
-              <div className="text-[64px]/[100%] font-black text-foreground">
+            <div className="bg-surface-2 mt-[30px] rounded-2xl px-2 py-5 text-center">
+              <div className="text-foreground text-[64px]/[100%] font-black">
                 {score}/{totalQuestions}
               </div>
               <div className="mt-2 text-sm text-[#A37878]">Correct Answers</div>
-              <div className="mt-4 text-sm text-brand">
+              <div className="text-brand mt-4 text-sm">
                 Signed in as {walletAddress?.slice(0, 4)}…
                 {walletAddress?.slice(-4)}
               </div>
@@ -643,21 +643,21 @@ function QuizAnswersSheet({
       exit={{ y: "100%" }}
       transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1], delay: 0.1 }}
       className={cn(
-        "z-1 flex-1 flex flex-col bg-[#F9F6F6] rounded-t-2xl px-4 py-5 overflow-y-auto",
+        "z-1 flex flex-1 flex-col overflow-y-auto rounded-t-2xl bg-[#F9F6F6] px-4 py-5",
         className,
       )}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="bg-surface-3 text-foreground rounded-[4px] font-medium text-base/[130%] w-fit px-2 py-1">
+        <span className="bg-surface-3 text-foreground w-fit rounded-[4px] px-2 py-1 text-base/[130%] font-medium">
           {currentQuestion.categoryName}
         </span>
         <button aria-label="Close answers" onClick={onClose}>
-          <XIcon className="size-5 text-foreground" />
+          <XIcon className="text-foreground size-5" />
         </button>
       </div>
 
       <div className="pt-4">
-        <h2 className="font-medium text-foreground text-xl/tight">
+        <h2 className="text-foreground text-xl/tight font-medium">
           {currentQuestion.questionText}
         </h2>
         <div className="mt-5 flex flex-col gap-4">
@@ -666,13 +666,13 @@ function QuizAnswersSheet({
               <div
                 key={answer.id}
                 className={cn(
-                  "w-full py-4 px-6 rounded-full border-2 text-left transition-colors duration-200",
+                  "w-full rounded-full border-2 px-6 py-4 text-left transition-colors duration-200",
                   answer.isCorrect
                     ? "border-[#00522F] bg-[#00522F]/10 text-[#00522F]"
                     : !answer.isCorrect &&
                         answer.id === currentQuestion.userAnswerId
-                      ? "border-red-500 text-red-700 bg-white"
-                      : "border-[#DAC0C0] bg-white text-foreground",
+                      ? "border-red-500 bg-white text-red-700"
+                      : "text-foreground border-[#DAC0C0] bg-white",
                 )}
               >
                 <span className="text-base/[130%] font-medium whitespace-pre">
@@ -742,10 +742,10 @@ function Button({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex items-center justify-center h-[54px] px-6 rounded-full text-[14px]/[130%] font-medium transition-opacity",
+        "flex h-[54px] items-center justify-center rounded-full px-6 text-[14px]/[130%] font-medium transition-opacity",
         variant === "default" && "text-foreground-muted bg-neutral",
         variant === "soft" && "text-foreground bg-surface-3",
-        disabled && "opacity-50 cursor-not-allowed",
+        disabled && "cursor-not-allowed opacity-50",
         className,
       )}
     >
@@ -771,8 +771,8 @@ function LinkButton({
       whileTap={{ scale: 0.96 }}
       href={href}
       className={cn(
-        "flex items-center justify-center h-[54px] px-6 rounded-full text-[14px]/[130%] font-medium transition-opacity",
-        "text-white bg-brand-dark",
+        "flex h-[54px] items-center justify-center rounded-full px-6 text-[14px]/[130%] font-medium transition-opacity",
+        "bg-brand-dark text-white",
         className,
       )}
     >
@@ -783,7 +783,7 @@ function LinkButton({
 
 function LogoHeader() {
   return (
-    <div className="w-full h-16 flex items-end justify-center pb-1">
+    <div className="flex h-16 w-full items-end justify-center pb-1">
       <GreedAcademyLogo className="text-white" />
     </div>
   );

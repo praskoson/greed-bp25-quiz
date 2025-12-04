@@ -100,17 +100,17 @@ export function StakeMoreRoute() {
   };
 
   return (
-    <div className="relative h-full bg-surface-2 flex items-center flex-col p-4 overflow-y-hidden">
+    <div className="bg-surface-2 relative flex h-full flex-col items-center overflow-y-hidden p-4">
       <ConnectedWalletButton
         className="h-14 w-full"
         onDisconnect={() => navigate("sign-in")}
       />
-      <GreedAcademyLogo className="mt-5 text-foreground" />
+      <GreedAcademyLogo className="text-foreground mt-5" />
       <WhyStakeMore />
       <form
         id="stake-form"
         onSubmit={handleSubmit}
-        className="w-full mt-6 flex flex-col gap-5 py-2"
+        className="mt-6 flex w-full flex-col gap-5 py-2"
       >
         <div>
           <InputGroup
@@ -126,7 +126,7 @@ export function StakeMoreRoute() {
           <span
             className={cn(
               errors?.amount ? "text-destructive" : "text-[#A37878]",
-              "pl-8 text-sm/[130%] mt-2",
+              "mt-2 pl-8 text-sm/[130%]",
             )}
           >
             Minimum amount is 0.01 SOL
@@ -144,25 +144,25 @@ export function StakeMoreRoute() {
           <span
             className={cn(
               errors?.duration ? "text-destructive" : "text-[#A37878]",
-              "pl-8 text-sm/[130%] mt-2",
+              "mt-2 pl-8 text-sm/[130%]",
             )}
           >
             Minimum duration is 60 days
           </span>
         </div>
-        <div className="flex flex-col gap-2 items-center">
+        <div className="flex flex-col items-center gap-2">
           <Button
             type="submit"
             form="stake-form"
             disabled={isPending}
-            className="relative flex items-center gap-1 justify-center"
+            className="relative flex items-center justify-center gap-1"
           >
             <PendingWrapper isPending={isPending}>Stake SOL</PendingWrapper>
           </Button>
           <button
             type="button"
             onClick={() => goBack()}
-            className="text-foreground underline underline-offset-2 text-sm whitespace-pre"
+            className="text-foreground text-sm whitespace-pre underline underline-offset-2"
           >
             Go back <ArrowRight className="inline size-3.5 -translate-px" />
           </button>
@@ -171,8 +171,8 @@ export function StakeMoreRoute() {
 
       <div className="relative h-6 w-full max-w-[350px]">
         {error && !isExpectedError(error) && (
-          <div className="absolute z-1 top-0 inset-x-0 h-auto w-full rounded-lg bg-white border border-red-500 p-4 mt-4">
-            <p className="text-sm text-red-700 font-medium">{error.message}</p>
+          <div className="absolute inset-x-0 top-0 z-1 mt-4 h-auto w-full rounded-lg border border-red-500 bg-white p-4">
+            <p className="text-sm font-medium text-red-700">{error.message}</p>
           </div>
         )}
       </div>
@@ -191,9 +191,9 @@ function WhyStakeMore() {
     <Collapsible
       open={isOpen}
       onOpenChange={setIsOpen}
-      className="mt-4 font-base"
+      className="font-base mt-4"
     >
-      <CollapsibleTrigger className="flex items-center gap-2 mx-auto text-[#7E1D1D] hover:text-neutral transition-colors">
+      <CollapsibleTrigger className="hover:text-neutral mx-auto flex items-center gap-2 text-[#7E1D1D] transition-colors">
         <CircleHelp className="size-5" />
         <span className="text-base font-medium">
           Why should I stake more SOL?
@@ -213,7 +213,7 @@ function WhyStakeMore() {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="mt-4 space-y-2 text-sm text-[#7E1D1D] overflow-hidden list-disc pl-5"
+              className="mt-4 list-disc space-y-2 overflow-hidden pl-5 text-sm text-[#7E1D1D]"
             >
               <li>
                 Staking more SOL can improve your position on the leaderboard
@@ -258,9 +258,9 @@ function InputGroup({
         aria-invalid={ariaInvalid}
         disabled={disabled}
         className={cn(
-          "text-foreground bg-surface-1 placeholder:text-[#A37878] min-w-0 grow rounded-full px-6 text-base/[130%] font-medium",
-          "border-8 border-surface-1 focus:outline-none",
-          "ring-2 ring-transparent focus-visible:ring-brand transition-shadow duration-150",
+          "text-foreground bg-surface-1 min-w-0 grow rounded-full px-6 text-base/[130%] font-medium placeholder:text-[#A37878]",
+          "border-surface-1 border-8 focus:outline-none",
+          "focus-visible:ring-brand ring-2 ring-transparent transition-shadow duration-150",
           "aria-invalid:ring-destructive/50",
         )}
         inputMode="decimal"
@@ -298,7 +298,7 @@ function Button({
       form={form}
       disabled={disabled}
       className={cn(
-        "w-full max-w-[300px] bg-brand-dark text-foreground-muted h-12 rounded-full text-sm/[130%] font-medium",
+        "bg-brand-dark text-foreground-muted h-12 w-full max-w-[300px] rounded-full text-sm/[130%] font-medium",
         className,
       )}
     >
@@ -349,10 +349,10 @@ function VerificationSheet({
       animate={{ y: "0%" }}
       exit={{ y: "100%" }}
       transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-      className="absolute inset-0 z-10 bg-surface-2 flex flex-col items-center p-4"
+      className="bg-surface-2 absolute inset-0 z-10 flex flex-col items-center p-4"
     >
       <div aria-hidden className="h-14" />
-      <GreedAcademyLogo className="mt-5 text-foreground" />
+      <GreedAcademyLogo className="text-foreground mt-5" />
 
       <AnimatePresence mode="wait">
         {state === "loading" && (
@@ -361,11 +361,11 @@ function VerificationSheet({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="flex-1 flex flex-col items-center justify-center gap-6"
+            className="flex flex-1 flex-col items-center justify-center gap-6"
           >
-            <AnimatedGreedLoader className="w-full min-w-[300px] max-w-[400px]" />
+            <AnimatedGreedLoader className="w-full max-w-[400px] min-w-[300px]" />
             <div className="text-center">
-              <h2 className="text-[28px]/[95%] font-black text-foreground tracking-[-1px]">
+              <h2 className="text-foreground text-[28px]/[95%] font-black tracking-[-1px]">
                 VERIFYING STAKE
               </h2>
               <p className="mt-4 text-base text-[#7E1D1D]">
@@ -375,7 +375,7 @@ function VerificationSheet({
             <button
               type="button"
               onClick={onClose}
-              className="mt-4 text-foreground underline underline-offset-2 text-sm whitespace-pre"
+              className="text-foreground mt-4 text-sm whitespace-pre underline underline-offset-2"
             >
               Go back <ArrowRight className="inline size-3.5 -translate-px" />
             </button>
@@ -388,17 +388,17 @@ function VerificationSheet({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="flex-1 flex flex-col items-center justify-center gap-6"
+            className="flex flex-1 flex-col items-center justify-center gap-6"
           >
             <CheckCircle className="size-24 text-[#00522F]" />
             <div className="text-center">
-              <h2 className="text-[28px]/[95%] font-black text-foreground tracking-[-1px]">
+              <h2 className="text-foreground text-[28px]/[95%] font-black tracking-[-1px]">
                 STAKE VERIFIED!
               </h2>
               <p className="mt-4 text-base text-[#7E1D1D]">
                 Your additional stake has been confirmed
               </p>
-              <p className="mt-2 text-lg font-semibold text-foreground">
+              <p className="text-foreground mt-2 text-lg font-semibold">
                 Total stake: {data.totalStakeSol.toFixed(2)} SOL
               </p>
             </div>
@@ -406,7 +406,7 @@ function VerificationSheet({
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.96 }}
               onClick={onClose}
-              className="mt-4 w-full max-w-[350px] bg-brand-dark text-foreground-muted h-11 rounded-full text-sm/[130%] font-medium"
+              className="bg-brand-dark text-foreground-muted mt-4 h-11 w-full max-w-[350px] rounded-full text-sm/[130%] font-medium"
             >
               Go back
             </motion.button>
@@ -419,11 +419,11 @@ function VerificationSheet({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="flex-1 flex flex-col items-center justify-center gap-6"
+            className="flex flex-1 flex-col items-center justify-center gap-6"
           >
-            <XCircle className="size-24 text-destructive" />
+            <XCircle className="text-destructive size-24" />
             <div className="text-center">
-              <h2 className="text-[28px]/[95%] font-black text-foreground tracking-[-1px]">
+              <h2 className="text-foreground text-[28px]/[95%] font-black tracking-[-1px]">
                 VERIFICATION FAILED
               </h2>
               <p className="mt-4 text-base text-[#7E1D1D]">
@@ -437,7 +437,7 @@ function VerificationSheet({
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.96 }}
               onClick={onClose}
-              className="mt-4 w-full max-w-[350px] bg-brand-dark text-foreground-muted h-11 rounded-full text-sm/[130%] font-medium"
+              className="bg-brand-dark text-foreground-muted mt-4 h-11 w-full max-w-[350px] rounded-full text-sm/[130%] font-medium"
             >
               Go back
             </motion.button>

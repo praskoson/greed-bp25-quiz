@@ -35,9 +35,9 @@ export default async function LeaderboardAutoPage() {
 
 function LeaderboardErrorState({ error }: { error: Error }) {
   return (
-    <div className="h-full flex flex-col items-center justify-center gap-6">
+    <div className="flex h-full flex-col items-center justify-center gap-6">
       <svg
-        className="size-24 text-destructive"
+        className="text-destructive size-24"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -49,12 +49,12 @@ function LeaderboardErrorState({ error }: { error: Error }) {
           d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
         />
       </svg>
-      <div className="text-center px-4">
+      <div className="px-4 text-center">
         <p className="mt-4 text-sm text-[#7E1D1D]">
           There was an error while loading the leaderboard.
         </p>
         {error.message && (
-          <p className="mt-2 text-xs text-[#A37878] wrap-break-word">
+          <p className="mt-2 text-xs wrap-break-word text-[#A37878]">
             {error.message}
           </p>
         )}
@@ -62,7 +62,7 @@ function LeaderboardErrorState({ error }: { error: Error }) {
       <div className="flex flex-col gap-3">
         <Link
           href="/leaderboard/auto"
-          className="flex items-center justify-center h-14 px-12 rounded-full text-[16px]/[130%] font-medium text-surface-2 bg-brand"
+          className="text-surface-2 bg-brand flex h-14 items-center justify-center rounded-full px-12 text-[16px]/[130%] font-medium"
         >
           Try Again
         </Link>
@@ -86,7 +86,7 @@ function StarRating({
           <svg
             key={index}
             className={cn(
-              "size-5 tv:size-10",
+              "tv:size-10 size-5",
               isFilled
                 ? "text-brand-dark fill-brand-dark"
                 : "text-surface-3 fill-surface-3",
@@ -128,23 +128,23 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
 
   // Leaderboard entries - desktop only
   return sortedEntries.length === 0 ? (
-    <div className="mt-8 flex-1 flex flex-col items-center justify-center gap-6">
+    <div className="mt-8 flex flex-1 flex-col items-center justify-center gap-6">
       <p className="text-[#7E1D1D]">
         No quiz results yet. Be the first to complete the quiz!
       </p>
       <Link
         href="/"
-        className="flex items-center justify-center h-14 px-12 rounded-full text-[16px]/[130%] font-medium text-surface-2 bg-brand"
+        className="text-surface-2 bg-brand flex h-14 items-center justify-center rounded-full px-12 text-[16px]/[130%] font-medium"
       >
         Take the Quiz
       </Link>
     </div>
   ) : (
-    <div className="mt-8 flex-1 min-h-0 w-full pb-20 bg-white rounded-[14px] mx-2 px-12 py-[52px] grid content-start grid-cols-32 gap-y-4 overflow-y-auto scrollbar-hidden">
-      <div className="grid items-center grid-cols-subgrid col-span-full font-semibold text-sm text-[#B59090] uppercase tv:text-xl">
-        <div className="text-center col-span-2">#</div>
+    <div className="scrollbar-hidden mx-2 mt-8 grid min-h-0 w-full flex-1 grid-cols-32 content-start gap-y-4 overflow-y-auto rounded-[14px] bg-white px-12 py-[52px] pb-20">
+      <div className="tv:text-xl col-span-full grid grid-cols-subgrid items-center text-sm font-semibold text-[#B59090] uppercase">
+        <div className="col-span-2 text-center">#</div>
         <div aria-hidden="true">{/* spacer */}</div>
-        <div className="text-left col-span-13">WALLET ADDRESS</div>
+        <div className="col-span-13 text-left">WALLET ADDRESS</div>
         <div className="col-span-5">STAKE (SOL)</div>
         <div className="col-span-5">DURATION (DAYS)</div>
         <div className="col-span-6">CORRECT ANSWERS</div>
@@ -157,11 +157,11 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
 
           return (
             <LeaderboardRowDesktop key={entry.userId}>
-              <div className="grid grid-cols-subgrid col-span-full">
+              <div className="col-span-full grid grid-cols-subgrid">
                 <div className="col-span-2">
                   <div
                     className={cn(
-                      "flex items-center justify-center size-11 rounded-full border-2 font-bold text-sm shrink-0 tv:size-20 tv:text-2xl",
+                      "tv:size-20 tv:text-2xl flex size-11 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold",
                       getRankBadgeColor(rank),
                     )}
                   >
@@ -173,25 +173,25 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
                 </div>
                 <div
                   data-address={entry.walletAddress}
-                  className="font-semibold text-base/[130%] text-foreground content-center col-span-13 tv:text-2xl/[130%]"
+                  className="text-foreground tv:text-2xl/[130%] col-span-13 content-center text-base/[130%] font-semibold"
                 >
                   {entry.walletAddress}
                 </div>
                 <div
                   data-stake={solAmount}
-                  className="font-semibold text-base/[130%] text-foreground content-center col-span-5 tv:text-2xl/[130%]"
+                  className="text-foreground tv:text-2xl/[130%] col-span-5 content-center text-base/[130%] font-semibold"
                 >
                   {solAmount}
                 </div>
                 <div
                   data-days={days}
-                  className="font-semibold text-base/[130%] text-foreground content-center col-span-5 tv:text-2xl/[130%]"
+                  className="text-foreground tv:text-2xl/[130%] col-span-5 content-center text-base/[130%] font-semibold"
                 >
                   {days}
                 </div>
                 <div
                   data-rating={entry.score}
-                  className="font-semibold text-base/[130%] text-foreground content-center col-span-6 tv:text-2xl/[130%]"
+                  className="text-foreground tv:text-2xl/[130%] col-span-6 content-center text-base/[130%] font-semibold"
                 >
                   <StarRating score={entry.score} />
                 </div>

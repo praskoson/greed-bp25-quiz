@@ -3,12 +3,12 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="max-w-[500px] mx-auto min-h-dvh bg-surface-2 flex flex-col items-center justify-center p-6">
+    <div className="bg-surface-2 mx-auto flex min-h-dvh max-w-[500px] flex-col items-center justify-center p-6">
       <GreedAcademyLogo className="text-brand-dark" />
 
       <div className="mt-12 flex flex-col items-center">
         <svg
-          className="size-20 text-brand"
+          className="text-brand size-20"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -21,22 +21,22 @@ export default function NotFound() {
           />
         </svg>
 
-        <h1 className="mt-6 text-[48px]/none font-black text-foreground tracking-[-1.5px]">
+        <h1 className="text-foreground mt-6 text-[48px]/none font-black tracking-[-1.5px]">
           404
         </h1>
 
-        <p className="mt-3 text-lg text-[#7E1D1D] text-center">
+        <p className="mt-3 text-center text-lg text-[#7E1D1D]">
           Page not found
         </p>
 
-        <p className="mt-2 text-sm text-[#A37878] text-center">
+        <p className="mt-2 text-center text-sm text-[#A37878]">
           The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
       </div>
 
       <Link
         href="/"
-        className="mt-10 flex items-center justify-center h-14 px-12 rounded-full text-[16px]/[130%] font-medium text-surface-2 bg-brand"
+        className="text-surface-2 bg-brand mt-10 flex h-14 items-center justify-center rounded-full px-12 text-[16px]/[130%] font-medium"
       >
         Back to Home
       </Link>

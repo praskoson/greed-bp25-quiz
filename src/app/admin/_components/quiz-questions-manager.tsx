@@ -11,7 +11,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import type { AdminCategory, AdminQuestion, AdminAnswer } from "../_lib/queries";
+import type {
+  AdminCategory,
+  AdminQuestion,
+  AdminAnswer,
+} from "../_lib/queries";
 
 type Props = {
   categories: AdminCategory[];
@@ -28,13 +32,12 @@ function formatDate(date: Date): string {
 }
 
 export function QuizQuestionsManager({ categories }: Props) {
-  const [selectedQuestion, setSelectedQuestion] = useState<AdminQuestion | null>(
-    null
-  );
+  const [selectedQuestion, setSelectedQuestion] =
+    useState<AdminQuestion | null>(null);
   const [editedQuestionText, setEditedQuestionText] = useState("");
   const [editedAnswers, setEditedAnswers] = useState<AdminAnswer[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   const handleSelectQuestion = (question: AdminQuestion) => {
@@ -45,7 +48,7 @@ export function QuizQuestionsManager({ categories }: Props) {
 
   const handleAnswerChange = (answerId: string, newText: string) => {
     setEditedAnswers((prev) =>
-      prev.map((a) => (a.id === answerId ? { ...a, answerText: newText } : a))
+      prev.map((a) => (a.id === answerId ? { ...a, answerText: newText } : a)),
     );
   };
 
@@ -78,7 +81,7 @@ export function QuizQuestionsManager({ categories }: Props) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* Questions List */}
       <Card>
         <CardHeader>
@@ -92,10 +95,13 @@ export function QuizQuestionsManager({ categories }: Props) {
             <p className="text-muted-foreground text-sm">No categories found</p>
           ) : (
             categories.map((category) => (
-              <div key={category.id} className="border rounded-lg overflow-hidden">
+              <div
+                key={category.id}
+                className="overflow-hidden rounded-lg border"
+              >
                 <button
                   onClick={() => toggleCategory(category.id)}
-                  className="w-full px-4 py-3 bg-surface-3 text-left font-medium text-sm flex items-center justify-between hover:bg-surface-3/80 transition-colors"
+                  className="bg-surface-3 hover:bg-surface-3/80 flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium transition-colors"
                 >
                   <span>{category.name}</span>
                   <span className="text-muted-foreground text-xs">
@@ -106,7 +112,7 @@ export function QuizQuestionsManager({ categories }: Props) {
                 {expandedCategories.has(category.id) && (
                   <div className="divide-y">
                     {category.questions.length === 0 ? (
-                      <p className="px-4 py-3 text-muted-foreground text-sm">
+                      <p className="text-muted-foreground px-4 py-3 text-sm">
                         No questions in this category
                       </p>
                     ) : (
@@ -114,16 +120,16 @@ export function QuizQuestionsManager({ categories }: Props) {
                         <button
                           key={question.id}
                           onClick={() => handleSelectQuestion(question)}
-                          className={`w-full px-4 py-3 text-left hover:bg-surface-4 transition-colors ${
+                          className={`hover:bg-surface-4 w-full px-4 py-3 text-left transition-colors ${
                             selectedQuestion?.id === question.id
-                              ? "bg-surface-4 border-l-2 border-brand"
+                              ? "bg-surface-4 border-brand border-l-2"
                               : ""
                           }`}
                         >
-                          <p className="text-sm line-clamp-2">
+                          <p className="line-clamp-2 text-sm">
                             {question.questionText}
                           </p>
-                          <p className="text-xs text-muted-foreground mt-1">
+                          <p className="text-muted-foreground mt-1 text-xs">
                             Updated: {formatDate(new Date(question.updatedAt))}
                           </p>
                         </button>
@@ -167,7 +173,7 @@ export function QuizQuestionsManager({ categories }: Props) {
                 {editedAnswers.map((answer, index) => (
                   <div key={answer.id} className="flex items-center gap-3">
                     <div
-                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                      className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${
                         answer.isCorrect
                           ? "bg-green-100 text-green-700 ring-2 ring-green-500"
                           : "bg-gray-100 text-gray-600"
@@ -183,7 +189,7 @@ export function QuizQuestionsManager({ categories }: Props) {
                       className="flex-1"
                     />
                     {answer.isCorrect && (
-                      <span className="text-xs text-green-600 font-medium">
+                      <span className="text-xs font-medium text-green-600">
                         Correct
                       </span>
                     )}
@@ -192,8 +198,11 @@ export function QuizQuestionsManager({ categories }: Props) {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 pt-4 border-t">
-                <Button onClick={handleSave} className="bg-brand hover:bg-brand-dark text-foreground-1">
+              <div className="flex gap-3 border-t pt-4">
+                <Button
+                  onClick={handleSave}
+                  className="bg-brand hover:bg-brand-dark text-foreground-1"
+                >
                   Save Changes
                 </Button>
                 <Button variant="outline" onClick={handleCancel}>
@@ -202,7 +211,7 @@ export function QuizQuestionsManager({ categories }: Props) {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center h-48 text-muted-foreground text-sm">
+            <div className="text-muted-foreground flex h-48 items-center justify-center text-sm">
               No question selected
             </div>
           )}

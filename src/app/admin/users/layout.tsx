@@ -7,9 +7,9 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-surface-2">
-      <header className="bg-brand py-4 px-6">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+    <div className="bg-surface-2 min-h-screen">
+      <header className="bg-brand px-6 py-4">
+        <div className="mx-auto flex max-w-6xl items-center justify-between">
           <GreedAcademyLogo className="text-foreground-1" />
           <div className="flex items-center gap-4">
             <RefreshButton />

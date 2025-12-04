@@ -33,7 +33,7 @@ export default async function VerifiedUsersPage() {
   const users = await getVerifiedUsersWithQuestions();
 
   return (
-    <main className="max-w-4xl mx-auto p-6">
+    <main className="mx-auto max-w-4xl p-6">
       <div className="mb-6">
         <Button variant="ghost" size="sm" asChild className="text-foreground">
           <Link href="/admin/dashboard">← Back to Dashboard</Link>
@@ -57,19 +57,19 @@ export default async function VerifiedUsersPage() {
                 <Link
                   key={user.sessionId}
                   href={`/admin/users/${user.sessionId}`}
-                  className="flex items-center justify-between py-3 hover:bg-surface-4 -mx-2 px-2 rounded-md transition-colors"
+                  className="hover:bg-surface-4 -mx-2 flex items-center justify-between rounded-md px-2 py-3 transition-colors"
                 >
                   <div className="min-w-0">
                     <p className="font-mono text-sm">
                       {formatWalletAddress(user.walletAddress)}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       {formatDate(user.createdAt)} · {user.questionCount}{" "}
                       questions
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-sm">
+                    <p className="text-sm font-medium">
                       {formatSol(user.stakeAmountLamports)} SOL
                     </p>
                   </div>

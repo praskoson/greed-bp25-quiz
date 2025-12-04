@@ -25,8 +25,8 @@ export function ConnectedWalletButton({
           }
         }}
         className={cn(
-          "flex items-center justify-center rounded-full gap-[7px]",
-          "rounded-full font-medium text-sm/[130%] text-brand bg-surface-3",
+          "flex items-center justify-center gap-[7px] rounded-full",
+          "text-brand bg-surface-3 rounded-full text-sm/[130%] font-medium",
           className,
         )}
       >
@@ -42,7 +42,7 @@ export function ConnectedWalletButton({
       <PopoverTrigger
         className={cn(
           "flex items-center justify-center gap-[7px] py-[18px]",
-          "rounded-full font-medium text-sm/6 text-brand",
+          "text-brand rounded-full text-sm/6 font-medium",
           "bg-surface-3 aria-disabled:pointer-events-none",
           className,
         )}
@@ -58,7 +58,7 @@ export function ConnectedWalletButton({
             }
           }}
           className={cn(
-            "h-[60px] w-full font-medium text-sm/[130%] flex gap-1 items-center justify-center rounded-full",
+            "flex h-[60px] w-full items-center justify-center gap-1 rounded-full text-sm/[130%] font-medium",
             "rounded-full bg-[#FCC3C3] text-[#F00F0F]",
           )}
         >
@@ -67,7 +67,7 @@ export function ConnectedWalletButton({
         </PopoverPrimitive.Close>
         <PopoverPrimitive.Close
           className={cn(
-            "h-[54px] w-full font-medium text-sm/[130%] flex items-center justify-center",
+            "flex h-[54px] w-full items-center justify-center text-sm/[130%] font-medium",
             "text-neutral bg-transparent",
           )}
         >
@@ -98,7 +98,8 @@ function PopoverTrigger({ ...props }: PopoverTriggerProps) {
 }
 
 interface PopoverPopupProps
-  extends PopoverPrimitive.Popup.Props,
+  extends
+    PopoverPrimitive.Popup.Props,
     Pick<
       PopoverPositionerProps,
       "side" | "sideOffset" | "align" | "alignOffset"
@@ -126,7 +127,7 @@ function PopoverPopup({
           <div
             key="popover-popup"
             className={cn(
-              "pointer-events-auto origin-(--transform-origin) w-(--anchor-width) bg-white p-1 shadow-sm rounded-[30px]",
+              "pointer-events-auto w-(--anchor-width) origin-(--transform-origin) rounded-[30px] bg-white p-1 shadow-sm",
               scale,
               snappyOut,
               className,
@@ -147,7 +148,7 @@ function PopoverTitle({ className, ...rest }: PopoverTitleProps) {
   return (
     <PopoverPrimitive.Title
       data-slot="popover-title"
-      className={cn("text-base text-popover-foreground font-medium", className)}
+      className={cn("text-popover-foreground text-base font-medium", className)}
       {...rest}
     />
   );

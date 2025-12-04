@@ -60,7 +60,7 @@ export function PollingRoute() {
     return (
       <div
         key="error"
-        className="h-full flex flex-col items-center justify-center gap-6"
+        className="flex h-full flex-col items-center justify-center gap-6"
       >
         <motion.div
           variants={staggerChildren}
@@ -71,10 +71,10 @@ export function PollingRoute() {
           <div className="h-14" />
 
           <motion.div variants={fadeSlideUp}>
-            <XCircle className="size-24 text-destructive" />
+            <XCircle className="text-destructive size-24" />
           </motion.div>
           <motion.div className="text-center" variants={fadeSlideUp}>
-            <h2 className="mt-2 text-[28px]/[95%] font-black text-foreground tracking-[-1.1px] w-full text-center">
+            <h2 className="text-foreground mt-2 w-full text-center text-[28px]/[95%] font-black tracking-[-1.1px]">
               Verification Failed
             </h2>
             <p className="mt-4 text-sm text-[#7E1D1D]">
@@ -93,30 +93,30 @@ export function PollingRoute() {
   }
 
   return (
-    <div className="relative bg-surface-2 h-full overflow-hidden">
+    <div className="bg-surface-2 relative h-full overflow-hidden">
       <motion.div
         aria-hidden={state === "success" ? true : undefined}
         variants={staggerChildren}
         initial="initial"
         animate="animate"
         className={cn(
-          "relative h-full flex items-center flex-col p-4",
+          "relative flex h-full flex-col items-center p-4",
           state === "success" && "pointer-events-none",
         )}
       >
         <div className="h-14" />
-        <GreedAcademyLogo className="mt-5 text-foreground" />
+        <GreedAcademyLogo className="text-foreground mt-5" />
 
         <motion.div className="text-center" variants={fadeSlideUp}>
-          <h1 className="mt-2 text-[36px]/[95%] font-black text-foreground tracking-[-1.1px] w-full text-center">
+          <h1 className="text-foreground mt-2 w-full text-center text-[36px]/[95%] font-black tracking-[-1.1px]">
             VERIFYING STAKE
           </h1>
 
-          <p className="mt-4 text-[19px] text-[#7E1D1D] tracking-[-0.6px] font-medium">
+          <p className="mt-4 text-[19px] font-medium tracking-[-0.6px] text-[#7E1D1D]">
             This usually takes a few seconds
           </p>
         </motion.div>
-        <AnimatedGreedLoader className="mt-[30px] w-full min-w-[350px] max-w-[540px]" />
+        <AnimatedGreedLoader className="mt-[30px] w-full max-w-[540px] min-w-[350px]" />
       </motion.div>
 
       <AnimatePresence>
@@ -143,15 +143,15 @@ function SuccessState() {
       animate={{ y: "0%" }}
       exit={{ y: "100%" }}
       transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-      className="absolute inset-0 h-full bg-[#00522F] flex flex-col px-4"
+      className="absolute inset-0 flex h-full flex-col bg-[#00522F] px-4"
     >
-      <div className="w-full h-16 flex items-end justify-center pb-1">
+      <div className="flex h-16 w-full items-end justify-center pb-1">
         <GreedAcademyLogo className="text-white" />
       </div>
-      <h1 className="mt-6 text-[32px]/[100%] font-black text-white tracking-[-1.1px] w-full text-center">
+      <h1 className="mt-6 w-full text-center text-[32px]/[100%] font-black tracking-[-1.1px] text-white">
         VERIFICATION COMPLETE!
       </h1>
-      <p className="mt-8 text-[19px] text-foreground-2 tracking-[-0.6px] text-center px-4">
+      <p className="text-foreground-2 mt-8 px-4 text-center text-[19px] tracking-[-0.6px]">
         Your stake has been verified. You
         can&nbsp;now&nbsp;start&nbsp;the&nbsp;quiz.
       </p>
@@ -159,9 +159,9 @@ function SuccessState() {
         whileTap={{ scale: 0.96 }}
         whileHover={{ scale: 1.03 }}
         className={cn(
-          "h-[54px] w-full mt-6",
+          "mt-6 h-[54px] w-full",
           "flex items-center justify-center rounded-full",
-          "text-white bg-neutral font-medium text-sm/[130%]",
+          "bg-neutral text-sm/[130%] font-medium text-white",
         )}
         onClick={() => navigate("quiz")}
       >
@@ -171,9 +171,9 @@ function SuccessState() {
         whileTap={{ scale: 0.96 }}
         whileHover={{ scale: 1.03 }}
         className={cn(
-          "h-[54px] w-full mt-2",
+          "mt-2 h-[54px] w-full",
           "flex items-center justify-center rounded-full",
-          "text-white bg-[#003820] font-medium text-sm/[130%]",
+          "bg-[#003820] text-sm/[130%] font-medium text-white",
         )}
         onClick={() => navigate("stake-more")}
       >
@@ -182,7 +182,7 @@ function SuccessState() {
 
       <div
         aria-hidden
-        className="fixed h-small:top-[500px] overflow-hidden min-h-small:bottom-[3%] inset-x-0 -z-1"
+        className="h-small:top-[500px] min-h-small:bottom-[3%] fixed inset-x-0 -z-1 overflow-hidden"
       >
         <GreedAcademyDottedBackground className="w-full" />
       </div>
@@ -205,7 +205,7 @@ function Button({
       type="button"
       onClick={onClick}
       className={cn(
-        "w-full text-surface-2 bg-brand h-[58px] px-24 rounded-full text-[18px]/[130%] font-medium",
+        "text-surface-2 bg-brand h-[58px] w-full rounded-full px-24 text-[18px]/[130%] font-medium",
       )}
     >
       {children}

@@ -46,7 +46,7 @@ export function ConnectButton() {
 
   if (!connected) {
     return (
-      <div className="h-[122px] flex flex-col gap-2.5">
+      <div className="flex h-[122px] flex-col gap-2.5">
         <motion.button
           onClick={async () => {
             setVisible(true);
@@ -56,8 +56,8 @@ export function ConnectButton() {
           initial={false}
           aria-disabled={connecting || isSigningIn}
           className={clsx(
-            "h-14 flex items-center justify-center gap-[7px] w-full p-4 font-semibold rounded-full",
-            "font-medium text-sm/6 text-foreground-muted bg-brand-dark",
+            "flex h-14 w-full items-center justify-center gap-[7px] rounded-full p-4 font-semibold",
+            "text-foreground-muted bg-brand-dark text-sm/6 font-medium",
             "aria-disabled:pointer-events-none",
           )}
         >
@@ -69,7 +69,7 @@ export function ConnectButton() {
   }
 
   return (
-    <div className="min-h-[122px] flex flex-col gap-2.5">
+    <div className="flex min-h-[122px] flex-col gap-2.5">
       <ConnectedWalletButton className="h-14" />
       <motion.button
         onClick={async () => await handleSignIn()}
@@ -78,9 +78,9 @@ export function ConnectButton() {
         initial={false}
         aria-disabled={connecting || isSigningIn}
         className={clsx(
-          "flex items-center justify-center gap-2 w-full p-4 font-semibold rounded-full",
+          "flex w-full items-center justify-center gap-2 rounded-full p-4 font-semibold",
           "bg-brand-dark",
-          "font-medium text-sm/6 text-foreground-muted",
+          "text-foreground-muted text-sm/6 font-medium",
           "aria-disabled:pointer-events-none",
         )}
       >
@@ -88,7 +88,7 @@ export function ConnectButton() {
       </motion.button>
       {error && !isExpectedError(error) && (
         <div className="rounded-lg bg-red-50 p-4">
-          <p className="text-sm text-red-900 font-medium">{error}</p>
+          <p className="text-sm font-medium text-red-900">{error}</p>
         </div>
       )}
     </div>
