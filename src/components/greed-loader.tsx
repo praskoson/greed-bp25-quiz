@@ -8,30 +8,7 @@ const secondPath =
   "M754.309 335.355C756.471 334.583 758.744 336.186 758.744 338.48V527.115C758.744 528.52 757.859 529.773 756.534 530.243L703.651 548.981C701.492 549.747 699.225 548.145 699.224 545.854L699.168 357.383C699.167 355.98 700.049 354.729 701.37 354.257L754.309 335.355Z";
 
 // Animation variants for different effects
-const animations: Record<
-  string,
-  {
-    initial: MotionNodeAnimationOptions["initial"];
-    animate: MotionNodeAnimationOptions["animate"];
-  }
-> = {
-  // 1. Classic draw animation
-  draw: {
-    initial: {
-      pathLength: 0,
-      opacity: 0,
-    },
-    animate: {
-      pathLength: [0, 1, 1, 0],
-      opacity: [0, 1, 1, 0],
-      transition: {
-        duration: 3,
-        ease: "easeInOut",
-        repeat: undefined,
-        times: [0, 0.4, 0.6, 1],
-      },
-    },
-  },
+const animations: Record<string, MotionNodeAnimationOptions> = {
   sequential: {
     initial: { pathLength: 0, opacity: 0 },
     animate: {
@@ -79,13 +56,13 @@ export function AnimatedGreedLoader({ className }: { className?: string }) {
         {/* Background path (faded) */}
         <path
           d={mainPath}
-          stroke="rgb(126 29 29 / 0.2)"
+          stroke="rgb(126 29 29 / 0.15)"
           strokeWidth="6"
           fill="none"
         />
         <path
           d={secondPath}
-          stroke="rgb(126 29 29 / 0.2)"
+          stroke="rgb(126 29 29 / 0.15)"
           strokeWidth="6"
           fill="none"
         />
@@ -112,11 +89,6 @@ export function AnimatedGreedLoader({ className }: { className?: string }) {
           initial={animations["sequential"].initial}
           animate={animations["sequential"].animate}
           transition={{ repeat: Infinity }}
-          // transition={{
-          //   ...animations["draw"].animate?.transition,
-
-          //   // delay: animationType === "draw" ? 0.5 : 0,
-          // }}
         />
       </g>
     </motion.svg>

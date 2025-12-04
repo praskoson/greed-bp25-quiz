@@ -94,7 +94,7 @@ export function StakeMoreRoute() {
   };
 
   return (
-    <div className="relative h-full bg-surface-2 flex items-center flex-col p-4">
+    <div className="relative h-full bg-surface-2 flex items-center flex-col p-4 overflow-y-hidden">
       <ConnectedWalletButton
         className="h-14 w-full"
         onDisconnect={() => navigate("sign-in")}
@@ -342,12 +342,13 @@ function VerificationSheet({
       initial={{ y: "100%" }}
       animate={{ y: "0%" }}
       exit={{ y: "100%" }}
-      transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
       className="absolute inset-0 z-10 bg-surface-2 flex flex-col items-center p-4"
     >
-      <GreedAcademyLogo className="mt-10 text-foreground" />
+      <div aria-hidden className="h-14" />
+      <GreedAcademyLogo className="mt-5 text-foreground" />
 
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="wait">
         {state === "loading" && (
           <motion.div
             key="loading"
