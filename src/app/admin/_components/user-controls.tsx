@@ -2,7 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { useTransition } from "react";
-import { resetUserQuizAnswers, toggleShadowBan } from "../_lib/actions";
+import {
+  resetUserQuizAnswers,
+  toggleShadowBan,
+  deleteUser,
+} from "../_lib/actions";
 import { useRouter } from "next/navigation";
 import { RotateCcw, Ban, Trash2 } from "lucide-react";
 
@@ -15,6 +19,7 @@ type Props = {
 export function UserControls({ sessionId, hasAnswers, isShadowBanned }: Props) {
   const [isResetting, startResetTransition] = useTransition();
   const [isTogglingBan, startBanTransition] = useTransition();
+  const [isDeleting, startDeleteTransition] = useTransition();
   const router = useRouter();
 
   const handleReset = () => {
@@ -47,8 +52,17 @@ export function UserControls({ sessionId, hasAnswers, isShadowBanned }: Props) {
   };
 
   const handleRemove = () => {
-    // TODO: Implement remove action
-    alert("Remove functionality not implemented yet");
+    if (
+      !confirm(
+        "Are you sure you want to permanently delete this user? This action cannot be undone and will remove all their data.",
+      )
+    ) {
+      return;
+    }
+    startDeleteTransition(async () => {
+      await deleteUser(sessionId);
+      router.push("/admin/dashboard");
+    });
   };
 
   return (
@@ -80,9 +94,14 @@ export function UserControls({ sessionId, hasAnswers, isShadowBanned }: Props) {
             ? "Unban"
             : "Shadow Ban"}
       </Button>
-      <Button variant="destructive" size="sm" onClick={handleRemove}>
+      <Button
+        variant="destructive"
+        size="sm"
+        onClick={handleRemove}
+        disabled={isDeleting}
+      >
         <Trash2 className="size-4" />
-        Remove
+        {isDeleting ? "Deleting..." : "Remove"}
       </Button>
     </div>
   );

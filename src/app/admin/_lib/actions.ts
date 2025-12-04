@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import {
+  users,
   userQuizSessions,
   quizQuestionAssignments,
 } from "@/lib/db/schema/bp25";
@@ -88,6 +89,26 @@ export async function toggleShadowBan(sessionId: string) {
     .update(userQuizSessions)
     .set({ shadowBan: !session.shadowBan })
     .where(eq(userQuizSessions.id, sessionId));
+
+  revalidatePath("/admin", "layout");
+}
+
+/**
+ * Delete a user and all related data (cascades to sessions, assignments, etc.)
+ */
+export async function deleteUser(sessionId: string) {
+  await requireAuth();
+
+  const [session] = await db
+    .select({ userId: userQuizSessions.userId })
+    .from(userQuizSessions)
+    .where(eq(userQuizSessions.id, sessionId));
+
+  if (!session) {
+    throw new Error("Session not found");
+  }
+
+  await db.delete(users).where(eq(users.id, session.userId));
 
   revalidatePath("/admin", "layout");
 }
