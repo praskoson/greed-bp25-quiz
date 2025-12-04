@@ -58,7 +58,7 @@ export default async function PendingUsersPage() {
                 <Link
                   key={user.sessionId}
                   href={`/admin/users/${user.sessionId}`}
-                  className="flex items-center justify-between py-3 hover:bg-surface-3 -mx-2 px-2 rounded-md transition-colors"
+                  className="flex items-center justify-between py-3 hover:bg-surface-4 -mx-2 px-2 rounded-md transition-colors"
                 >
                   <div className="flex items-center gap-2 text-sm">
                     <span className="font-mono">

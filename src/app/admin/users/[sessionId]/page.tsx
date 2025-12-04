@@ -10,6 +10,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getUserWithQuestions } from "../../_lib/queries";
 import { UserControls } from "../../_components/user-controls";
+import { AssignQuestionsButton } from "../../_components/assign-questions-button";
 
 type Props = {
   params: Promise<{ sessionId: string }>;
@@ -119,6 +120,14 @@ export default async function UserDetailPage({ params }: Props) {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {user.questions.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">
+                No questions have been assigned to this user yet.
+              </p>
+              <AssignQuestionsButton sessionId={sessionId} />
+            </div>
+          ) : (
           <div className="space-y-4">
             {user.questions.map((question, index) => (
               <div
@@ -198,6 +207,7 @@ export default async function UserDetailPage({ params }: Props) {
               </div>
             ))}
           </div>
+          )}
         </CardContent>
       </Card>
     </main>

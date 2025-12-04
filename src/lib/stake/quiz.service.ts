@@ -23,6 +23,7 @@ import {
 
 interface StartQuizParams {
   quizSessionId: string;
+  assignedBy?: "job" | "admin";
 }
 
 interface StartQuizResult {
@@ -38,7 +39,7 @@ export class QuizService {
   static async assignQuestionsToUser(
     params: StartQuizParams,
   ): Promise<StartQuizResult> {
-    const { quizSessionId } = params;
+    const { quizSessionId, assignedBy = "job" } = params;
 
     const randomCategories = await db
       .select({ id: quizCategories.id })
@@ -80,6 +81,11 @@ export class QuizService {
     }));
 
     await db.insert(quizQuestionAssignments).values(assignments);
+
+    await db
+      .update(userQuizSessions)
+      .set({ questionsAssignedBy: assignedBy })
+      .where(eq(userQuizSessions.id, quizSessionId));
 
     return {
       sessionId: quizSessionId,

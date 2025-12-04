@@ -52,6 +52,11 @@ export const stakeVerificationStateEnum = pgEnum("verficationState", [
   "success",
 ]);
 
+export const questionAssignmentSourceEnum = pgEnum("questionAssignmentSource", [
+  "job",
+  "admin",
+]);
+
 export const userQuizSessions = bp25Schema.table(
   "user_quiz_session",
   {
@@ -75,6 +80,7 @@ export const userQuizSessions = bp25Schema.table(
     // Quiz info
     score: integer(),
     completedAt: timestamp(),
+    questionsAssignedBy: questionAssignmentSourceEnum().default("job"),
 
     // Admin moderation
     shadowBan: boolean().default(false).notNull(),

@@ -7,6 +7,7 @@ import {
   quizQuestionAssignments,
 } from "@/lib/db/schema/bp25";
 import { SettingsService } from "@/lib/settings/settings.service";
+import { QuizService } from "@/lib/stake/quiz.service";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/admin-auth";
@@ -109,6 +110,28 @@ export async function deleteUser(sessionId: string) {
   }
 
   await db.delete(users).where(eq(users.id, session.userId));
+
+  revalidatePath("/admin", "layout");
+}
+
+/**
+ * Manually assign questions to a user's quiz session
+ */
+export async function assignQuestionsToSession(sessionId: string) {
+  await requireAuth();
+
+  await db
+    .update(userQuizSessions)
+    .set({
+      stakeVerification: "success",
+      stakeConfirmedAt: new Date(),
+    })
+    .where(eq(userQuizSessions.id, sessionId));
+
+  await QuizService.assignQuestionsToUser({
+    quizSessionId: sessionId,
+    assignedBy: "admin",
+  });
 
   revalidatePath("/admin", "layout");
 }
