@@ -1,6 +1,6 @@
 import "server-only";
 
-import { db } from "@/lib/db";
+import { db, type DbTransaction } from "@/lib/db";
 import {
   quizCategories,
   quizQuestions,
@@ -24,6 +24,7 @@ import {
 interface StartQuizParams {
   quizSessionId: string;
   assignedBy?: "job" | "admin";
+  tx?: DbTransaction;
 }
 
 interface StartQuizResult {
@@ -39,9 +40,10 @@ export class QuizService {
   static async assignQuestionsToUser(
     params: StartQuizParams,
   ): Promise<StartQuizResult> {
-    const { quizSessionId, assignedBy = "job" } = params;
+    const { quizSessionId, assignedBy = "job", tx } = params;
+    const dbClient = tx ?? db;
 
-    const randomCategories = await db
+    const randomCategories = await dbClient
       .select({ id: quizCategories.id })
       .from(quizCategories)
       .orderBy(sql`RANDOM()`)
@@ -56,7 +58,7 @@ export class QuizService {
     const selectedQuestions: string[] = [];
 
     for (const category of randomCategories) {
-      const [randomQuestion] = await db
+      const [randomQuestion] = await dbClient
         .select({ id: quizQuestions.id })
         .from(quizQuestions)
         .where(eq(quizQuestions.categoryId, category.id))
@@ -80,9 +82,9 @@ export class QuizService {
       displayOrder: index + 1,
     }));
 
-    await db.insert(quizQuestionAssignments).values(assignments);
+    await dbClient.insert(quizQuestionAssignments).values(assignments);
 
-    await db
+    await dbClient
       .update(userQuizSessions)
       .set({ questionsAssignedBy: assignedBy })
       .where(eq(userQuizSessions.id, quizSessionId));

@@ -120,17 +120,20 @@ export async function deleteUser(sessionId: string) {
 export async function assignQuestionsToSession(sessionId: string) {
   await requireAuth();
 
-  await db
-    .update(userQuizSessions)
-    .set({
-      stakeVerification: "success",
-      stakeConfirmedAt: new Date(),
-    })
-    .where(eq(userQuizSessions.id, sessionId));
+  await db.transaction(async (tx) => {
+    await tx
+      .update(userQuizSessions)
+      .set({
+        stakeVerification: "success",
+        stakeConfirmedAt: new Date(),
+      })
+      .where(eq(userQuizSessions.id, sessionId));
 
-  await QuizService.assignQuestionsToUser({
-    quizSessionId: sessionId,
-    assignedBy: "admin",
+    await QuizService.assignQuestionsToUser({
+      quizSessionId: sessionId,
+      assignedBy: "admin",
+      tx,
+    });
   });
 
   revalidatePath("/admin", "layout");
