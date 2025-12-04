@@ -15,6 +15,8 @@ import { ConnectedWalletButton } from "@/components/connected-wallet-button";
 import { GreedAcademyLogo } from "@/components/ga-logo";
 import dynamic from "next/dynamic";
 import { GreedAcademyDottedBackground } from "@/components/ga-dotted-bg";
+import { useQuery } from "@tanstack/react-query";
+import { quizStateOptions } from "@/state/queries/quiz-state";
 
 const DynamicHowItWorks = dynamic(() => import("@/components/how-it-works"), {
   ssr: false,
@@ -29,6 +31,8 @@ const formSchema = z.object({
 });
 
 export function StakeRoute() {
+  const { data: statusData, isPending: isStatusPending } =
+    useQuery(quizStateOptions());
   const { mutate, isPending, error } = useSubmitStakeMutation();
   const { navigate } = useMiniRouter();
 
@@ -36,6 +40,10 @@ export function StakeRoute() {
   const [duration, setDuration] = useState(60);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showErrors, setShowErrors] = useState(false);
+  const [pausedWarningDismissed, setPausedWarningDismissed] = useState(false);
+
+  const isQuizPaused = statusData?.status === "paused";
+  const showPausedWarning = isQuizPaused && !pausedWarningDismissed;
 
   const validateAndGetData = () => {
     const amount =
@@ -77,6 +85,7 @@ export function StakeRoute() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isPending) return;
+    if (isStatusPending) return;
     setShowErrors(true);
 
     const {
@@ -112,7 +121,7 @@ export function StakeRoute() {
       <form
         id="stake-form"
         onSubmit={handleSubmit}
-        className="mt-8 flex flex-col gap-5 py-2"
+        className="mt-8 flex flex-col gap-5 py-2 px-4"
       >
         <div>
           <InputGroup
@@ -152,14 +161,20 @@ export function StakeRoute() {
             Minimum duration is 60 days
           </span>
         </div>
-        <Button
-          type="submit"
-          form="stake-form"
-          disabled={isPending}
-          className="relative flex items-center gap-1 justify-center"
-        >
-          <PendingWrapper isPending={isPending}>Stake SOL</PendingWrapper>
-        </Button>
+        {showPausedWarning ? (
+          <QuizPausedWarning
+            onDismiss={() => setPausedWarningDismissed(true)}
+          />
+        ) : (
+          <Button
+            type="submit"
+            form="stake-form"
+            disabled={isPending}
+            className="relative flex items-center gap-1 justify-center"
+          >
+            <PendingWrapper isPending={isPending}>Stake SOL</PendingWrapper>
+          </Button>
+        )}
       </form>
 
       <div className="relative h-6 w-full max-w-[350px]">
@@ -251,6 +266,26 @@ function Button({
     >
       {children}
     </motion.button>
+  );
+}
+
+function QuizPausedWarning({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <div className="w-full max-w-[350px] rounded-2xl bg-surface-1 border border-[#F00F0F] p-4">
+      <p className="text-sm text-[#F00F0F] font-medium">
+        Quiz submissions are currently paused.
+      </p>
+      <p className="mt-1 text-sm text-foreground">
+        You can still stake SOL and solve the quiz if you want to.
+      </p>
+      <button
+        type="button"
+        onClick={onDismiss}
+        className="mt-3 w-full h-10 rounded-full bg-[#FCC3C3] text-foreground text-sm font-medium"
+      >
+        I understand, continue
+      </button>
+    </div>
   );
 }
 
