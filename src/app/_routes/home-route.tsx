@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 export function HomeRoute() {
   return (
     <div className="h-full bg-brand flex flex-col">
-      <div className="h-[90px] flex items-end justify-center pb-1">
+      <div className="h-16 flex items-end justify-center pb-1">
         <GreedAcademyLogo className="text-white" />
       </div>
       <div className="relative bg-surface-2 mx-4 mb-4 mt-3 grow min-h-0 rounded-2xl overflow-hidden">

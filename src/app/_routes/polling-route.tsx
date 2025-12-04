@@ -16,20 +16,6 @@ const stateTransition = {
   ease: "easeOut" as const,
 };
 
-const stateVariants = {
-  initial: { opacity: 0, y: 20 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: stateTransition,
-  },
-  exit: {
-    opacity: 0,
-    y: -20,
-    transition: { duration: 0.3, ease: "easeIn" as const },
-  },
-};
-
 const staggerChildren = {
   animate: {
     transition: {
@@ -159,8 +145,10 @@ function SuccessState() {
       transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
       className="absolute inset-0 h-full bg-[#00522F] flex flex-col px-4"
     >
-      <GreedAcademyLogo className="mx-auto mt-10 text-white" />
-      <h1 className="mt-12 text-[32px]/[100%] font-black text-white tracking-[-1.1px] w-full text-center">
+      <div className="w-full h-16 flex items-end justify-center pb-1">
+        <GreedAcademyLogo className="text-white" />
+      </div>
+      <h1 className="mt-6 text-[32px]/[100%] font-black text-white tracking-[-1.1px] w-full text-center">
         VERIFICATION COMPLETE!
       </h1>
       <p className="mt-8 text-[19px] text-foreground-2 tracking-[-0.6px] text-center px-4">

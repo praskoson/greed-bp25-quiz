@@ -113,7 +113,7 @@ export function QuizRoute() {
 
   return (
     <RouteContainer className="bg-brand flex flex-col overflow-hidden">
-      <GreedAcademyLogo className="w-full mx-auto mt-10 text-white justify-center" />
+      <LogoHeader />
       <AnimatePresence mode="wait" initial={false}>
         {state === "pending" && showPending && (
           <QuizPendingState key="pending" />
@@ -158,7 +158,7 @@ export function QuizRoute() {
 function QuizPendingState() {
   return (
     <motion.div
-      className="mt-8 flex-1 flex flex-col items-center gap-6 "
+      className="flex-1 flex flex-col items-center gap-6 "
       variants={stateVariants}
       initial="initial"
       animate="animate"
@@ -193,7 +193,7 @@ function QuizErrorState({ error }: { error: Error }) {
 
   return (
     <motion.div
-      className="mt-8 flex-1 flex flex-col"
+      className="flex-1 flex flex-col"
       variants={stateVariants}
       initial="initial"
       animate="animate"
@@ -301,7 +301,7 @@ function QuizContent({
       animate={{ y: "0%" }}
       exit={{ y: "100%" }}
       transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1], delay: 0.1 }}
-      className="mt-8 z-1 flex-1 flex flex-col bg-[#F9F6F6] rounded-t-2xl px-4 py-5 overflow-y-auto"
+      className="z-1 flex-1 flex flex-col bg-[#F9F6F6] rounded-t-2xl px-4 py-5 overflow-y-auto"
     >
       <span className="bg-surface-3 text-foreground rounded-[4px] font-medium text-base/[130%] w-fit px-2 py-1">
         {currentQuestion.categoryName}
@@ -335,7 +335,7 @@ function QuizContent({
         <h2 className="font-medium text-foreground text-xl/tight">
           {currentQuestion.questionText}
         </h2>
-        <div className="mt-8 flex flex-col gap-4">
+        <div className="mt-5 flex flex-col gap-4">
           {currentQuestion.answers.map((answer) => {
             const isSelected = selectedAnswerId === answer.id;
             return (
@@ -399,7 +399,7 @@ function QuizSubmissionErrorState({ error }: { error: Error }) {
   };
 
   return (
-    <div className="mt-8 flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col">
       <motion.div
         variants={staggerChildren}
         initial="initial"
@@ -453,7 +453,7 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
   return (
     <motion.div
       key="completed-preview"
-      className="mt-12 flex-1 flex flex-col px-4 z-1"
+      className="mt-7 flex-1 flex flex-col px-4 z-1"
       variants={stateVariants}
       initial="initial"
       animate="animate"
@@ -470,8 +470,8 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
         <div className="text-[64px]/[100%] font-black text-foreground">
           {result.score}/{result.totalQuestions}
         </div>
-        <div className="mt-2 text-base text-[#A37878]">Correct Answers</div>
-        <div className="mt-5 text-base text-brand">
+        <div className="mt-2 text-sm text-[#A37878]">Correct Answers</div>
+        <div className="mt-4 text-sm text-brand">
           Signed in as {walletAddress?.slice(0, 4)}…{walletAddress?.slice(-4)}
         </div>
         <div className="mt-6 flex flex-col gap-2 px-3">
@@ -528,7 +528,7 @@ function QuizAlreadyCompletedState({
   return (
     <motion.div
       key="finished-preview"
-      className="mt-12 flex-1 flex flex-col px-4 z-1"
+      className="mt-7 flex-1 flex flex-col px-4 z-1"
       variants={stateVariants}
       initial="initial"
       animate="animate"
@@ -547,8 +547,8 @@ function QuizAlreadyCompletedState({
         <div className="text-[64px]/[100%] font-black text-foreground">
           {score}/{totalQuestions}
         </div>
-        <div className="mt-2 text-base text-[#A37878]">Correct Answers</div>
-        <div className="mt-5 text-base text-brand">
+        <div className="mt-2 text-sm text-[#A37878]">Correct Answers</div>
+        <div className="mt-4 text-sm text-brand">
           Signed in as {walletAddress?.slice(0, 4)}…{walletAddress?.slice(-4)}
         </div>
         <div className="mt-6 grid grid-cols-2 gap-2 px-3">
@@ -606,7 +606,7 @@ function QuizAnswersSheet({
       animate={{ y: "0%" }}
       exit={{ y: "100%" }}
       transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1], delay: 0.1 }}
-      className="mt-8 z-1 flex-1 flex flex-col bg-[#F9F6F6] rounded-t-2xl px-4 py-5 overflow-y-auto"
+      className="z-1 flex-1 flex flex-col bg-[#F9F6F6] rounded-t-2xl px-4 py-5 overflow-y-auto"
     >
       <div className="flex items-center justify-between gap-2">
         <span className="bg-surface-3 text-foreground rounded-[4px] font-medium text-base/[130%] w-fit px-2 py-1">
@@ -621,7 +621,7 @@ function QuizAnswersSheet({
         <h2 className="font-medium text-foreground text-xl/tight">
           {currentQuestion.questionText}
         </h2>
-        <div className="mt-8 flex flex-col gap-4">
+        <div className="mt-5 flex flex-col gap-4">
           {currentQuestion.answers.map((answer) => {
             return (
               <div
@@ -695,7 +695,7 @@ function Button({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex items-center justify-center h-[54px] px-6 rounded-full text-[16px]/[130%] font-medium transition-opacity",
+        "flex items-center justify-center h-[54px] px-6 rounded-full text-[14px]/[130%] font-medium transition-opacity",
         variant === "default" && "text-foreground-muted bg-neutral",
         variant === "soft" && "text-foreground bg-surface-3",
         disabled && "opacity-50 cursor-not-allowed",
@@ -724,12 +724,20 @@ function LinkButton({
       whileTap={{ scale: 0.96 }}
       href={href}
       className={cn(
-        "flex items-center justify-center h-[54px] px-6 rounded-full text-[16px]/[130%] font-medium transition-opacity",
+        "flex items-center justify-center h-[54px] px-6 rounded-full text-[14px]/[130%] font-medium transition-opacity",
         "text-white bg-brand-dark",
         className,
       )}
     >
       {children}
     </MotionLink>
+  );
+}
+
+function LogoHeader() {
+  return (
+    <div className="w-full h-16 flex items-end justify-center pb-1">
+      <GreedAcademyLogo className="text-white" />
+    </div>
   );
 }
