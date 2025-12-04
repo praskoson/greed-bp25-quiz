@@ -444,60 +444,71 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
   const { navigate } = useMiniRouter();
   const [openAnswers, setOpenAnswers] = useState(false);
 
-  if (openAnswers) {
-    return (
-      <QuizAnswersSheet
-        key="completed-answers"
-        questions={result.questions}
-        onClose={() => setOpenAnswers(false)}
-      />
-    );
-  }
-
   return (
     <motion.div
-      key="completed-preview"
-      className="mt-7 flex-1 flex flex-col px-4 z-1"
+      className="relative mt-7 flex-1 flex flex-col z-1"
       variants={stateVariants}
       initial="initial"
       animate="animate"
+      exit="exit"
     >
-      <div className="flex flex-col gap-8 items-center px-2">
-        <h2 className="text-[32px]/[95%] font-black text-white tracking-[-1px] uppercase">
-          Quiz Complete!
-        </h2>
-        <p className="text-xl/tight font-medium text-surface-3 text-pretty text-center">
-          Great job! You&apos;ve successfully completed the quiz.
-        </p>
-      </div>
-      <div className="mt-[30px] bg-surface-2 rounded-2xl text-center px-2 py-5">
-        <div className="text-[64px]/[100%] font-black text-foreground">
-          {result.score}/{result.totalQuestions}
-        </div>
-        <div className="mt-2 text-sm text-[#A37878]">Correct Answers</div>
-        <div className="mt-4 text-sm text-brand">
-          Signed in as {walletAddress?.slice(0, 4)}…{walletAddress?.slice(-4)}
-        </div>
-        <div className="mt-6 grid grid-cols-2 gap-2 px-3">
-          <LinkButton href="/leaderboard" className="col-span-2">
-            View the Leaderboard
-          </LinkButton>
-          <Button
-            onClick={() => navigate("stake-more")}
-            variant="default"
-            className="w-full shrink-0 px-0"
+      <AnimatePresence mode="popLayout" initial={false}>
+        {openAnswers ? (
+          <QuizAnswersSheet
+            key="completed-questions"
+            questions={result.questions}
+            onClose={() => setOpenAnswers(false)}
+            className="absolute inset-0"
+          />
+        ) : (
+          <motion.div
+            key="completed-preview"
+            className="px-4"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={{ delay: 0.1, bounce: 0 }}
           >
-            Stake More
-          </Button>
-          <Button
-            onClick={() => setOpenAnswers(true)}
-            variant="soft"
-            className="w-full shrink-0 px-0"
-          >
-            View Answers
-          </Button>
-        </div>
-      </div>
+            <div className="flex flex-col gap-8 items-center px-2">
+              <h2 className="text-[32px]/[95%] font-black text-white tracking-[-1px] uppercase">
+                Quiz Complete!
+              </h2>
+              <p className="text-xl/tight font-medium text-surface-3 text-pretty text-center">
+                Great job! You&apos;ve successfully completed the quiz.
+              </p>
+            </div>
+            <div className="mt-[30px] bg-surface-2 rounded-2xl text-center px-2 py-5">
+              <div className="text-[64px]/[100%] font-black text-foreground">
+                {result.score}/{result.totalQuestions}
+              </div>
+              <div className="mt-2 text-sm text-[#A37878]">Correct Answers</div>
+              <div className="mt-4 text-sm text-brand">
+                Signed in as {walletAddress?.slice(0, 4)}…
+                {walletAddress?.slice(-4)}
+              </div>
+              <div className="mt-6 grid grid-cols-2 gap-2 px-3">
+                <LinkButton href="/leaderboard" className="col-span-2">
+                  View the Leaderboard
+                </LinkButton>
+                <Button
+                  onClick={() => navigate("stake-more")}
+                  variant="default"
+                  className="w-full shrink-0 px-0"
+                >
+                  Stake More
+                </Button>
+                <Button
+                  onClick={() => setOpenAnswers(true)}
+                  variant="soft"
+                  className="w-full shrink-0 px-0"
+                >
+                  View Answers
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
