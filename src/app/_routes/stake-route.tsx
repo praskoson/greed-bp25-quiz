@@ -23,7 +23,7 @@ const DynamicHowItWorks = dynamic(() => import("@/components/how-it-works"), {
 });
 
 const formSchema = z.object({
-  amount: z.number().min(0.01, "Minimum stake amount is 0.1 SOL"),
+  amount: z.number().min(0.01, "Minimum stake amount is 0.01 SOL"),
   duration: z
     .number()
     .min(60, "Minimum duration is 60 days")

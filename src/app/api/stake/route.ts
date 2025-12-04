@@ -7,7 +7,7 @@ import { publishStakeVerificationJob } from "@/lib/qstash/client";
 import { logError } from "@/lib/logger";
 
 const stakeSchema = z.object({
-  amount: z.number().min(0.1, "Minimum stake amount is 0.1 SOL"),
+  amount: z.number().min(0.01, "Minimum stake amount is 0.01 SOL"),
   duration: z
     .number()
     .min(60, "Minimum stake duration is 60 days")
