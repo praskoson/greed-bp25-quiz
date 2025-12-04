@@ -75,6 +75,9 @@ export const userQuizSessions = bp25Schema.table(
     // Quiz info
     score: integer(),
     completedAt: timestamp(),
+
+    // Admin moderation
+    shadowBan: boolean().default(false).notNull(),
   },
   (table) => [
     index("user_quiz_session_user_id_idx").on(table.userId),

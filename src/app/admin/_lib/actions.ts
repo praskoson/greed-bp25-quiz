@@ -68,3 +68,26 @@ export async function resetUserQuizAnswers(sessionId: string) {
 
   revalidatePath("/admin", "layout");
 }
+
+/**
+ * Toggle shadow ban status for a user session
+ */
+export async function toggleShadowBan(sessionId: string) {
+  await requireAuth();
+
+  const [session] = await db
+    .select({ shadowBan: userQuizSessions.shadowBan })
+    .from(userQuizSessions)
+    .where(eq(userQuizSessions.id, sessionId));
+
+  if (!session) {
+    throw new Error("Session not found");
+  }
+
+  await db
+    .update(userQuizSessions)
+    .set({ shadowBan: !session.shadowBan })
+    .where(eq(userQuizSessions.id, sessionId));
+
+  revalidatePath("/admin", "layout");
+}

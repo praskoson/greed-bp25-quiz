@@ -53,7 +53,11 @@ export default async function UserDetailPage({ params }: Props) {
         <Button variant="ghost" size="sm" asChild className="text-foreground">
           <Link href="/admin/dashboard">← Back to Dashboard</Link>
         </Button>
-        <UserControls sessionId={sessionId} hasAnswers={hasAnswers} />
+        <UserControls
+          sessionId={sessionId}
+          hasAnswers={hasAnswers}
+          isShadowBanned={user.shadowBan ?? false}
+        />
       </div>
 
       <Card className="mb-6">

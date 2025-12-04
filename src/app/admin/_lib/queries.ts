@@ -133,6 +133,7 @@ export type AdminUserListItem = {
   questionCount: number;
   score?: number | null;
   completedAt?: Date | null;
+  shadowBan?: boolean;
 };
 
 export type AdminUserWithQuestions = AdminUserListItem & {
@@ -160,6 +161,7 @@ export async function getVerifiedUsersWithQuestions(
       stakeDurationSeconds: userQuizSessions.stakeDurationSeconds,
       createdAt: userQuizSessions.createdAt,
       questionCount: sql<number>`count(${quizQuestionAssignments.id})::int`,
+      shadowBan: userQuizSessions.shadowBan,
     })
     .from(userQuizSessions)
     .innerJoin(users, eq(userQuizSessions.userId, users.id))
@@ -181,6 +183,7 @@ export async function getVerifiedUsersWithQuestions(
       userQuizSessions.stakeAmountLamports,
       userQuizSessions.stakeDurationSeconds,
       userQuizSessions.createdAt,
+      userQuizSessions.shadowBan,
     )
     .orderBy(desc(userQuizSessions.createdAt));
 
@@ -207,6 +210,7 @@ export async function getUserWithQuestions(
       createdAt: userQuizSessions.createdAt,
       score: userQuizSessions.score,
       completedAt: userQuizSessions.completedAt,
+      shadowBan: userQuizSessions.shadowBan,
     })
     .from(userQuizSessions)
     .innerJoin(users, eq(userQuizSessions.userId, users.id))
@@ -329,6 +333,7 @@ export async function getCompletedQuizUsers(
         SELECT count(*)::int FROM ${quizQuestionAssignments}
         WHERE ${quizQuestionAssignments.sessionId} = ${userQuizSessions.id}
       )`,
+      shadowBan: userQuizSessions.shadowBan,
     })
     .from(userQuizSessions)
     .innerJoin(users, eq(userQuizSessions.userId, users.id))
@@ -373,6 +378,7 @@ export async function getPendingVerificationUsers(
       stakeDurationSeconds: userQuizSessions.stakeDurationSeconds,
       createdAt: userQuizSessions.createdAt,
       questionCount: sql<number>`0::int`,
+      shadowBan: userQuizSessions.shadowBan,
     })
     .from(userQuizSessions)
     .innerJoin(users, eq(userQuizSessions.userId, users.id))

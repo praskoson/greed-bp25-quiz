@@ -391,7 +391,12 @@ export class QuizService {
       })
       .from(userQuizSessions)
       .innerJoin(users, eq(userQuizSessions.userId, users.id))
-      .where(isNotNull(userQuizSessions.completedAt));
+      .where(
+        and(
+          isNotNull(userQuizSessions.completedAt),
+          eq(userQuizSessions.shadowBan, false),
+        ),
+      );
 
     return leaderboard.map((entry) => ({
       userId: entry.userId,

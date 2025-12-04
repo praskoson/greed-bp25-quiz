@@ -2,7 +2,7 @@ import type { LeaderboardEntry } from "@/lib/stake/quiz.schemas";
 import { QuizService } from "@/lib/stake/quiz.service";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { LeaderboardRow } from "./_components/table-row";
+import { LeaderboardRowNoSsr } from "./_components/table-row-no-ssr";
 
 // function generateLeaderboardEntries(num: number): LeaderboardEntry[] {
 //   return Array.from({ length: num }, (_, i) => ({
@@ -171,7 +171,7 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
         const days = secondsToDays(entry.stakeDurationSeconds);
 
         return (
-          <LeaderboardRow key={entry.userId}>
+          <LeaderboardRowNoSsr key={entry.userId}>
             <div className="xl:grid hidden xl:grid-cols-subgrid xl:col-span-full">
               <div className="col-span-2">
                 <div
@@ -245,7 +245,7 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
                 </div>
               </div>
             </div>
-          </LeaderboardRow>
+          </LeaderboardRowNoSsr>
         );
       })}
     </div>

@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Ban } from "lucide-react";
 import type { AdminUserListItem } from "../_lib/queries";
 
 function formatWalletAddress(address: string): string {
@@ -115,9 +116,16 @@ function UserListItem({ user }: UserListItemProps) {
           {formatSol(user.stakeAmountLamports)} SOL
         </span>
       </div>
-      <span className="text-xs text-muted-foreground">
-        {formatDate(user.createdAt)}
-      </span>
+      <div className="flex items-center gap-2">
+        {user.shadowBan && (
+          <span title="Shadow banned">
+            <Ban className="size-4 text-amber-500" />
+          </span>
+        )}
+        <span className="text-xs text-muted-foreground">
+          {formatDate(user.createdAt)}
+        </span>
+      </div>
     </Link>
   );
 }
