@@ -8,6 +8,10 @@ import {
 } from "@/lib/db/schema/bp25";
 import { SettingsService } from "@/lib/settings/settings.service";
 import { QuizService } from "@/lib/stake/quiz.service";
+import {
+  calculateWeightedScore,
+  sortByWeightedScore,
+} from "@/lib/stake/score";
 import { getCompletedQuizUsers } from "./queries";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
@@ -148,33 +152,32 @@ export async function exportCompletedQuizResultsCsv(): Promise<string> {
 
   const users = await getCompletedQuizUsers();
 
-  // Calculate score (totalStake * correctAnswers) and sort by it
-  const usersWithScore = users
-    .map((user) => ({
-      walletAddress: user.walletAddress,
-      totalStakeLamports: user.stakeAmountLamports,
-      totalStakeSol: user.stakeAmountLamports / 1_000_000_000,
-      correctAnswers: user.score ?? 0,
-      calculatedScore:
-        (user.stakeAmountLamports / 1_000_000_000) * (user.score ?? 0),
-    }))
-    .sort((a, b) => b.calculatedScore - a.calculatedScore);
+  // Map to scoreable entries (completed users always have score and completedAt)
+  const scoreableUsers = users.map((user) => ({
+    ...user,
+    score: user.score ?? 0,
+    completedAt: user.completedAt ?? new Date(),
+  }));
+
+  const sortedUsers = sortByWeightedScore(scoreableUsers);
 
   // Build CSV
-  const headers = [
+  const csvHeaders = [
     "wallet_address",
     "total_stake_sol",
     "correct_answers",
     "score",
   ];
-  const rows = usersWithScore.map((user) =>
-    [
+  const rows = sortedUsers.map((user) => {
+    const stakeSol = user.stakeAmountLamports / 1_000_000_000;
+    const weightedScore = calculateWeightedScore(user);
+    return [
       user.walletAddress,
-      user.totalStakeSol.toFixed(9),
-      user.correctAnswers,
-      user.calculatedScore.toFixed(9),
-    ].join(","),
-  );
+      stakeSol.toFixed(9),
+      user.score,
+      weightedScore.toFixed(9),
+    ].join(",");
+  });
 
-  return [headers.join(","), ...rows].join("\n");
+  return [csvHeaders.join(","), ...rows].join("\n");
 }

@@ -1,5 +1,6 @@
 import type { LeaderboardEntry } from "@/lib/stake/quiz.schemas";
 import { QuizService } from "@/lib/stake/quiz.service";
+import { sortByWeightedScore } from "@/lib/stake/score";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { LeaderboardRowNoSsr } from "./_components/table-row-no-ssr";
@@ -104,17 +105,7 @@ function StarRating({
 }
 
 function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
-  // Sort by weighted score (score * stake), then by completedAt (earlier is better)
-  const sortedEntries = [...entries].sort((a, b) => {
-    const bScore = b.score * b.stakeAmountLamports;
-    const aScore = a.score * a.stakeAmountLamports;
-    if (bScore !== aScore) {
-      return bScore - aScore;
-    }
-    return (
-      new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime()
-    );
-  });
+  const sortedEntries = sortByWeightedScore(entries);
 
   const formatWalletAddress = (address: string, chars = 4) => {
     if (address.length <= 8) return address;
