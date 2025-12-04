@@ -26,7 +26,7 @@ const formSchema = z.object({
   amount: z.number().min(0.01, "Minimum stake amount is 0.1 SOL"),
   duration: z
     .number()
-    .min(60, "Minimum stake duration is 60 days")
+    .min(60, "Minimum duration is 60 days")
     .max(365, "Duration cannot exceed 365 days"),
 });
 
@@ -108,7 +108,7 @@ export function StakeRoute() {
   };
 
   return (
-    <div className="relative h-full bg-surface-2 flex items-center flex-col p-4">
+    <div className="relative isolate h-full bg-surface-2 flex items-center flex-col p-4 overflow-x-hidden">
       <ConnectedWalletButton
         className="h-14 w-full"
         onDisconnect={() => navigate("sign-in")}
@@ -121,7 +121,7 @@ export function StakeRoute() {
       <form
         id="stake-form"
         onSubmit={handleSubmit}
-        className="mt-8 flex flex-col gap-5 py-2 px-4"
+        className="mt-8 flex flex-col gap-5 py-2 px-4 z-1"
       >
         <div>
           <InputGroup
@@ -158,7 +158,7 @@ export function StakeRoute() {
               "pl-8 text-sm/[130%] mt-2",
             )}
           >
-            Minimum duration is 60 days
+            {errors?.duration ?? "Minimum duration is 60 days"}
           </span>
         </div>
         {showPausedWarning ? (
@@ -184,7 +184,12 @@ export function StakeRoute() {
           </div>
         )}
       </div>
-      <GreedAcademyDottedBackground />
+      <div
+        aria-hidden
+        className="fixed h-small:top-[500px] overflow-hidden min-h-small:bottom-[3%] inset-x-0 -z-1"
+      >
+        <GreedAcademyDottedBackground className="w-full" />
+      </div>
 
       <div className="mt-auto w-full">
         <DynamicHowItWorks className="mt-4" />

@@ -140,3 +140,15 @@
         display: none;
     }
 }
+
+@custom-variant h-small {
+    @media (max-height: 640px) {
+        @slot;
+    }
+}
+
+@custom-variant min-h-small {
+    @media (min-height: 641px) {
+        @slot;
+    }
+}

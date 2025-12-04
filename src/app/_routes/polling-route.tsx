@@ -180,7 +180,12 @@ function SuccessState() {
         Stake more SOL
       </motion.button>
 
-      <GreedAcademyDottedBackground />
+      <div
+        aria-hidden
+        className="fixed h-small:top-[500px] overflow-hidden min-h-small:bottom-[3%] inset-x-0 -z-1"
+      >
+        <GreedAcademyDottedBackground className="w-full" />
+      </div>
     </motion.div>
   );
 }
