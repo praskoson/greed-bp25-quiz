@@ -2,6 +2,7 @@ import type { LeaderboardEntry } from "@/lib/stake/quiz.schemas";
 import { QuizService } from "@/lib/stake/quiz.service";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { AnimatedRows } from "./_components/animated-rows";
 import { AutoRefreshWrapper } from "./_components/auto-refresh";
 import { LeaderboardRowDesktop } from "./_components/table-row";
 
@@ -157,55 +158,57 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
         <div className="col-span-5">DURATION (DAYS)</div>
         <div className="col-span-6">CORRECT ANSWERS</div>
       </div>
-      {sortedEntries.map((entry, index) => {
-        const rank = index + 1;
-        const solAmount = lamportsToSol(entry.stakeAmountLamports);
-        const days = secondsToDays(entry.stakeDurationSeconds);
+      <AnimatedRows>
+        {sortedEntries.map((entry, index) => {
+          const rank = index + 1;
+          const solAmount = lamportsToSol(entry.stakeAmountLamports);
+          const days = secondsToDays(entry.stakeDurationSeconds);
 
-        return (
-          <LeaderboardRowDesktop key={entry.userId}>
-            <div className="grid grid-cols-subgrid col-span-full">
-              <div className="col-span-2">
+          return (
+            <LeaderboardRowDesktop key={entry.userId}>
+              <div className="grid grid-cols-subgrid col-span-full">
+                <div className="col-span-2">
+                  <div
+                    className={cn(
+                      "flex items-center justify-center size-11 rounded-full border-2 font-bold text-sm shrink-0 tv:size-20 tv:text-2xl",
+                      getRankBadgeColor(rank),
+                    )}
+                  >
+                    {rank}
+                  </div>
+                </div>
+                <div aria-hidden="true" className="col-span-1">
+                  {/* spacer */}
+                </div>
                 <div
-                  className={cn(
-                    "flex items-center justify-center size-11 rounded-full border-2 font-bold text-sm shrink-0 tv:size-20 tv:text-2xl",
-                    getRankBadgeColor(rank),
-                  )}
+                  data-address={entry.walletAddress}
+                  className="font-semibold text-base/[130%] text-foreground content-center col-span-13 tv:text-2xl/[130%]"
                 >
-                  {rank}
+                  {entry.walletAddress}
+                </div>
+                <div
+                  data-stake={solAmount}
+                  className="font-semibold text-base/[130%] text-foreground content-center col-span-5 tv:text-2xl/[130%]"
+                >
+                  {solAmount}
+                </div>
+                <div
+                  data-days={days}
+                  className="font-semibold text-base/[130%] text-foreground content-center col-span-5 tv:text-2xl/[130%]"
+                >
+                  {days}
+                </div>
+                <div
+                  data-rating={entry.score}
+                  className="font-semibold text-base/[130%] text-foreground content-center col-span-6 tv:text-2xl/[130%]"
+                >
+                  <StarRating score={entry.score} />
                 </div>
               </div>
-              <div aria-hidden="true" className="col-span-1">
-                {/* spacer */}
-              </div>
-              <div
-                data-address={entry.walletAddress}
-                className="font-semibold text-base/[130%] text-foreground content-center col-span-13 tv:text-2xl/[130%]"
-              >
-                {entry.walletAddress}
-              </div>
-              <div
-                data-stake={solAmount}
-                className="font-semibold text-base/[130%] text-foreground content-center col-span-5 tv:text-2xl/[130%]"
-              >
-                {solAmount}
-              </div>
-              <div
-                data-days={days}
-                className="font-semibold text-base/[130%] text-foreground content-center col-span-5 tv:text-2xl/[130%]"
-              >
-                {days}
-              </div>
-              <div
-                data-rating={entry.score}
-                className="font-semibold text-base/[130%] text-foreground content-center col-span-6 tv:text-2xl/[130%]"
-              >
-                <StarRating score={entry.score} />
-              </div>
-            </div>
-          </LeaderboardRowDesktop>
-        );
-      })}
+            </LeaderboardRowDesktop>
+          );
+        })}
+      </AnimatedRows>
     </div>
   );
 }
