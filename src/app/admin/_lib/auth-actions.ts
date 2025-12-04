@@ -30,3 +30,11 @@ export async function signInAdmin(
 
   redirect("/admin/dashboard");
 }
+
+export async function signOutAdmin() {
+  await auth.api.signOut({
+    headers: await headers(),
+  });
+
+  redirect("/admin");
+}
