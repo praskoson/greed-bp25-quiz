@@ -106,9 +106,9 @@ export function QuizRoute() {
   let state: QuizState = "pending";
   if (isPending) state = "pending";
   else if (error) state = "error";
-  else if (data?.state === "finished") state = "already-completed";
-  else if (mutationError) state = "submit-error";
   else if (mutationData) state = "completed";
+  else if (mutationError) state = "submit-error";
+  else if (data?.state === "finished") state = "already-completed";
   else state = "ready";
 
   return (
@@ -439,6 +439,7 @@ function QuizSubmissionErrorState({ error }: { error: Error }) {
 
 function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
   const { walletAddress } = useWalletAuth();
+  const { navigate } = useMiniRouter();
   const [openAnswers, setOpenAnswers] = useState(false);
 
   if (openAnswers) {
@@ -478,9 +479,16 @@ function QuizResultsState({ result }: { result: SubmitQuizAnswersResult }) {
         <div className="mt-6 flex flex-col gap-2 px-3">
           <LinkButton href="/leaderboard">View the Leaderboard</LinkButton>
           <Button
+            onClick={() => navigate("stake-more")}
+            variant="default"
+            className="w-full shrink-0 px-0"
+          >
+            Stake More
+          </Button>
+          <Button
             onClick={() => setOpenAnswers(true)}
             variant="soft"
-            className="w-full"
+            className="w-full shrink-0 px-0"
           >
             View Answers
           </Button>
@@ -565,14 +573,14 @@ function QuizAlreadyCompletedState({
                 </LinkButton>
                 <Button
                   onClick={() => navigate("stake-more")}
-                  variant="soft"
+                  variant="default"
                   className="w-full shrink-0 px-0"
                 >
                   Stake More
                 </Button>
                 <Button
                   onClick={() => setOpenAnswers(true)}
-                  variant="default"
+                  variant="soft"
                   className="w-full shrink-0 px-0"
                 >
                   View Answers
