@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getCompletedQuizUsers } from "../../_lib/queries";
+import { ExportCsvButton } from "../../_components/export-csv-button";
 
 function formatWalletAddress(address: string): string {
   return `${address.slice(0, 4)}…${address.slice(-4)}`;
@@ -34,10 +35,11 @@ export default async function CompletedUsersPage() {
 
   return (
     <main className="max-w-4xl mx-auto p-6">
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <Button variant="ghost" size="sm" asChild className="text-foreground">
           <Link href="/admin/dashboard">← Back to Dashboard</Link>
         </Button>
+        <ExportCsvButton />
       </div>
 
       <Card>

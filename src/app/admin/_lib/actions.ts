@@ -8,6 +8,7 @@ import {
 } from "@/lib/db/schema/bp25";
 import { SettingsService } from "@/lib/settings/settings.service";
 import { QuizService } from "@/lib/stake/quiz.service";
+import { getCompletedQuizUsers } from "./queries";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/admin-auth";
@@ -137,4 +138,43 @@ export async function assignQuestionsToSession(sessionId: string) {
   });
 
   revalidatePath("/admin", "layout");
+}
+
+/**
+ * Export completed quiz results as CSV
+ */
+export async function exportCompletedQuizResultsCsv(): Promise<string> {
+  await requireAuth();
+
+  const users = await getCompletedQuizUsers();
+
+  // Calculate score (totalStake * correctAnswers) and sort by it
+  const usersWithScore = users
+    .map((user) => ({
+      walletAddress: user.walletAddress,
+      totalStakeLamports: user.stakeAmountLamports,
+      totalStakeSol: user.stakeAmountLamports / 1_000_000_000,
+      correctAnswers: user.score ?? 0,
+      calculatedScore:
+        (user.stakeAmountLamports / 1_000_000_000) * (user.score ?? 0),
+    }))
+    .sort((a, b) => b.calculatedScore - a.calculatedScore);
+
+  // Build CSV
+  const headers = [
+    "wallet_address",
+    "total_stake_sol",
+    "correct_answers",
+    "score",
+  ];
+  const rows = usersWithScore.map((user) =>
+    [
+      user.walletAddress,
+      user.totalStakeSol.toFixed(9),
+      user.correctAnswers,
+      user.calculatedScore.toFixed(9),
+    ].join(","),
+  );
+
+  return [headers.join(","), ...rows].join("\n");
 }
