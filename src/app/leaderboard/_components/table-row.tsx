@@ -51,7 +51,7 @@ function LeaderboardRowInnerMobile({
     offset: ["start end", "end end"],
   });
 
-  const opacity = useTransform(scrollYProgress, [0, 1], [0.1, 1]);
+  const opacity = useTransform(scrollYProgress, [0, 1], [0.5, 1]);
   const scale = useTransform(scrollYProgress, [0, 1], [0.92, 1]);
 
   return (
