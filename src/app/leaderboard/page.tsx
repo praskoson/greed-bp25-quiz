@@ -217,7 +217,7 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
               {/* User info */}
               <div className="min-w-0 flex-1">
                 <div className="text-foreground truncate text-base font-medium">
-                  {formatWalletAddress(entry.walletAddress, 3)}
+                  {formatWalletAddress(entry.walletAddress, 4)}
                 </div>
 
                 {/* Stars */}

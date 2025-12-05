@@ -48,7 +48,7 @@ function randomCompletedAt(): Date {
   return new Date(randomTime);
 }
 
-async function populateFakeLeaderboard(count: number = 50) {
+async function populateFakeLeaderboard(count: number = 100) {
   try {
     const { db } = await import("../lib/db/index.js");
     console.log(`Creating ${count} fake users and quiz sessions...`);
@@ -82,12 +82,15 @@ async function populateFakeLeaderboard(count: number = 50) {
         completedAt.getTime() - randomInt(5, 30) * 60 * 1000,
       ); // 5-30 minutes before completion
 
+      const stakeAmount = randomStakeAmount();
+
       await db.insert(userQuizSessions).values({
         userId: user.id,
-        stakeAmountLamports: randomStakeAmount(),
+        stakeAmountLamports: stakeAmount,
         stakeDurationSeconds: randomStakeDuration(),
         stakeSignature: generateStakeSignature(),
         stakeVerification: "success",
+        totalStakeLamports: stakeAmount,
         score: randomScore(),
         completedAt,
         createdAt,
