@@ -1,5 +1,12 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+# App initialization steps
+- provision upstash redis and qstash tokens
+- provision a neon database
+- run database migration
+- seed quiz questions
+- add initial admin user
+
 ## Admin features
 
 - pause quiz submissions
