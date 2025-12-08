@@ -9,22 +9,32 @@ import { useMediaQuery } from "usehooks-ts";
 export function LeaderboardRow({
   children,
   address,
+  totalScore,
 }: {
   children: React.ReactNode;
   address: string;
+  totalScore: number;
 }) {
   const isBig = useMediaQuery("(min-width: 1280px)", { defaultValue: false });
 
   if (isBig) {
     return (
-      <LeaderboardRowInnerDesktop key="big">
+      <LeaderboardRowInnerDesktop
+        key="big"
+        address={address}
+        totalScore={totalScore}
+      >
         {children}
       </LeaderboardRowInnerDesktop>
     );
   }
 
   return (
-    <LeaderboardRowInnerMobile key="small" address={address}>
+    <LeaderboardRowInnerMobile
+      key="small"
+      address={address}
+      totalScore={totalScore}
+    >
       {children}
     </LeaderboardRowInnerMobile>
   );
@@ -32,11 +42,17 @@ export function LeaderboardRow({
 
 function LeaderboardRowInnerDesktop({
   children,
+  address,
+  totalScore,
 }: {
   children: React.ReactNode;
+  address: string;
+  totalScore: number;
 }) {
   return (
     <div
+      data-address={address}
+      data-score={totalScore}
       className={cn(
         "bg-surface-1 w-full p-4",
         "col-span-full grid grid-cols-subgrid items-center justify-between rounded-full bg-[#F9F6F6]",
@@ -50,9 +66,11 @@ function LeaderboardRowInnerDesktop({
 function LeaderboardRowInnerMobile({
   children,
   address,
+  totalScore,
 }: {
   children: React.ReactNode;
   address: string;
+  totalScore: number;
 }) {
   const { publicKey } = useWallet();
   const ref = useRef<HTMLDivElement>(null);
@@ -75,6 +93,8 @@ function LeaderboardRowInnerMobile({
       )}
       initial={false}
       style={{ scale, opacity }}
+      data-address={address}
+      data-score={totalScore}
       transition={{
         type: "spring",
         stiffness: 400,
