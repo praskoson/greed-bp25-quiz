@@ -666,7 +666,7 @@ function QuizAnswersSheet({
               <div
                 key={answer.id}
                 className={cn(
-                  "w-full rounded-full border-2 px-6 py-4 text-left transition-colors duration-200",
+                  "relative w-full rounded-full border-2 px-6 py-4 text-left transition-colors duration-200",
                   answer.isCorrect
                     ? "border-[#00522F] bg-[#00522F]/10 text-[#00522F]"
                     : !answer.isCorrect &&
@@ -677,19 +677,21 @@ function QuizAnswersSheet({
               >
                 <span className="text-base/[130%] font-medium whitespace-pre">
                   {answer.answerText}{" "}
-                  {currentQuestion.userAnswerId === answer.id ? (
-                    <>
-                      <ArrowLeft className="inline size-3.5 -translate-px" />{" "}
-                      Your answer
-                    </>
-                  ) : answer.isCorrect ? (
-                    <>
-                      <ArrowLeft className="inline size-3.5 -translate-px" />{" "}
-                      Correct answer
-                    </>
-                  ) : (
-                    ""
-                  )}
+                  <span className="absolute top-1.5 right-6 text-[11px]/none">
+                    {currentQuestion.userAnswerId === answer.id ? (
+                      <>
+                        {/*<ArrowLeft className="inline size-3.5 -translate-px" />{" "}*/}
+                        Your answer
+                      </>
+                    ) : answer.isCorrect ? (
+                      <>
+                        {/*<ArrowLeft className="inline size-3.5 -translate-px" />{" "}*/}
+                        Correct answer
+                      </>
+                    ) : (
+                      ""
+                    )}
+                  </span>
                 </span>
               </div>
             );
