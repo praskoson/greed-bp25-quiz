@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import { useMediaQuery } from "usehooks-ts";
@@ -72,7 +71,7 @@ function LeaderboardRowInnerMobile({
   address: string;
   totalScore: number;
 }) {
-  const { publicKey } = useWallet();
+  // const { publicKey } = useWallet();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -88,8 +87,8 @@ function LeaderboardRowInnerMobile({
       className={cn(
         "bg-surface-1 flex w-full items-center justify-between rounded-2xl p-4",
         "supports-[corner-shape:squircle]:rounded-[40px] supports-[corner-shape:squircle]:[corner-shape:squircle]",
-        address === publicKey?.toString() &&
-          "outline-2 -outline-offset-2 outline-[#a37878]",
+        // address === publicKey?.toString() &&
+        //   "outline-2 -outline-offset-2 outline-[#a37878]",
       )}
       initial={false}
       style={{ scale, opacity }}
