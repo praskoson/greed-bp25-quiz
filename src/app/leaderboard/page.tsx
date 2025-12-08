@@ -1,6 +1,6 @@
 import type { LeaderboardEntry } from "@/lib/stake/quiz.schemas";
 import { QuizService } from "@/lib/stake/quiz.service";
-import { sortByWeightedScore } from "@/lib/stake/score";
+import { calculateWeightedScore, sortByWeightedScore } from "@/lib/stake/score";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { LeaderboardRowNoSsr } from "./_components/table-row-no-ssr";
@@ -105,7 +105,10 @@ function StarRating({
 }
 
 function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
-  const sortedEntries = sortByWeightedScore(entries);
+  const sortedEntries = sortByWeightedScore(entries).map((s) => ({
+    ...s,
+    totalScore: calculateWeightedScore(s),
+  }));
 
   const formatWalletAddress = (address: string, chars = 4) => {
     if (address.length <= 8) return address;
@@ -162,7 +165,11 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
         const days = secondsToDays(entry.stakeDurationSeconds);
 
         return (
-          <LeaderboardRowNoSsr key={entry.userId} address={entry.walletAddress}>
+          <LeaderboardRowNoSsr
+            key={entry.userId}
+            address={entry.walletAddress}
+            totalScore={entry.totalScore}
+          >
             <div className="hidden xl:col-span-full xl:grid xl:grid-cols-subgrid">
               <div className="col-span-2">
                 <div
