@@ -71,7 +71,7 @@ function LeaderboardRowInnerMobile({
         "bg-surface-1 flex w-full items-center justify-between rounded-2xl p-4",
         "supports-[corner-shape:squircle]:rounded-[40px] supports-[corner-shape:squircle]:[corner-shape:squircle]",
         address === publicKey?.toString() &&
-          "outline-2 -outline-offset-2 outline-green-500",
+          "outline-2 -outline-offset-2 outline-[#a37878]",
       )}
       initial={false}
       style={{ scale, opacity }}
