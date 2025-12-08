@@ -13,9 +13,16 @@ const base58Codec = getBase58Codec();
 const base58Alphabet =
   /^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$/;
 
+// Validator for transaction signatures (64 bytes)
 export const base58ZodValidator = z.stringFormat("base58", (val) => {
   if (!base58Alphabet.test(val)) return false;
   return base58Codec.getSizeFromValue(val) === 64;
+});
+
+// Validator for Solana wallet addresses / ed25519 public keys (32 bytes)
+export const walletAddressValidator = z.stringFormat("solanaAddress", (val) => {
+  if (!base58Alphabet.test(val)) return false;
+  return base58Codec.getSizeFromValue(val) === 32;
 });
 
 export type Client = {

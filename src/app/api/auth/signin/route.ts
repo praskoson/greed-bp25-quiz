@@ -4,18 +4,28 @@ import { withMiddleware } from "@/lib/middleware/withMiddleware";
 import { rateLimiters } from "@/lib/redis";
 import { logError } from "@/lib/logger";
 import { StakeService } from "@/lib/stake/stake.service";
+import { walletAddressValidator, base58ZodValidator } from "@/lib/solana";
+import * as z from "zod";
+
+const signinSchema = z.object({
+  walletAddress: walletAddressValidator,
+  signature: base58ZodValidator,
+  message: z.string().min(1),
+  timestamp: z.number(),
+});
 
 const handler = async (request: NextRequest) => {
   const body = await request.json();
-  const { walletAddress, signature, message, timestamp } = body;
 
-  // Validate required fields
-  if (!walletAddress || !signature || !message || !timestamp) {
+  const parsed = signinSchema.safeParse(body);
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: "Missing required fields" },
+      { error: "Invalid request format" },
       { status: 400 },
     );
   }
+
+  const { walletAddress, signature, message, timestamp } = parsed.data;
 
   try {
     const result = await authService.authenticate(
