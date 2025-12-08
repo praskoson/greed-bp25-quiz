@@ -32,22 +32,20 @@ export default function HowItWorks({ className }: { className?: string }) {
                 How does it work
               </Drawer.Title>
               <Drawer.Description className="sr-only">
-                How does the quiz work
+                How does the BP25 Greed Academy quiz work
               </Drawer.Description>
-              <ul className="font-base mt-4 space-y-1 text-sm/5 text-[#F7F7F7]">
-                <li className="flex items-start gap-2">
-                  <span>•</span>
-                  <span>Stake SOL for at least 60 days to participate</span>
+              <ol className="font-base mt-4 list-disc space-y-1.5 overflow-hidden pl-5 text-sm/5 text-[#F7F7F7]">
+                <li>Stake some SOL for at least 60 days to participate.</li>
+                <li>Solve the quiz by answering 5 questions.</li>
+                <li>
+                  Your score is calculated as the staked amount multiplied by a
+                  factor based on your quiz results - from 1.0× up to 2.0×.
                 </li>
-                <li className="flex items-start gap-2">
-                  <span>•</span>
-                  <span>Answer 5 quiz questions</span>
+                <li>Each correct answer increases your multiplier by 0.2.</li>
+                <li>
+                  Take a look at the leaderboard to see how&nbsp;you&nbsp;did!
                 </li>
-                <li className="flex items-start gap-2">
-                  <span>•</span>
-                  <span>Your score = Stake Amount × Correct Answers</span>
-                </li>
-              </ul>
+              </ol>
             </div>
             <motion.a
               whileHover={{ scale: 1.03 }}

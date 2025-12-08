@@ -136,12 +136,12 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
   // Leaderboard entries
   return sortedEntries.length === 0 ? (
     <div className="mt-8 flex flex-1 flex-col items-center justify-center gap-6">
-      <p className="text-[#7E1D1D]">
+      <p className="tv:text-2xl text-center text-balance text-[#7E1D1D]">
         No quiz results yet. Be the first to complete the quiz!
       </p>
       <Link
         href="/"
-        className="text-surface-2 bg-brand flex h-14 items-center justify-center rounded-full px-12 text-[16px]/[130%] font-medium"
+        className="text-surface-2 bg-brand tv:text-[32px]/[130%] flex h-14 items-center justify-center rounded-full px-12 text-[16px]/[130%] font-medium"
       >
         Take the Quiz
       </Link>
