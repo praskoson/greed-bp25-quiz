@@ -1,11 +1,18 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import { useMediaQuery } from "usehooks-ts";
 
-export function LeaderboardRow({ children }: { children: React.ReactNode }) {
+export function LeaderboardRow({
+  children,
+  address,
+}: {
+  children: React.ReactNode;
+  address: string;
+}) {
   const isBig = useMediaQuery("(min-width: 1280px)", { defaultValue: false });
 
   if (isBig) {
@@ -17,7 +24,7 @@ export function LeaderboardRow({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <LeaderboardRowInnerMobile key="small">
+    <LeaderboardRowInnerMobile key="small" address={address}>
       {children}
     </LeaderboardRowInnerMobile>
   );
@@ -42,9 +49,12 @@ function LeaderboardRowInnerDesktop({
 
 function LeaderboardRowInnerMobile({
   children,
+  address,
 }: {
   children: React.ReactNode;
+  address: string;
 }) {
+  const { publicKey } = useWallet();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -60,6 +70,8 @@ function LeaderboardRowInnerMobile({
       className={cn(
         "bg-surface-1 flex w-full items-center justify-between rounded-2xl p-4",
         "supports-[corner-shape:squircle]:rounded-[40px] supports-[corner-shape:squircle]:[corner-shape:squircle]",
+        address === publicKey?.toString() &&
+          "outline-2 -outline-offset-2 outline-green-500",
       )}
       initial={false}
       style={{ scale, opacity }}

@@ -162,7 +162,7 @@ function LeaderboardContent({ entries }: { entries: LeaderboardEntry[] }) {
         const days = secondsToDays(entry.stakeDurationSeconds);
 
         return (
-          <LeaderboardRowNoSsr key={entry.userId}>
+          <LeaderboardRowNoSsr key={entry.userId} address={entry.walletAddress}>
             <div className="hidden xl:col-span-full xl:grid xl:grid-cols-subgrid">
               <div className="col-span-2">
                 <div
