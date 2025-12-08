@@ -6,9 +6,17 @@ import { sign, verify } from "jsonwebtoken";
 import nacl from "tweetnacl";
 import bs58 from "bs58";
 import { env } from "@/env";
+import { createHash } from "crypto";
 
 const JWT_SECRET = env.JWT_SECRET;
 const JWT_EXPIRY_HOURS = 30 * 24;
+
+/**
+ * Hash a token using SHA-256 for secure storage
+ */
+function hashToken(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
+}
 
 export interface AuthPayload {
   sessionId: string;
@@ -128,10 +136,10 @@ export class AuthService {
       expiresIn: `${JWT_EXPIRY_HOURS}h`,
     });
 
-    // Update session with token
+    // Update session with hashed token
     await db
       .update(authSessions)
-      .set({ token })
+      .set({ token: hashToken(token) })
       .where(eq(authSessions.id, session.id));
 
     return {
@@ -150,11 +158,11 @@ export class AuthService {
       // Verify JWT
       const decoded = verify(token, JWT_SECRET) as AuthPayload;
 
-      // Check session in database
+      // Check session in database (compare hashed tokens)
       const session = await db.query.authSessions.findFirst({
         where: and(
           eq(authSessions.id, decoded.sessionId),
-          eq(authSessions.token, token),
+          eq(authSessions.token, hashToken(token)),
           gt(authSessions.expiresAt, new Date()),
         ),
       });
