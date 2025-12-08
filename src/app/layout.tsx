@@ -23,15 +23,15 @@ const futuraBold = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "GREED Academy at Breakpoint 2025",
-  description: "Stake, Learn, Win",
+  title: "GREED Academy Quiz at Breakpoint 2025",
+  description: "Stake & Test your knowledge!",
   twitter: {
-    title: "GREED Academy",
+    title: "GREED Academy at Breakpoint 2025",
     card: "summary_large_image",
     images: "https://i.imgur.com/5N6MZh6.png",
   },
   openGraph: {
-    title: "GREED Academy",
+    title: "GREED Academy Quiz at Breakpoint 2025",
     url: "https://greed.academy",
     images: "https://i.imgur.com/5N6MZh6.png",
   },
