@@ -10,8 +10,8 @@ import { StakeMoreRoute } from "./_routes/stake-more-route";
 
 // Route order for determining navigation direction
 const routeOrder: Record<Route, number> = {
-  "sign-in": 0,
-  "stake-more": 1,
+  "stake-more": 0,
+  "sign-in": 1,
   stake: 2,
   polling: 4,
   quiz: 3,
@@ -32,23 +32,22 @@ function getDirection(
 const pageVariants: Variants = {
   initial: (direction: number) => ({
     x: direction > 0 ? "100%" : "-100%",
-    opacity: 0,
+    opacity: 0.5,
   }),
   animate: {
     x: 0,
     opacity: 1,
     transition: {
-      duration: 0.4,
-      x: { ease: [0.4, 0, 0.2, 1] },
-      opacity: { ease: "easeIn" },
+      x: { ease: [0.4, 0, 0.2, 1], duration: 0.4 },
+      opacity: { ease: [0.4, 0, 0.2, 1], duration: 0.3 },
     },
   },
   exit: (direction: number) => ({
     x: direction > 0 ? "-100%" : "100%",
-    opacity: 0,
+    opacity: 0.5,
     transition: {
-      x: { ease: [0.4, 0, 0.2, 1] },
-      opacity: { ease: "easeIn" },
+      x: { ease: [0.4, 0, 0.2, 1], duration: 0.4 },
+      opacity: { ease: "easeIn", duration: 0.4 },
     },
   }),
 };
