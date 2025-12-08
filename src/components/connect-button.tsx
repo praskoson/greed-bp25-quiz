@@ -14,7 +14,7 @@ export function ConnectButton() {
   const { navigate } = useMiniRouter();
   const { setVisible } = useWalletModal();
   const { connecting, disconnect, connected } = useWallet();
-  const { signIn } = useWalletAuth();
+  const { signIn, isAuthenticated } = useWalletAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSigningIn, setIsSigningIn] = useState(false);
 
@@ -84,7 +84,11 @@ export function ConnectButton() {
           "aria-disabled:pointer-events-none",
         )}
       >
-        {isSigningIn ? "Signing in…" : "Sign Message"}
+        {isSigningIn
+          ? "Signing in…"
+          : isAuthenticated
+            ? "Signed in"
+            : "Sign Message"}
       </motion.button>
       {error && !isExpectedError(error) && (
         <div className="rounded-lg bg-red-50 p-4">
