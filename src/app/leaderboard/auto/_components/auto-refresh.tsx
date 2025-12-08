@@ -14,7 +14,7 @@ import {
 
 type ScrollState = "off" | "scrolling-down" | "scrolling-up";
 
-const SCROLL_DURATION_MS = 50_000; // 50 seconds for slow scroll
+const SCROLL_SPEED_PX_PER_SEC = 50; // pixels per second
 const SCROLL_PAUSE_MS = 3_000; // 3 seconds pause at top/bottom
 
 const AnimationsEnabledContext = createContext(true);
@@ -105,23 +105,19 @@ export function AutoRefreshWrapper({
   }, []);
 
   const scrollTo = useCallback(
-    (targetY: number, duration: number, onComplete?: () => void) => {
+    (targetY: number, onComplete?: () => void) => {
       cancelScroll();
 
       const startY = window.scrollY;
       const distance = targetY - startY;
+      const duration = (Math.abs(distance) / SCROLL_SPEED_PX_PER_SEC) * 1000;
       const startTime = performance.now();
 
       function step(currentTime: number) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        // Ease in-out quad
-        const easeProgress =
-          progress < 0.5
-            ? 2 * progress * progress
-            : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
-        window.scrollTo(0, startY + distance * easeProgress);
+        window.scrollTo(0, startY + distance * progress);
 
         if (progress < 1) {
           scrollAnimationRef.current = requestAnimationFrame(step);
@@ -142,11 +138,11 @@ export function AutoRefreshWrapper({
     const maxScroll =
       document.documentElement.scrollHeight - window.innerHeight;
     setScrollState("scrolling-down");
-    scrollTo(maxScroll, SCROLL_DURATION_MS, () => {
+    scrollTo(maxScroll, () => {
       // Reached bottom, pause then scroll up
       scrollPauseTimeoutRef.current = setTimeout(() => {
         setScrollState("scrolling-up");
-        scrollTo(0, SCROLL_DURATION_MS, () => {
+        scrollTo(0, () => {
           // Reached top, pause then scroll down again
           scrollPauseTimeoutRef.current = setTimeout(() => {
             startScrollingDownRef.current();
