@@ -12,6 +12,11 @@ import {
   useState,
 } from "react";
 
+type ScrollState = "off" | "scrolling-down" | "scrolling-up";
+
+const SCROLL_DURATION_MS = 50_000; // 50 seconds for slow scroll
+const SCROLL_PAUSE_MS = 3_000; // 3 seconds pause at top/bottom
+
 const AnimationsEnabledContext = createContext(true);
 
 export function useAnimationsEnabled() {
@@ -31,9 +36,12 @@ export function AutoRefreshWrapper({
   const [isLoading, setIsLoading] = useState(false);
   const [animationsEnabled, setAnimationsEnabled] = useState(true);
   const [notification, setNotification] = useState<string | null>(null);
+  const [scrollState, setScrollState] = useState<ScrollState>("off");
   const loadingStartTime = useRef<number>(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollAnimationRef = useRef<number | null>(null);
+  const scrollPauseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const doRefresh = useCallback(() => {
     refresh();
@@ -85,6 +93,85 @@ export function AutoRefreshWrapper({
     }, 2000);
   }, []);
 
+  const cancelScroll = useCallback(() => {
+    if (scrollAnimationRef.current) {
+      cancelAnimationFrame(scrollAnimationRef.current);
+      scrollAnimationRef.current = null;
+    }
+    if (scrollPauseTimeoutRef.current) {
+      clearTimeout(scrollPauseTimeoutRef.current);
+      scrollPauseTimeoutRef.current = null;
+    }
+  }, []);
+
+  const scrollTo = useCallback(
+    (targetY: number, duration: number, onComplete?: () => void) => {
+      cancelScroll();
+
+      const startY = window.scrollY;
+      const distance = targetY - startY;
+      const startTime = performance.now();
+
+      function step(currentTime: number) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // Ease in-out quad
+        const easeProgress =
+          progress < 0.5
+            ? 2 * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+        window.scrollTo(0, startY + distance * easeProgress);
+
+        if (progress < 1) {
+          scrollAnimationRef.current = requestAnimationFrame(step);
+        } else {
+          scrollAnimationRef.current = null;
+          onComplete?.();
+        }
+      }
+
+      scrollAnimationRef.current = requestAnimationFrame(step);
+    },
+    [cancelScroll],
+  );
+
+  const startScrollingDownRef = useRef<() => void>(() => {});
+
+  const startScrollingDown = useCallback(() => {
+    const maxScroll =
+      document.documentElement.scrollHeight - window.innerHeight;
+    setScrollState("scrolling-down");
+    scrollTo(maxScroll, SCROLL_DURATION_MS, () => {
+      // Reached bottom, pause then scroll up
+      scrollPauseTimeoutRef.current = setTimeout(() => {
+        setScrollState("scrolling-up");
+        scrollTo(0, SCROLL_DURATION_MS, () => {
+          // Reached top, pause then scroll down again
+          scrollPauseTimeoutRef.current = setTimeout(() => {
+            startScrollingDownRef.current();
+          }, SCROLL_PAUSE_MS);
+        });
+      }, SCROLL_PAUSE_MS);
+    });
+  }, [scrollTo]);
+
+  // Keep ref in sync with the callback
+  useEffect(() => {
+    startScrollingDownRef.current = startScrollingDown;
+  }, [startScrollingDown]);
+
+  const handleScrollToggle = useCallback(() => {
+    if (scrollState === "off") {
+      showNotification("Auto-scroll started");
+      startScrollingDown();
+    } else {
+      cancelScroll();
+      setScrollState("off");
+      showNotification("Auto-scroll stopped");
+    }
+  }, [scrollState, startScrollingDown, cancelScroll, showNotification]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -108,11 +195,20 @@ export function AutoRefreshWrapper({
           return next;
         });
       }
+
+      if (e.key === "s" || e.key === "S") {
+        handleScrollToggle();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showLoadingAndRefresh, startInterval, showNotification]);
+  }, [
+    showLoadingAndRefresh,
+    startInterval,
+    showNotification,
+    handleScrollToggle,
+  ]);
 
   return (
     <AnimationsEnabledContext.Provider value={animationsEnabled}>
