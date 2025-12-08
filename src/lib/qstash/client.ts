@@ -43,7 +43,7 @@ export async function publishSecondaryStakeVerificationJob(
   await qstashClient.publishJSON({
     url: verifyUrl,
     body: payload,
-    retries: 3,
+    retries: 5,
     delay: 1,
     retryDelay: "pow(2, retried) * 1000",
     headers: {
