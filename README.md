@@ -3,6 +3,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 # App initialization steps
 - provision upstash redis and qstash tokens
 - provision a neon database
+- set the neon database limits
 - run database migration
 - seed quiz questions
 - add initial admin user
