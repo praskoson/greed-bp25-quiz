@@ -3,7 +3,7 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { motion } from "motion/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useWalletAuth } from "@/state/use-wallet-auth";
 import { useMiniRouter } from "@/state/mini-router";
 import clsx from "clsx";
@@ -14,9 +14,17 @@ export function ConnectButton() {
   const { navigate } = useMiniRouter();
   const { setVisible } = useWalletModal();
   const { connecting, disconnect, connected } = useWallet();
-  const { signIn, isAuthenticated } = useWalletAuth();
+  const { signIn } = useWalletAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [connectClickCount, setConnectClickCount] = useState(0);
+
+  // Reset click counter when user connects
+  useEffect(() => {
+    if (connected) {
+      setConnectClickCount(0);
+    }
+  }, [connected]);
 
   const handleSignIn = useCallback(async () => {
     try {
@@ -48,7 +56,8 @@ export function ConnectButton() {
     return (
       <div className="flex h-[122px] flex-col gap-2.5">
         <motion.button
-          onClick={async () => {
+          onClick={() => {
+            setConnectClickCount((c) => c + 1);
             setVisible(true);
           }}
           whileHover={{ scale: 1.03 }}
@@ -64,6 +73,13 @@ export function ConnectButton() {
           <span>Connect Wallet</span>
           <WalletIcon className="size-6" />
         </motion.button>
+        {connectClickCount >= 6 && (
+          <p className="text-foreground text-center text-xs text-balance">
+            Trouble connecting? <br />
+            Try force restarting your wallet&nbsp;app, or let us know so we can
+            help.
+          </p>
+        )}
       </div>
     );
   }
