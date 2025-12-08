@@ -7,12 +7,7 @@ export const env = createEnv({
     JWT_SECRET: z.string().min(32),
     LOG_LEVEL: z.string().optional(),
     UPSTASH_REDIS_REST_URL: z.url(),
-    UPSTASH_REDIS_REST_TOKEN: z
-      .string()
-      .optional()
-      .default(
-        "AaVTASQgZWMyYmU1ZjUtZGU3Ni00ZTM0LThmNjItYjFjN2EzNDcwZmIyMWU5NjE2MmE2ZGFiNDgxOGJhMjY2NzEyYmVhZTgwYTQ=",
-      ),
+    UPSTASH_REDIS_REST_TOKEN: z.string(),
     QSTASH_URL: z.url(),
     QSTASH_TOKEN: z.string(),
     QSTASH_CURRENT_SIGNING_KEY: z.string(),
@@ -28,7 +23,7 @@ export const env = createEnv({
     JWT_SECRET: process.env.JWT_SECRET,
     LOG_LEVEL: process.env.LOG_LEVEL,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
-    UPSTASH_REDIS_REST_TOKEN: process.env.REDIS_REST_TOKEN,
+    UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
     NEXT_PUBLIC_RPC_URL: process.env.NEXT_PUBLIC_RPC_URL,
     NEXT_PUBLIC_ENABLE_LOCKUP: process.env.NEXT_PUBLIC_ENABLE_LOCKUP,
     QSTASH_URL: process.env.QSTASH_URL,
