@@ -138,6 +138,8 @@ export type AdminUserListItem = {
 
 export type AdminUserWithQuestions = AdminUserListItem & {
   questions: AssignedQuestionWithAnswer[];
+  stakeVerification: "processing" | "success" | "failed";
+  stakeSignature: string;
 };
 
 type GetUsersOptions = {
@@ -211,6 +213,8 @@ export async function getUserWithQuestions(
       score: userQuizSessions.score,
       completedAt: userQuizSessions.completedAt,
       shadowBan: userQuizSessions.shadowBan,
+      stakeVerification: userQuizSessions.stakeVerification,
+      stakeSignature: userQuizSessions.stakeSignature,
     })
     .from(userQuizSessions)
     .innerJoin(users, eq(userQuizSessions.userId, users.id))

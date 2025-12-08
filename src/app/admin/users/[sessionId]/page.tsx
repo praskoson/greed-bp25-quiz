@@ -11,6 +11,7 @@ import { notFound } from "next/navigation";
 import { getUserWithQuestions } from "../../_lib/queries";
 import { UserControls } from "../../_components/user-controls";
 import { AssignQuestionsButton } from "../../_components/assign-questions-button";
+import { RetryVerificationButton } from "../../_components/retry-verification-button";
 
 type Props = {
   params: Promise<{ sessionId: string }>;
@@ -47,6 +48,7 @@ export default async function UserDetailPage({ params }: Props) {
 
   const isCompleted = user.completedAt !== null;
   const hasAnswers = user.questions.some((q) => q.userAnswer !== null);
+  const isPendingVerification = user.stakeVerification === "processing";
 
   return (
     <main className="mx-auto max-w-4xl p-6">
@@ -104,7 +106,31 @@ export default async function UserDetailPage({ params }: Props) {
                 {isCompleted ? formatDate(user.completedAt!) : "In Progress"}
               </dd>
             </div>
+            <div>
+              <dt className="text-muted-foreground">Stake Verification</dt>
+              <dd className="font-medium">
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                    user.stakeVerification === "success"
+                      ? "bg-green-100 text-green-700"
+                      : user.stakeVerification === "processing"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  {user.stakeVerification}
+                </span>
+              </dd>
+            </div>
           </dl>
+          {isPendingVerification && (
+            <div className="mt-4 border-t pt-4">
+              <p className="text-muted-foreground mb-2 text-sm">
+                Verification is stuck. You can retry the verification job.
+              </p>
+              <RetryVerificationButton sessionId={sessionId} />
+            </div>
+          )}
         </CardContent>
       </Card>
 

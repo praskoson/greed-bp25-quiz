@@ -14,6 +14,7 @@ import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/admin-auth";
 import { headers } from "next/headers";
+import { publishStakeVerificationJob } from "@/lib/qstash/client";
 
 async function requireAuth() {
   const session = await auth.api.getSession({
@@ -177,4 +178,42 @@ export async function exportCompletedQuizResultsCsv(): Promise<string> {
   });
 
   return [csvHeaders.join(","), ...rows].join("\n");
+}
+
+/**
+ * Retry stake verification for a stuck session
+ */
+export async function retryStakeVerification(sessionId: string) {
+  await requireAuth();
+
+  const [session] = await db
+    .select({
+      id: userQuizSessions.id,
+      walletAddress: userQuizSessions.walletAddress,
+      stakeSignature: userQuizSessions.stakeSignature,
+      stakeAmountLamports: userQuizSessions.stakeAmountLamports,
+      stakeDurationSeconds: userQuizSessions.stakeDurationSeconds,
+      stakeVerification: userQuizSessions.stakeVerification,
+    })
+    .from(userQuizSessions)
+    .where(eq(userQuizSessions.id, sessionId));
+
+  if (!session) {
+    throw new Error("Session not found");
+  }
+
+  if (session.stakeVerification !== "processing") {
+    throw new Error("Session is not in processing state");
+  }
+
+  // Republish the verification job
+  await publishStakeVerificationJob({
+    sessionId: session.id,
+    walletAddress: session.walletAddress,
+    signature: session.stakeSignature,
+    amount: session.stakeAmountLamports / 1_000_000_000,
+    duration: session.stakeDurationSeconds / 86400,
+  });
+
+  revalidatePath("/admin", "layout");
 }
