@@ -216,12 +216,17 @@ function WhyStakeMore() {
               className="mt-4 list-disc space-y-2 overflow-hidden pl-5 text-sm text-[#7E1D1D]"
             >
               <li>
-                Staking more SOL can improve your position on the leaderboard
-                (Score = Correct Answers × Total Stake)
+                Staking more SOL can improve your position on the leaderboard -
+                your score is based on your results in the quiz and amount of
+                SOL you stake.
               </li>
               <li>
                 Staking with the Greed Academy validator helps support our
                 non-profit education initiatives.
+              </li>
+              <li>
+                The Greed Academy validator charges a 0% commission on staking
+                rewards.
               </li>
             </motion.ul>
           )}
