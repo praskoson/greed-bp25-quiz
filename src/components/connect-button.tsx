@@ -84,11 +84,7 @@ export function ConnectButton() {
           "aria-disabled:pointer-events-none",
         )}
       >
-        {isSigningIn
-          ? "Signing in…"
-          : isAuthenticated
-            ? "Signed in"
-            : "Sign Message"}
+        {isSigningIn ? "Signing in…" : "Sign Message"}
       </motion.button>
       {error && !isExpectedError(error) && (
         <div className="rounded-lg bg-red-50 p-4">
