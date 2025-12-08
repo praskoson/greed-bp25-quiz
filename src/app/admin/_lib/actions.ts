@@ -189,13 +189,14 @@ export async function retryStakeVerification(sessionId: string) {
   const [session] = await db
     .select({
       id: userQuizSessions.id,
-      walletAddress: userQuizSessions.walletAddress,
+      walletAddress: users.walletAddress,
       stakeSignature: userQuizSessions.stakeSignature,
       stakeAmountLamports: userQuizSessions.stakeAmountLamports,
       stakeDurationSeconds: userQuizSessions.stakeDurationSeconds,
       stakeVerification: userQuizSessions.stakeVerification,
     })
     .from(userQuizSessions)
+    .innerJoin(users, eq(userQuizSessions.userId, users.id))
     .where(eq(userQuizSessions.id, sessionId));
 
   if (!session) {

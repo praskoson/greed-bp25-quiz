@@ -69,7 +69,9 @@ export const userQuizSessions = bp25Schema.table(
     stakeAmountLamports: bigint({ mode: "number" }).notNull(),
     stakeDurationSeconds: integer().notNull(),
     stakeSignature: varchar().notNull().unique(),
-    stakeVerification: stakeVerificationStateEnum().default("processing"),
+    stakeVerification: stakeVerificationStateEnum()
+      .default("processing")
+      .notNull(),
     stakeConfirmedAt: timestamp(),
 
     // Cached total of all stakes (primary + secondary)
