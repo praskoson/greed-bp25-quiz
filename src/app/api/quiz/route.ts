@@ -4,6 +4,7 @@ import { quizAnswersSchema } from "@/lib/stake/quiz.schemas";
 import { QuizService } from "@/lib/stake/quiz.service";
 import { SettingsService } from "@/lib/settings/settings.service";
 import { NextRequest, NextResponse } from "next/server";
+import { errorResponse } from "@/lib/api-error";
 import * as z from "zod";
 
 const getQuestionsHandler = async (
@@ -16,13 +17,9 @@ const getQuestionsHandler = async (
     });
 
     return NextResponse.json(data);
-  } catch (error: any) {
-    logError(error, "quiz-get");
-
-    return NextResponse.json(
-      { error: error.message || "Failed to get quiz data" },
-      { status: 500 },
-    );
+  } catch (error) {
+    logError(error as Error, "quiz-get");
+    return errorResponse("Failed to get quiz data", error);
   }
 };
 
@@ -62,18 +59,15 @@ const submitAnswersHandler = async (
         questions,
       },
     });
-  } catch (error: any) {
-    logError(error, "quiz-submit");
+  } catch (error) {
+    logError(error as Error, "quiz-submit");
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { success: false, message: "Validation error" },
         { status: 400 },
       );
     }
-    return NextResponse.json(
-      { error: error.message || "Failed to submit answers" },
-      { status: 500 },
-    );
+    return errorResponse("Failed to submit answers", error);
   }
 };
 
