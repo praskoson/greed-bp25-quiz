@@ -38,13 +38,13 @@ export default function HowItWorks({ className }: { className?: string }) {
                 <li>Stake some SOL for at least 60 days to participate.</li>
                 <li>Solve the quiz by answering 5 questions.</li>
                 <li>
-                  Your score is calculated as the staked amount multiplied by a
-                  factor based on your quiz results - from 1.0× up to 2.0×.
+                  Your score is calculated as the staked amount multiplied by
+                  your quiz score - from 1.0× up to&nbsp;2.0×.
                 </li>
-                <li>Each correct answer increases your multiplier by 0.2.</li>
                 <li>
-                  Take a look at the leaderboard to see how&nbsp;you&nbsp;did!
+                  Each correct answer increases your multiplier by&nbsp;0.2.
                 </li>
+                <li>Check out the leaderboard to see how&nbsp;you&nbsp;did!</li>
               </ol>
             </div>
             <motion.a
