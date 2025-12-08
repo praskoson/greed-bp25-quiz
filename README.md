@@ -1,6 +1,7 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 # App initialization steps
+- set ENV variable for enabling lockups
 - provision upstash redis and qstash tokens
 - provision a neon database
 - set the neon database limits
