@@ -1,7 +1,7 @@
 Lesson,Question,Choice A,Choice B,Choice C,Choice D,Answer
 DeFi,What are the three major types of DEX liquidity provision spreads?,"DLMM, ASM, BBM","AMM,CLMM,DLMM","UMM,MBS,MBB","CLL,AMM,MMM",B
 DeFi,Which is not a DeFi protocol on Solana?,Kamino,Orca,Raydium,Uniswap,D
-DeFi,What is it called when the price of your tokens changes while supplying LP but you only take on the loss upon exiting the position?,Fixed Loss,Concentrated Loss,Impermanent Loss,Slippage Loss,C
+DeFi,What is it called when the price of your tokens change while supplying LP but you only take on the loss upon exiting the position?,Fixed Loss,Concentrated Loss,Impermanent Loss,Slippage Loss,C
 DeFi,Which can cause your transaction to fail if not met?,Slippage,Price Impact,Swap Fee,LP Fee,A
 DeFi,"In DeFi yield is king, what does the term APR mean?",Annual Percentage Route,Automatic Percentage Rate,Annual Percentage Rate,Automatic Personal Rate,C
 Wallets,The original wallets were called?,Wallet,PWs,JBOKs,Keys,C
@@ -17,11 +17,11 @@ DYOR,"All protocols have to deal with PMF, what does it mean?",Project Marketing
 Governance,Which DAO lead to the ETH hard fork?,MakerDAO,MonkeDAO,ConstitutionDAO,The DAO,D
 Governance,Which isn't used by DAOs?,Proposals,Votes,Ballots,On-Chain Voting,C
 Governance,What is the most common form of voting rights within a DAO?,One Token One Vote,Stake Weight,One NFT One Vote,Mixed Voting Weight,A
-Governance,Which of these is not a pillar of a DAO organization?,Measuring Sentiment,Voter Rights,Treasury Management,Stakeholder Engagement,B
+Governance,One of these is not a important factor of DAO organization.,Measuring Sentiment,Voter Rights,Treasury Management,Stakeholder Engagement,B
 Governance,A ______ DAO focuses on pooling capital and where to deploy it.,Social,Collector,Grant,Investment,D
 Governance,DAO stands for ____________,Dudes Arguing Online,Debate And Organization,Decentralized Autonomous Organization,Dencentralized Automatic Operations,C
 Governance,Governance is used as a way to ______.,Allow users to lead a protocol,Give users a voice in a protocol,Have an excuse to argue,Take away power from the team,B
-Hype,"Scarcity, ______, and FOMO are some of the greatest tools used against us.",Reciprocity,Exclusivity,Hype,Excitement,B
+Hype,"____ is the creation of intense, often exaggerated, excitement and anticipation for a product or brand.",Reciprocity,Exclusivity,Hype,Motivation,C
 Hype,____________ is one of the most common endings to a project where all assets and funding are taken.,A dead project,A failed startup,A rug pull,A mess up,C
 Hype,You can combat hype by ______ and being patient before jumping in.,BYOB,BRB,DOYR,DYOR,D
 Trading,The first perpetual future trading was launched by _____ in 2016.,ByBit,Coinbase,Binance,BitMEX,D
