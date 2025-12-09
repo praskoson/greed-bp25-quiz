@@ -53,7 +53,7 @@ export class AuthService {
    * Generate authentication message for user to sign
    */
   generateAuthMessage(walletAddress: string, timestamp: number): string {
-    return `Sign in to Greed Academy BP25\n\nWallet: ${walletAddress}\nTimestamp: ${timestamp}\n\nThis signature will not trigger any blockchain transaction or cost any gas fees.`;
+    return `Sign in to GREED Academy BP25 Quiz\n\nWallet: ${walletAddress}\nTimestamp: ${timestamp}\n\nThis signature will not trigger any blockchain transaction or cost any gas fees.`;
   }
 
   /**

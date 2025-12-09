@@ -221,11 +221,11 @@ function WhyStakeMore() {
                 SOL you stake.
               </li>
               <li>
-                Staking with the Greed Academy validator helps support our
+                Staking with the GREED Academy validator helps support our
                 non-profit education initiatives.
               </li>
               <li>
-                The Greed Academy validator charges a 0% commission on staking
+                The GREED Academy validator charges a 0% commission on staking
                 rewards.
               </li>
             </motion.ul>

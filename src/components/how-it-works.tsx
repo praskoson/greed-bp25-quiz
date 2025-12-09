@@ -32,7 +32,7 @@ export default function HowItWorks({ className }: { className?: string }) {
                 How does it work
               </Drawer.Title>
               <Drawer.Description className="sr-only">
-                How does the BP25 Greed Academy quiz work
+                How does the BP25 GREED Academy quiz work
               </Drawer.Description>
               <ol className="font-base mt-4 list-disc space-y-1.5 overflow-hidden pl-5 text-sm/5 text-[#F7F7F7]">
                 <li>Stake some SOL for at least 60 days to participate.</li>
@@ -59,7 +59,7 @@ export default function HowItWorks({ className }: { className?: string }) {
                 "text-sm/5 font-semibold",
               )}
             >
-              Greed Academy <ArrowUpRight className="size-5" />
+              GREED Academy <ArrowUpRight className="size-5" />
             </motion.a>
           </div>
         </Drawer.Content>
